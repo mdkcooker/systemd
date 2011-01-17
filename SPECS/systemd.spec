@@ -37,8 +37,8 @@ BuildRequires:	gtk2-devel glib2-devel libnotify-devel
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 160
-Requires:	initscripts >= 9.21-3mdv2011.0
-Requires:	util-linux-ng >= 2.18-2mdv2011.0
+Requires:	initscripts >= 9.21-3
+Requires:	util-linux-ng >= 2.18
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 # TODO for P12, remove when it is removed
 BuildRequires:	automake autoconf
