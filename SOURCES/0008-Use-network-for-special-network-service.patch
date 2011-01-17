@@ -1,0 +1,30 @@
+From 63f36487fc1fe28a33d53c01d0b4d02fb1e5f189 Mon Sep 17 00:00:00 2001
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Date: Fri, 8 Oct 2010 22:32:41 +0400
+Subject: [PATCH 8/8] Use $network for special network service
+
+systemd treats network and $network as the same service. But in
+Mandriva $network is privded by network-up while network exists
+as well and is required by network-up. This creates loop (network
+needs network-up and network-up needs network). For now do not
+ignore $ prefix for this service.
+---
+ src/service.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index 116e539..7d73e6f 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -263,7 +263,7 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+         static const char * const table[] = {
+                 /* LSB defined facilities */
+                 "local_fs",             SPECIAL_LOCAL_FS_TARGET,
+-                "network",              SPECIAL_NETWORK_TARGET,
++                "$network",              SPECIAL_NETWORK_TARGET,
+                 "named",                SPECIAL_NSS_LOOKUP_TARGET,
+                 "portmap",              SPECIAL_RPCBIND_TARGET,
+                 "remote_fs",            SPECIAL_REMOTE_FS_TARGET,
+-- 
+1.7.3.1
+

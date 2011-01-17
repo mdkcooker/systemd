@@ -1,0 +1,113 @@
+Subject: [PATCH] Adapt vconsole setup to Mandriva configuration (based on console_init patch)
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+
+
+
+Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
+
+---
+
+ src/vconsole-setup.c |   38 ++++++++++++++++++++++++++++++++++----
+ 1 files changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/src/vconsole-setup.c b/src/vconsole-setup.c
+index 27e4178..ac89163 100644
+--- a/src/vconsole-setup.c
++++ b/src/vconsole-setup.c
+@@ -78,8 +78,8 @@ static int disable_utf8(int fd) {
+         return r;
+ }
+ 
+-static int load_keymap(const char *vc, const char *map, const char *map_toggle, bool utf8, pid_t *_pid) {
+-        const char *args[8];
++static int load_keymap(const char *vc, const char *map, const char *backspace, const char *map_toggle,  bool utf8, pid_t *_pid) {
++        const char *args[9];
+         int i = 0;
+         pid_t pid;
+ 
+@@ -90,6 +90,8 @@ static int load_keymap(const char *vc, const char *map, const char *map_toggle,
+         if (utf8)
+                 args[i++] = "-u";
+         args[i++] = map;
++        if (backspace)
++		args[i++] = backspace;
+         if (map_toggle)
+                 args[i++] = map_toggle;
+         args[i++] = NULL;
+@@ -140,6 +142,7 @@ static int load_font(const char *vc, const char *font, const char *map, const ch
+ int main(int argc, char **argv) {
+         const char *vc;
+         char *vc_keymap = NULL;
++	char *vc_backspace = NULL;
+         char *vc_keymap_toggle = NULL;
+         char *vc_font = NULL;
+         char *vc_font_map = NULL;
+@@ -147,6 +150,9 @@ int main(int argc, char **argv) {
+ #ifdef TARGET_GENTOO
+         char *vc_unicode = NULL;
+ #endif
++#ifdef TARGET_FEDORA /* Should be TARGET_MANDRIVA */
++	char *vc_keytable = NULL;
++#endif
+         int fd = -1;
+         bool utf8;
+         int r = EXIT_FAILURE;
+@@ -217,14 +223,33 @@ int main(int argc, char **argv) {
+                 }
+ 
+                 if ((r = parse_env_file("/etc/sysconfig/keyboard", NEWLINE,
+-                                        "KEYTABLE", &vc_keymap,
++                                        "KEYTABLE", &vc_keytable,
+                                         "KEYMAP", &vc_keymap,
++                                        "UNIKEYTABLE", &vc_keymap,
++                                        "BACKSPACE", &vc_backspace,
++                                        "GRP_TOGGLE", &vc_keymap_toggle,
+                                         NULL)) < 0) {
+ 
+                         if (r != -ENOENT)
+                                 log_warning("Failed to read /etc/sysconfig/i18n: %s", strerror(-r));
+                 }
+ 
++		if (vc_keytable) {
++			if (vc_keymap)
++				free(vc_keymap);
++			if (utf8) {
++				if (endswith(vc_keytable, ".uni") || strstr(vc_keytable, ".uni."))
++					vc_keymap = strdup(vc_keytable);
++				else {
++					char *s;
++					if ((s = strstr(vc_keytable, ".map")))
++						vc_keytable[s-vc_keytable+1] = '\0';
++					vc_keymap = strappend(vc_keytable, ".uni");
++				}
++			} else
++				vc_keymap = strdup(vc_keytable);
++		}
++
+                 if (access("/etc/sysconfig/console/default.kmap", F_OK) >= 0) {
+                         char *t;
+ 
+@@ -330,7 +355,7 @@ int main(int argc, char **argv) {
+         if (!utf8)
+                 disable_utf8(fd);
+ 
+-        if (load_keymap(vc, vc_keymap, vc_keymap_toggle, utf8, &keymap_pid) >= 0 &&
++        if (load_keymap(vc, vc_keymap, vc_backspace, vc_keymap_toggle, utf8, &keymap_pid) >= 0 &&
+             load_font(vc, vc_font, vc_font_map, vc_font_unimap, &font_pid) >= 0)
+                 r = EXIT_SUCCESS;
+ 
+@@ -342,9 +367,14 @@ finish:
+                 wait_for_terminate_and_warn(KBD_SETFONT, font_pid);
+ 
+         free(vc_keymap);
++        free(vc_backspace);
++        free(vc_keymap_toggle);
+         free(vc_font);
+         free(vc_font_map);
+         free(vc_font_unimap);
++#ifdef TARGET_FEDORA /* Should be TARGET_MANDRIVA */
++	free(vc_keytable);
++#endif
+ 
+         if (fd >= 0)
+                 close_nointr_nofail(fd);
