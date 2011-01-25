@@ -3,11 +3,10 @@
 %define sysvinit_version 2.87
 %define sysvinit_release %mkrel 9
 
-
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	15
-Release:	%mkrel 5
+Version:	16
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -22,9 +21,9 @@ Patch6:		0007-Fully-support-all-i18n-environments-in-Mandriva.patch
 # (bor) distinguish between network and $network to break dependency loop
 Patch7:		0008-Use-network-for-special-network-service.patch
 # (bor) support libnotify < 0.7; combines d0ef22 and ab85c2 (GIT)
-Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
+#Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
-Patch13:	0001-Use-etc-release-to-show-boot-welcome-messag.patch
+Patch13:       0001-Use-etc-release-to-show-boot-welcome-messag.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 160
@@ -84,6 +83,7 @@ Drop-in replacement for the System V init tools of systemd.
 %prep
 %setup -q
 %apply_patches
+find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
 # TODO for P12, remove when it is removed
@@ -292,5 +292,3 @@ fi
 %{_mandir}/man8/poweroff.*
 %{_mandir}/man8/telinit.*
 %{_mandir}/man8/runlevel.*
-
-
