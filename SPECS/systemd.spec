@@ -32,15 +32,17 @@ BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pam-devel
 BuildRequires:	dbus-glib-devel
 BuildRequires:	vala >= 0.9
-BuildRequires:	gtk2-devel glib2-devel libnotify-devel
+BuildRequires:	gtk2-devel  
+BuildRequires:	glib2-devel
+BuildRequires:	libnotify-devel
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 160
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 # TODO for P12, remove when it is removed
-BuildRequires:	automake autoconf
+BuildRequires:	automake 
+BuildRequires:	autoconf
 
 %description
 systemd is a system and session manager for Linux, compatible with
