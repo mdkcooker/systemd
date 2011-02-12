@@ -91,7 +91,7 @@ automake -c -f
 autoconf
 %configure2_5x \
 	--with-rootdir= \
-	--with-distro=%_real_vendor \
+	--with-distro=fedora \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-syslog-service=rsyslog.service
