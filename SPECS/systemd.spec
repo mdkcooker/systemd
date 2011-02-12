@@ -13,9 +13,9 @@ Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
 
 # (bor) for now we use messabus service to start D-Bus
-Patch4:		0005-Set-special-D-Bus-service-to-messagebus.service.patch
+# Patch4:		0005-Set-special-D-Bus-service-to-messagebus.service.patch
 # (bor) adapt vconsole service to Mandriva configuration
-Patch5:		0006-Adapt-vconsole-setup-to-Mandriva-configuration-based.patch
+# Patch5:		0006-Adapt-vconsole-setup-to-Mandriva-configuration-based.patch
 # (bor) adapt locale setup to Mandriva configuration
 Patch6:		0007-Fully-support-all-i18n-environments-in-Mandriva.patch
 # (bor) distinguish between network and $network to break dependency loop
@@ -24,8 +24,8 @@ Patch7:		0008-Use-network-for-special-network-service.patch
 #Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
 Patch13:       0001-Use-etc-release-to-show-boot-welcome-messag.patch
-# (eugeni) do not mess with the system time, rely on kernel
-Patch14:	systemd-17-hwclock-hctosys.patch
+# (bor) allow user tasks to request real time priority (GIT)
+Patch15:	systemd-17-fix-cgroup.patch 
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 160
@@ -37,7 +37,6 @@ BuildRequires:	vala >= 0.9
 BuildRequires:	gtk2-devel  
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
-Requires:	systemd-units = %{EVRD}
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 160
