@@ -24,6 +24,8 @@ Patch7:		0008-Use-network-for-special-network-service.patch
 #Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
 Patch13:       0001-Use-etc-release-to-show-boot-welcome-messag.patch
+# (eugeni) do not mess with the system time, rely on kernel
+Patch14:	systemd-17-hwclock-hctosys.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 160
@@ -35,6 +37,7 @@ BuildRequires:	vala >= 0.9
 BuildRequires:	gtk2-devel  
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
+Requires:	systemd-units = %{EVRD}
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 160
