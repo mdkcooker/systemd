@@ -5,8 +5,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	18
-Release:	%mkrel 3
+Version:	30
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -16,15 +16,9 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
 # Patch4:		0005-Set-special-D-Bus-service-to-messagebus.service.patch
 # (bor) adapt vconsole service to Mandriva configuration
 # Patch5:		0006-Adapt-vconsole-setup-to-Mandriva-configuration-based.patch
-# (bor) adapt locale setup to Mandriva configuration
-Patch6:		0007-Fully-support-all-i18n-environments-in-Mandriva.patch
-# (bor) distinguish between network and $network to break dependency loop
-Patch7:		0008-Use-network-for-special-network-service.patch
 # (bor) support libnotify < 0.7; combines d0ef22 and ab85c2 (GIT)
 #Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
-Patch13:       0001-Use-etc-release-to-show-boot-welcome-messag.patch
-Patch14:       0009-gnome-ask-password-agent-check-for-vala-0.12-instead-of-libnotify.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 160
@@ -36,9 +30,10 @@ BuildRequires:	vala >= 0.9
 BuildRequires:	gtk2-devel  
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
+BuildRequires:	intltool
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
-Requires:	udev >= 160
+Requires:	udev >= 172
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
 # TODO for P12, remove when it is removed
@@ -238,32 +233,74 @@ fi
 %files
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %dir %{_sysconfdir}/systemd/user
+/usr/lib/tmpfiles.d/legacy.conf
+/usr/lib/tmpfiles.d/systemd.conf
+/usr/lib/tmpfiles.d/x11.conf
+%{_sysconfdir}/systemd/systemd-logind.conf
+%{_sysconfdir}/systemd/user.conf
 %{_sysconfdir}/xdg/systemd
 /bin/systemd
 /bin/systemd-ask-password
+/bin/systemd-loginctl
+/bin/systemd-machine-id-setup
 /bin/systemd-notify
 /bin/systemd-tmpfiles
 /bin/systemd-tty-ask-password-agent
 %dir /lib/systemd
 /lib/systemd/systemd-*
+/lib/systemd/system-generators/systemd-*
 /lib/udev/rules.d/*.rules
 /%{_lib}/security/pam_systemd.so
+%{_bindir}/systemd-analyze
 %{_bindir}/systemd-cgls
+%{_bindir}/systemd-nspawn
+%{_bindir}/systemd-stdio-bridge
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-cgls.*
+%{_mandir}/man1/systemd-ask-password.1.xz
+%{_mandir}/man1/systemd-loginctl.1.xz
+%{_mandir}/man1/systemd-nspawn.1.xz
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-tmpfiles.*
-%{_datadir}/systemd
+/usr/lib/systemd/user/*.target
+/usr/lib/systemd/user/*.service
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
-%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.*.xml
+%{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
+%{_datadir}/dbus-1/interfaces/org.freedesktop.hostname1.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.locale1.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Automount.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Device.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Job.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Mount.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Path.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Service.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Snapshot.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Socket.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Swap.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Target.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Timer.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Unit.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_docdir}/systemd
 
 %files units
@@ -273,7 +310,6 @@ fi
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/tmpfiles.d
 %{_sysconfdir}/bash_completion.d/systemctl-bash-completion.sh
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/*.conf
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
 %{_datadir}/pkgconfig/systemd.pc
