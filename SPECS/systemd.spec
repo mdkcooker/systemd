@@ -183,6 +183,9 @@ sed -i -e 's/^#MountAuto=yes$/MountAuto=no/' \
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/lib/systemd/system/bluetooth.target.wants
 
+# (eugeni) we need /run directory
+mkdir %{buildroot}/run
+
 %clean
 rm -rf %{buildroot}
 
@@ -302,6 +305,7 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_docdir}/systemd
+%dir /run
 
 %files units
 %defattr(-,root,root)
