@@ -21,7 +21,7 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
 # (bor) take welcome message from /etc/release (adapted by blino)
 
 BuildRequires:	dbus-devel >= 1.4.0
-BuildRequires:	libudev-devel >= 160
+BuildRequires:	libudev-devel >= 172
 BuildRequires:	libcap-devel
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pam-devel
