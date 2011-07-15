@@ -6,7 +6,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	30
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -19,7 +19,7 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
 # (bor) support libnotify < 0.7; combines d0ef22 and ab85c2 (GIT)
 #Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
-
+Patch13:        systemd-30-add-mageia-support.patch
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 172
 BuildRequires:	libcap-devel
@@ -89,7 +89,6 @@ automake -c -f
 autoconf
 %configure2_5x \
 	--with-rootdir= \
-	--with-distro=fedora \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-syslog-service=rsyslog.service

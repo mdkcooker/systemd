@@ -1,0 +1,333 @@
+diff --git a/Makefile.am b/Makefile.am
+index 70d1c92..3056e9c 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -117,6 +117,12 @@ AM_CPPFLAGS += \
+ 	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
+ 	-DKBD_SETFONT=\"/bin/setfont\" \
+ 	-DDEFAULT_FONT=\"latarcyrheb-sun16\"
++if TARGET_MAGEIA
++AM_CPPFLAGS += \
++	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
++	-DKBD_SETFONT=\"/bin/setfont\" \
++	-DDEFAULT_FONT=\"LatArCyrHeb-16\"
++endif
+ endif
+ endif
+ endif
+@@ -465,6 +471,13 @@ dist_systemunit_DATA += \
+ 	units/suse/halt-local.service
+ endif
+ 
++if TARGET_MAGEIA
++dist_systemunit_DATA += \
++	units/mageia/prefdm.service \
++	units/fedora/rc-local.service \
++	units/fedora/halt-local.service
++endif
++
+ if HAVE_PLYMOUTH
+ dist_systemunit_DATA += \
+ 	units/plymouth-start.service \
+@@ -1818,6 +1831,24 @@ if TARGET_SUSE
+ 		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
+ endif
+ 
++if TARGET_MAGEIA
++       $(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
++       ( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
++               rm -f rc-local.service && \
++               $(LN_S) $(systemunitdir)/rc-local.service rc-local.service )
++      ( cd $(DESTDIR)$(systemunitdir)/final.target.wants && \
++               rm -f halt-local.service && \
++               $(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
++       ( cd $(DESTDIR)$(systemunitdir) && \
++               rm -f display-manager.service && \
++               $(LN_S) prefdm.service display-manager.service )
++      ( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
++               rm -f display-manager.service && \
++               $(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
++endif
++
++
++
+ if HAVE_SYSV_COMPAT
+ 	( cd $(DESTDIR)$(systemunitdir)/local-fs.target.wants && \
+ 		rm -f var-lock.mount && \
+diff --git a/configure.ac b/configure.ac
+index 198a639..3aa4d96 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -339,6 +339,7 @@ if test "z$with_distro" = "z"; then
+                 test -f "/etc/mandriva-release" && with_distro="mandriva"
+                 test -f "/etc/meego-release" && with_distro="meego"
+                 test -f "/etc/angstrom-version" && with_distro="angstrom"
++		test -f "/etc/mageia-release" && with_distro="mageia"
+                 if test "x`lsb_release -is 2>/dev/null`" = "xUbuntu"; then
+                         with_distro="ubuntu"
+                 fi
+@@ -425,6 +426,12 @@ case $with_distro in
+                 SYSTEM_SYSVRCND_PATH=/etc
+                 AC_DEFINE(TARGET_ANGSTROM, [], [Target is Ångström])
+                 M4_DISTRO_FLAG=-DTARGET_ANGSTROM=1
++		;;
++	mageia)
++		SYSTEM_SYSVINIT_PATH=/etc/rc.d/init.d
++		AC_DEFINE(TARGET_MANDRIVA, [], [Target is Mageia])
++		M4_DISTRO_FLAG=-DTARGET_MAGEIA=1
++		have_plymouth=yes
+                 ;;
+         other)
+                 ;;
+@@ -482,6 +489,7 @@ AM_CONDITIONAL(TARGET_ALTLINUX, test x"$with_distro" = xaltlinux)
+ AM_CONDITIONAL(TARGET_MANDRIVA, test x"$with_distro" = xmandriva)
+ AM_CONDITIONAL(TARGET_MEEGO, test x"$with_distro" = xmeego)
+ AM_CONDITIONAL(TARGET_ANGSTROM, test x"$with_distro" = xangstrom)
++AM_CONDITIONAL(TARGET_MAGEIA, test x"$with_distro" = xmageia)
+ 
+ AM_CONDITIONAL(HAVE_PLYMOUTH, test "$have_plymouth" = "yes")
+ AM_CONDITIONAL(HAVE_SYSV_COMPAT, test "$SYSTEM_SYSV_COMPAT" = "yes")
+diff --git a/src/fsck.c b/src/fsck.c
+index 19ca753..905062c 100644
+--- a/src/fsck.c
++++ b/src/fsck.c
+@@ -124,7 +124,7 @@ static int parse_proc_cmdline(void) {
+                         arg_skip = true;
+                 else if (startswith(w, "fsck.mode"))
+                         log_warning("Invalid fsck.mode= parameter. Ignoring.");
+-#if defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA)
++#if defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_MAGEIA)
+                 else if (strneq(w, "fastboot", l))
+                         arg_skip = true;
+                 else if (strneq(w, "forcefsck", l))
+diff --git a/src/hostname-setup.c b/src/hostname-setup.c
+index 57db9fb..fa0b5ce 100644
+--- a/src/hostname-setup.c
++++ b/src/hostname-setup.c
+@@ -30,7 +30,7 @@
+ #include "util.h"
+ #include "log.h"
+ 
+-#if defined(TARGET_FEDORA) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
++#if defined(TARGET_FEDORA) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_MAGEIA) 
+ #define FILENAME "/etc/sysconfig/network"
+ #elif defined(TARGET_SUSE) || defined(TARGET_SLACKWARE) || defined(TARGET_FRUGALWARE)
+ #define FILENAME "/etc/HOSTNAME"
+@@ -64,7 +64,7 @@ static int read_and_strip_hostname(const char *path, char **hn) {
+ 
+ static int read_distro_hostname(char **hn) {
+ 
+-#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
++#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_MAGEIA)
+         int r;
+         FILE *f;
+ 
+diff --git a/src/locale-setup.c b/src/locale-setup.c
+index 33111da..05c1a8a 100644
+--- a/src/locale-setup.c
++++ b/src/locale-setup.c
+@@ -194,7 +194,7 @@ int locale_setup(void) {
+                 if (r != -ENOENT)
+                         log_warning("Failed to read /etc/profile.env: %s", strerror(-r));
+         }
+-#elif defined(TARGET_MANDRIVA)
++#elif defined(TARGET_MANDRIVA) || defined(TARGET_MAGEIA )
+         if (r <= 0 &&
+             (r = parse_env_file("/etc/sysconfig/i18n", NEWLINE,
+                                 "LANG",              &variables[VARIABLE_LANG],
+diff --git a/src/quotacheck.c b/src/quotacheck.c
+index ba12b27..c005ced 100644
+--- a/src/quotacheck.c
++++ b/src/quotacheck.c
+@@ -53,7 +53,7 @@ static int parse_proc_cmdline(void) {
+                         arg_skip = true;
+                 else if (startswith(w, "quotacheck.mode"))
+                         log_warning("Invalid quotacheck.mode= parameter. Ignoring.");
+-#if defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA)
++#if defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_MAGEIA)
+                 else if (strneq(w, "forcequotacheck", l))
+                         arg_force = true;
+ #endif
+@@ -64,8 +64,8 @@ static int parse_proc_cmdline(void) {
+ }
+ 
+ static void test_files(void) {
+-#if defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA)
+-        /* This exists only on Fedora or Mandriva */
++#if defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_MAGEIA)
++        /* This exists only on Fedora, Mandriva or Mageia */
+         if (access("/forcequotacheck", F_OK) >= 0)
+                 arg_force = true;
+ #endif
+diff --git a/src/service.c b/src/service.c
+index 646c093..f12529e 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -279,7 +279,7 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+         static const char * const table[] = {
+                 /* LSB defined facilities */
+                 "local_fs",             SPECIAL_LOCAL_FS_TARGET,
+-#ifndef TARGET_MANDRIVA
++#ifndef (TARGET_MANDRIVA) || not defined (TARGET_MAGEIA)
+                 /* Due to unfortunate name selection in Mandriva,
+                  * $network is provided by network-up which is ordered
+                  * after network which actually starts interfaces.
+diff --git a/src/systemctl.c b/src/systemctl.c
+index 3767e22..ac32c4f 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -3988,7 +3988,7 @@ static int install_info_apply(const char *verb, LookupPaths *paths, InstallInfo
+         }
+ 
+         if (!f) {
+-#if (defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_SUSE) || defined(TARGET_MEEGO) || defined(TARGET_ALTLINUX)) && defined (HAVE_SYSV_COMPAT)
++#if (defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_SUSE) || defined(TARGET_MEEGO) || defined(TARGET_ALTLINUX)) && defined (HAVE_SYSV_COMPAT) || defined(TARGET_MAGEIA) 
+ 
+                 if (endswith(i->name, ".service")) {
+                         char *sysv;
+diff --git a/src/util.c b/src/util.c
+index a0fbdc5..95d1192 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -3578,6 +3578,32 @@ void status_welcome(void) {
+ 
+        if (!ansi_color)
+                const_color = "1;35"; /* Bright Magenta for MeeGo */
++#elif defined(TARGET_MAGEIA)
++
++        if (!pretty_name) {
++                char *s, *p;
++
++                if ((r = read_one_line_file("/etc/mageia-release", &s) < 0)) {
++                        if (r != -ENOENT)
++                                log_warning("Failed to read /etc/mageia-release: %s", strerror(-r));
++                } else {
++                        p = strstr(s, " release ");
++                        if (p) {
++                                *p = '\0';
++                                p += 9;
++                                p[strcspn(p, " ")] = '\0';
++
++                                /* This corresponds to standard rc.sysinit */
++                                if (asprintf(&pretty_name, "%s\x1B[0;39m %s", s, p) > 0)
++                                        const_color = "1;36";
++                                else
++                                        log_warning("Failed to allocate Mageia version string.");
++                        } else
++                                log_warning("Failed to parse /etc/mageia-release");
++                        free(s);
++                }
++        }
++
+ #endif
+ 
+         if (!pretty_name && !const_pretty)
+diff --git a/src/vconsole-setup.c b/src/vconsole-setup.c
+index 68ebac9..f2bd155 100644
+--- a/src/vconsole-setup.c
++++ b/src/vconsole-setup.c
+@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
+ #ifdef TARGET_GENTOO
+         char *vc_unicode = NULL;
+ #endif
+-#ifdef TARGET_MANDRIVA
++#if defined(TARGET_MANDRIVA) || defined(TARGET_MAGEIA)
+         char *vc_keytable = NULL;
+ #endif
+         int fd = -1;
+@@ -372,7 +372,7 @@ int main(int argc, char **argv) {
+                                 log_warning("Failed to read /etc/conf.d/keymaps: %s", strerror(-r));
+                 }
+ 
+-#elif defined(TARGET_MANDRIVA)
++#elif defined(TARGET_MANDRIVA) || defined (TARGET_MAGEIA)
+ 
+                 if ((r = parse_env_file("/etc/sysconfig/i18n", NEWLINE,
+                                         "SYSFONT", &vc_font,
+diff --git a/units/console-shell.service.m4 b/units/console-shell.service.m4
+index cce2d5a..b03580d 100644
+--- a/units/console-shell.service.m4
++++ b/units/console-shell.service.m4
+@@ -23,6 +23,9 @@ After=rc-local.service
+ m4_ifdef(`TARGET_MANDRIVA',
+ After=rc-local.service
+ )m4_dnl
++m4_ifdef(`TARGET_MAGEIA',
++After=rc-local.service
++)m4_dnl
+ Before=getty.target
+ 
+ [Service]
+diff --git a/units/getty@.service.m4 b/units/getty@.service.m4
+index b111567..7bdc689 100644
+--- a/units/getty@.service.m4
++++ b/units/getty@.service.m4
+@@ -24,6 +24,9 @@ After=rc-local.service
+ m4_ifdef(`TARGET_MANDRIVA',
+ After=rc-local.service
+ )m4_dnl
++m4_ifdef(`TARGET_MAGEIA',
++After=rc-local.service
++)m4_dnl
+ 
+ # If additional gettys are spawned during boot then we should make
+ # sure that this is synchronized before getty.target, even though
+diff --git a/units/rescue.service.m4 b/units/rescue.service.m4
+index d2fd582..edfe0a8 100644
+--- a/units/rescue.service.m4
++++ b/units/rescue.service.m4
+@@ -28,7 +28,12 @@ ExecStart=-/bin/bash -c "exec ${SINGLE}"',
+ `ExecStart=-/sbin/sulogin'
+ m4_ifdef(`TARGET_MEEGO',
+ `EnvironmentFile=/etc/sysconfig/init
+-ExecStart=-/bin/bash -c "exec ${SINGLE}"',)))
++ExecStart=-/bin/bash -c "exec ${SINGLE}"',
++m4_ifdef(`TARGET_MAGEIA',
++`EnvironmentFile=/etc/sysconfig/init
++ExecStart=-/bin/bash -c "exec ${SINGLE}"',
++`ExecStart=-/sbin/sulogin',))))
++
+ ExecStopPost=-/bin/systemctl --fail --no-block default
+ StandardInput=tty-force
+ KillMode=process
+diff --git a/units/serial-getty@.service.m4 b/units/serial-getty@.service.m4
+index 082290c..e5f0ca6 100644
+--- a/units/serial-getty@.service.m4
++++ b/units/serial-getty@.service.m4
+@@ -24,6 +24,9 @@ After=rc-local.service
+ m4_ifdef(`TARGET_MANDRIVA',
+ After=rc-local.service
+ )m4_dnl
++m4_ifdef(`TARGET_MAGEIA',
++After=rc-local.service
++)m4_dnl
+ 
+ # If additional gettys are spawned during boot then we should make
+ # sure that this is synchronized before getty.target, even though
+diff --git a/units/mageia/prefdm.service b/units/mageia/prefdm.service
+new file mode 100644
+index 0000000..d0c7f99
+--- /dev/null
++++ b/units/mageia/prefdm.service
+@@ -0,0 +1,21 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=Display Manager
++After=syslog.target livesys-late.service rc-local.service systemd-user-sessions.service
++After=network.target acpid.service fs.service haldaemon.service
++
++# Do not stop plymouth, it is done in prefdm if required
++Conflicts=plymouth-quit.service
++After=plymouth-quit.service
++
++[Service]
++ExecStart=/etc/X11/prefdm
++Type=forking
++Restart=always
++RestartSec=0
