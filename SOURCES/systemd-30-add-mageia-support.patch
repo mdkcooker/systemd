@@ -34,19 +34,19 @@ index 70d1c92..3056e9c 100644
  endif
  
 +if TARGET_MAGEIA
-+       $(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
-+       ( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
-+               rm -f rc-local.service && \
-+               $(LN_S) $(systemunitdir)/rc-local.service rc-local.service )
-+      ( cd $(DESTDIR)$(systemunitdir)/final.target.wants && \
-+               rm -f halt-local.service && \
-+               $(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
-+       ( cd $(DESTDIR)$(systemunitdir) && \
-+               rm -f display-manager.service && \
-+               $(LN_S) prefdm.service display-manager.service )
-+      ( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
-+               rm -f display-manager.service && \
-+               $(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
++	$(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
++	( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
++		rm -f rc-local.service && \
++		$(LN_S) $(systemunitdir)/rc-local.service rc-local.service )
++	( cd $(DESTDIR)$(systemunitdir)/final.target.wants && \
++		rm -f halt-local.service && \
++		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
++	( cd $(DESTDIR)$(systemunitdir) && \
++		rm -f display-manager.service && \
++		$(LN_S) prefdm.service display-manager.service )
++	( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
++		rm -f display-manager.service && \
++		$(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
 +endif
 +
 +
@@ -62,7 +62,7 @@ index 198a639..3aa4d96 100644
                  test -f "/etc/mandriva-release" && with_distro="mandriva"
                  test -f "/etc/meego-release" && with_distro="meego"
                  test -f "/etc/angstrom-version" && with_distro="angstrom"
-+		test -f "/etc/mageia-release" && with_distro="mageia"
++                test -f "/etc/mageia-release" && with_distro="mageia"
                  if test "x`lsb_release -is 2>/dev/null`" = "xUbuntu"; then
                          with_distro="ubuntu"
                  fi
@@ -70,12 +70,12 @@ index 198a639..3aa4d96 100644
                  SYSTEM_SYSVRCND_PATH=/etc
                  AC_DEFINE(TARGET_ANGSTROM, [], [Target is Ångström])
                  M4_DISTRO_FLAG=-DTARGET_ANGSTROM=1
-+		;;
-+	mageia)
-+		SYSTEM_SYSVINIT_PATH=/etc/rc.d/init.d
-+		AC_DEFINE(TARGET_MANDRIVA, [], [Target is Mageia])
-+		M4_DISTRO_FLAG=-DTARGET_MAGEIA=1
-+		have_plymouth=yes
++                ;;
++        mageia)
++                SYSTEM_SYSVINIT_PATH=/etc/rc.d/init.d
++                AC_DEFINE(TARGET_MAGEIA, [], [Target is Mageia])
++                M4_DISTRO_FLAG=-DTARGET_MAGEIA=1
++                have_plymouth=yes
                  ;;
          other)
                  ;;
@@ -163,12 +163,13 @@ diff --git a/src/service.c b/src/service.c
 index 646c093..f12529e 100644
 --- a/src/service.c
 +++ b/src/service.c
-@@ -279,7 +279,7 @@ static int sysv_translate_facility(const char *name, const char *filename, char
+@@ -279,7 +279,8 @@ static int sysv_translate_facility(const char *name, const char *filename, char
          static const char * const table[] = {
                  /* LSB defined facilities */
                  "local_fs",             SPECIAL_LOCAL_FS_TARGET,
 -#ifndef TARGET_MANDRIVA
-+#ifndef (TARGET_MANDRIVA) || not defined (TARGET_MAGEIA)
++#if defined(TARGET_MANDRIVA) || defined(TARGET_MAGEIA)
++#else
                  /* Due to unfortunate name selection in Mandriva,
                   * $network is provided by network-up which is ordered
                   * after network which actually starts interfaces.
