@@ -173,19 +173,6 @@ index 646c093..f12529e 100644
                  /* Due to unfortunate name selection in Mandriva,
                   * $network is provided by network-up which is ordered
                   * after network which actually starts interfaces.
-diff --git a/src/systemctl.c b/src/systemctl.c
-index 3767e22..ac32c4f 100644
---- a/src/systemctl.c
-+++ b/src/systemctl.c
-@@ -3988,7 +3988,7 @@ static int install_info_apply(const char *verb, LookupPaths *paths, InstallInfo
-         }
- 
-         if (!f) {
--#if (defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_SUSE) || defined(TARGET_MEEGO) || defined(TARGET_ALTLINUX)) && defined (HAVE_SYSV_COMPAT)
-+#if (defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_SUSE) || defined(TARGET_MEEGO) || defined(TARGET_ALTLINUX)) && defined (HAVE_SYSV_COMPAT) || defined(TARGET_MAGEIA) 
- 
-                 if (endswith(i->name, ".service")) {
-                         char *sysv;
 diff --git a/src/util.c b/src/util.c
 index a0fbdc5..95d1192 100644
 --- a/src/util.c
@@ -332,3 +319,16 @@ index 0000000..d0c7f99
 +Type=forking
 +Restart=always
 +RestartSec=0
+diff --git a/src/systemctl.c b/src/systemctl.c
+index 620b91f..8aedc47 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -3371,7 +3371,7 @@ finish:
+ static int enable_sysv_units(char **args) {
+         int r = 0;
+ 
+-#if defined (HAVE_SYSV_COMPAT) && (defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_SUSE) || defined(TARGET_MEEGO) || defined(TARGET_ALTLINUX))
++#if defined (HAVE_SYSV_COMPAT) && (defined(TARGET_FEDORA) || defined(TARGET_MANDRIVA) || defined(TARGET_SUSE) || defined(TARGET_MEEGO) || defined(TARGET_ALTLINUX) || defined(TARGET_MAGEIA))
+         const char *verb = args[0];
+         unsigned f = 1, t = 1;
+         LookupPaths paths;

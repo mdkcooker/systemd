@@ -3,10 +3,20 @@
 %define sysvinit_version 2.87
 %define sysvinit_release %mkrel 9
 
+%define libdaemon_major 0
+%define liblogin_major 0
+
+%define libdaemon %mklibname systemd-daemon %{libdaemon_major}
+%define libdaemon_devel %mklibname -d systemd-daemon %{libdaemon_major}
+
+%define liblogin %mklibname systemd-login %{liblogin_major}
+%define liblogin_devel %mklibname -d systemd-login %{liblogin_major}
+
+
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	30
-Release:	%mkrel 2
+Version:	32
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -77,6 +87,40 @@ Conflicts:      sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysv
 
 %description sysvinit
 Drop-in replacement for the System V init tools of systemd.
+
+%package -n %{libdaemon}
+Summary:       Systemd-daemon library package
+Group:                 System/Libraries
+Provides:      libsystemd-daemon = %{version}-%{release}
+
+%description -n %{libdaemon}
+This package provides the systemd-daemon shared library.
+
+%package -n %{libdaemon_devel}
+Summary:       Systemd-daemon library development files
+Group:                 Development/C
+Requires:      %{libdaemon} = %{version}-%{release}
+Provides:      libsystemd-daemon-devel = %{version}-%{release}
+
+%description -n %{libdaemon_devel}
+This package provides the development files for the systemd-daemon shared library.
+
+%package -n %{liblogin}
+Summary:       Systemd-login library package
+Group:                 System/Libraries
+Provides:      libsystemd-login = %{version}-%{release}
+
+%description -n %{liblogin}
+This package provides the systemd-login shared library.
+
+%package -n %{liblogin_devel}
+Summary:       Systemd-login library development files
+Group:                 Development/C
+Requires:      %{liblogin} = %{version}-%{release}
+Provides:      libsystemd-login-devel = %{version}-%{release}
+
+%description -n %{liblogin_devel}
+This package provides the development files for the systemd-login shared library.
 
 %prep
 %setup -q
@@ -266,9 +310,9 @@ fi
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-cgls.*
-%{_mandir}/man1/systemd-ask-password.1.xz
-%{_mandir}/man1/systemd-loginctl.1.xz
-%{_mandir}/man1/systemd-nspawn.1.xz
+%{_mandir}/man1/systemd-ask-password.1.*
+%{_mandir}/man1/systemd-loginctl.1.*
+%{_mandir}/man1/systemd-nspawn.1.*
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
@@ -339,3 +383,24 @@ fi
 %{_mandir}/man8/poweroff.*
 %{_mandir}/man8/telinit.*
 %{_mandir}/man8/runlevel.*
+
+%files -n %{libdaemon}
+%defattr(-,root,root,-)
+%{_libdir}/libsystemd-daemon.so.%{libdaemon_major}*
+
+%files -n %{libdaemon_devel}
+%defattr(-,root,root,-)
+%{_includedir}/systemd/sd-daemon.h
+%{_libdir}/libsystemd-daemon.so
+%{_libdir}/pkgconfig/libsystemd-daemon.pc
+
+%files -n %{liblogin}
+%defattr(-,root,root,-)
+%{_libdir}/libsystemd-login.so.%{liblogin_major}*
+
+%files -n %{liblogin_devel}
+%defattr(-,root,root,-)
+%{_includedir}/systemd/sd-login.h
+%{_libdir}/libsystemd-login.so
+%{_libdir}/pkgconfig/libsystemd-login.pc
+
