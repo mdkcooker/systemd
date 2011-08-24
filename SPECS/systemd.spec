@@ -133,6 +133,7 @@ automake -c -f
 autoconf
 autoreconf -fi
 %configure2_5x \
+	--with-distro=mageia \
 	--with-rootdir= \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
