@@ -15,7 +15,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	32
+Version:	33
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -131,6 +131,7 @@ find src/ -name "*.vala" -exec touch '{}' \;
 # TODO for P12, remove when it is removed
 automake -c -f
 autoconf
+autoreconf -fi
 %configure2_5x \
 	--with-rootdir= \
 	--with-sysvinit-path=%{_initrddir} \

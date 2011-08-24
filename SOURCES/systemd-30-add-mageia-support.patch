@@ -1,92 +1,3 @@
-diff --git a/Makefile.am b/Makefile.am
-index 70d1c92..3056e9c 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -117,6 +117,12 @@ AM_CPPFLAGS += \
- 	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
- 	-DKBD_SETFONT=\"/bin/setfont\" \
- 	-DDEFAULT_FONT=\"latarcyrheb-sun16\"
-+if TARGET_MAGEIA
-+AM_CPPFLAGS += \
-+	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
-+	-DKBD_SETFONT=\"/bin/setfont\" \
-+	-DDEFAULT_FONT=\"LatArCyrHeb-16\"
-+endif
- endif
- endif
- endif
-@@ -465,6 +471,13 @@ dist_systemunit_DATA += \
- 	units/suse/halt-local.service
- endif
- 
-+if TARGET_MAGEIA
-+dist_systemunit_DATA += \
-+	units/mageia/prefdm.service \
-+	units/fedora/rc-local.service \
-+	units/fedora/halt-local.service
-+endif
-+
- if HAVE_PLYMOUTH
- dist_systemunit_DATA += \
- 	units/plymouth-start.service \
-@@ -1818,6 +1831,24 @@ if TARGET_SUSE
- 		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
- endif
- 
-+if TARGET_MAGEIA
-+	$(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
-+	( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
-+		rm -f rc-local.service && \
-+		$(LN_S) $(systemunitdir)/rc-local.service rc-local.service )
-+	( cd $(DESTDIR)$(systemunitdir)/final.target.wants && \
-+		rm -f halt-local.service && \
-+		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
-+	( cd $(DESTDIR)$(systemunitdir) && \
-+		rm -f display-manager.service && \
-+		$(LN_S) prefdm.service display-manager.service )
-+	( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
-+		rm -f display-manager.service && \
-+		$(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
-+endif
-+
-+
-+
- if HAVE_SYSV_COMPAT
- 	( cd $(DESTDIR)$(systemunitdir)/local-fs.target.wants && \
- 		rm -f var-lock.mount && \
-diff --git a/configure.ac b/configure.ac
-index 198a639..3aa4d96 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -339,6 +339,7 @@ if test "z$with_distro" = "z"; then
-                 test -f "/etc/mandriva-release" && with_distro="mandriva"
-                 test -f "/etc/meego-release" && with_distro="meego"
-                 test -f "/etc/angstrom-version" && with_distro="angstrom"
-+                test -f "/etc/mageia-release" && with_distro="mageia"
-                 if test "x`lsb_release -is 2>/dev/null`" = "xUbuntu"; then
-                         with_distro="ubuntu"
-                 fi
-@@ -425,6 +426,12 @@ case $with_distro in
-                 SYSTEM_SYSVRCND_PATH=/etc
-                 AC_DEFINE(TARGET_ANGSTROM, [], [Target is Ångström])
-                 M4_DISTRO_FLAG=-DTARGET_ANGSTROM=1
-+                ;;
-+        mageia)
-+                SYSTEM_SYSVINIT_PATH=/etc/rc.d/init.d
-+                AC_DEFINE(TARGET_MAGEIA, [], [Target is Mageia])
-+                M4_DISTRO_FLAG=-DTARGET_MAGEIA=1
-+                have_plymouth=yes
-                 ;;
-         other)
-                 ;;
-@@ -482,6 +489,7 @@ AM_CONDITIONAL(TARGET_ALTLINUX, test x"$with_distro" = xaltlinux)
- AM_CONDITIONAL(TARGET_MANDRIVA, test x"$with_distro" = xmandriva)
- AM_CONDITIONAL(TARGET_MEEGO, test x"$with_distro" = xmeego)
- AM_CONDITIONAL(TARGET_ANGSTROM, test x"$with_distro" = xangstrom)
-+AM_CONDITIONAL(TARGET_MAGEIA, test x"$with_distro" = xmageia)
- 
- AM_CONDITIONAL(HAVE_PLYMOUTH, test "$have_plymouth" = "yes")
- AM_CONDITIONAL(HAVE_SYSV_COMPAT, test "$SYSTEM_SYSV_COMPAT" = "yes")
 diff --git a/src/fsck.c b/src/fsck.c
 index 19ca753..905062c 100644
 --- a/src/fsck.c
@@ -332,3 +243,91 @@ index 620b91f..8aedc47 100644
          const char *verb = args[0];
          unsigned f = 1, t = 1;
          LookupPaths paths;
+diff --git a/Makefile.am b/Makefile.am
+index b9c8074..37febee 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -118,6 +118,13 @@ AM_CPPFLAGS += \
+ 	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
+ 	-DKBD_SETFONT=\"/bin/setfont\" \
+ 	-DDEFAULT_FONT=\"latarcyrheb-sun16\"
++else
++if TARGET_MANDRIVA
++AM_CPPFLAGS += \
++	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
++	-DKBD_SETFONT=\"/bin/setfont\" \
++	-DDEFAULT_FONT=\"LatArCyrHeb-16\"
++endif
+ endif
+ endif
+ endif
+@@ -492,6 +499,13 @@ dist_systemunit_DATA += \
+ 	units/suse/halt-local.service
+ endif
+ 
++if TARGET_MAGEIA
++dist_systemunit_DATA += \
++	units/mageia/prefdm.service \
++	units/fedora/rc-local.service \
++	units/fedora/halt-local.service
++endif
++
+ if HAVE_PLYMOUTH
+ dist_systemunit_DATA += \
+ 	units/plymouth-start.service \
+@@ -1920,6 +1934,22 @@ if TARGET_SUSE
+ 		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
+ endif
+ 
++if TARGET_MAGEIA
++	$(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
++	( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
++		rm -f rc-local.service && \
++		$(LN_S) $(systemunitdir)/rc-local.service rc-local.service )
++	( cd $(DESTDIR)$(systemunitdir)/final.target.wants && \
++		rm -f halt-local.service && \
++		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
++	( cd $(DESTDIR)$(systemunitdir) && \
++		rm -f display-manager.service && \
++		$(LN_S) prefdm.service display-manager.service )
++	( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
++		rm -f display-manager.service && \
++		$(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
++endif
++
+ if HAVE_SYSV_COMPAT
+ 	( cd $(DESTDIR)$(systemunitdir)/local-fs.target.wants && \
+ 		rm -f var-lock.mount && \
+diff --git a/configure.ac b/configure.ac
+index 9e195ed..a62d8d0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -351,6 +351,7 @@ if test "z$with_distro" = "z"; then
+                 test -f "/etc/slackware-version" && with_distro="slackware"
+                 test -f "/etc/frugalware-release" && with_distro="frugalware"
+                 test -f "/etc/altlinux-release" && with_distro="altlinux"
++		test -f "/etc/mageia-release" && with_distro="mageia"
+                 test -f "/etc/mandriva-release" && with_distro="mandriva"
+                 test -f "/etc/meego-release" && with_distro="meego"
+                 test -f "/etc/angstrom-version" && with_distro="angstrom"
+@@ -441,6 +442,12 @@ case $with_distro in
+                 AC_DEFINE(TARGET_ANGSTROM, [], [Target is Ångström])
+                 M4_DEFINES=-DTARGET_ANGSTROM=1
+                 ;;
++        mageia)
++                SYSTEM_SYSVINIT_PATH=/etc/rc.d/init.d
++                AC_DEFINE(TARGET_MAGEIA, [], [Target is Mageia])
++                M4_DISTRO_FLAG=-DTARGET_MAGEIA=1
++                have_plymouth=yes
++                ;;
+         other)
+                 ;;
+         *)
+@@ -498,6 +505,7 @@ AM_CONDITIONAL(TARGET_ALTLINUX, test x"$with_distro" = xaltlinux)
+ AM_CONDITIONAL(TARGET_MANDRIVA, test x"$with_distro" = xmandriva)
+ AM_CONDITIONAL(TARGET_MEEGO, test x"$with_distro" = xmeego)
+ AM_CONDITIONAL(TARGET_ANGSTROM, test x"$with_distro" = xangstrom)
++AM_CONDITIONAL(TARGET_MAGEIA, test x"$with_distro" = xmageia)
+ 
+ AM_CONDITIONAL(HAVE_PLYMOUTH, test "$have_plymouth" = "yes")
+ AM_CONDITIONAL(HAVE_SYSV_COMPAT, test "$SYSTEM_SYSV_COMPAT" = "yes")
