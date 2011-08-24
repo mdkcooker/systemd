@@ -235,6 +235,15 @@ mkdir -p %{buildroot}/lib/systemd/system/bluetooth.target.wants
 # (eugeni) we need /run directory
 mkdir %{buildroot}/run
 
+
+# Create new-style configuration files so that we can ghost-own them
+touch %{buildroot}%{_sysconfdir}/hostname
+touch %{buildroot}%{_sysconfdir}/vconsole.conf
+touch %{buildroot}%{_sysconfdir}/locale.conf
+touch %{buildroot}%{_sysconfdir}/os-release
+touch %{buildroot}%{_sysconfdir}/machine-id
+touch %{buildroot}%{_sysconfdir}/machine-info
+
 %clean
 rm -rf %{buildroot}
 
@@ -245,6 +254,10 @@ rm -rf %{buildroot}
 if [ $1 -ge 2 -o $2 -ge 2 ] ; then
 	/bin/systemctl daemon-reexec 2>&1 || :
 fi
+
+%post
+/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
+/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -297,6 +310,12 @@ fi
 %{_sysconfdir}/systemd/systemd-logind.conf
 %{_sysconfdir}/systemd/user.conf
 %{_sysconfdir}/xdg/systemd
+%ghost %config(noreplace) %{_sysconfdir}/hostname
+%ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
+%ghost %config(noreplace) %{_sysconfdir}/locale.conf
+%ghost %config(noreplace) %{_sysconfdir}/os-release
+%ghost %config(noreplace) %{_sysconfdir}/machine-id
+%ghost %config(noreplace) %{_sysconfdir}/machine-info
 /bin/systemd
 /bin/systemd-ask-password
 /bin/systemd-loginctl
