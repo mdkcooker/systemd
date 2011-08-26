@@ -15,7 +15,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	33
+Version:	34
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -30,10 +30,6 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
 #Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
 Patch13:        systemd-30-add-mageia-support.patch
-# (tpg) Patches from upstream git
-Patch23:        systemd-33-git-5ed27.patch
-Patch24:        systemd-33-git-e1915.patch
-Patch25:        systemd-33-git-612e5.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 172
@@ -306,6 +302,7 @@ fi
 %dir %{_sysconfdir}/systemd/user
 /usr/lib/tmpfiles.d/legacy.conf
 /usr/lib/tmpfiles.d/systemd.conf
+/usr/lib/tmpfiles.d/tmp.conf
 /usr/lib/tmpfiles.d/x11.conf
 %{_sysconfdir}/systemd/systemd-logind.conf
 %{_sysconfdir}/systemd/user.conf
