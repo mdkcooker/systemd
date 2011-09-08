@@ -15,7 +15,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	34
+Version:	35
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
