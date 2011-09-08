@@ -16,12 +16,13 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	35
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
-
+# Adds support for the %%{_unitdir} macro
+Source1:	macros.systemd
 # (bor) for now we use messabus service to start D-Bus
 # Patch4:		0005-Set-special-D-Bus-service-to-messagebus.service.patch
 # (bor) adapt vconsole service to Mandriva configuration
@@ -240,6 +241,10 @@ touch %{buildroot}%{_sysconfdir}/os-release
 touch %{buildroot}%{_sysconfdir}/machine-id
 touch %{buildroot}%{_sysconfdir}/machine-info
 
+# Install RPM macros file for systemd
+mkdir -p %{buildroot}%{_sysconfdir}/rpm/
+install -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpm/
+
 %clean
 rm -rf %{buildroot}
 
@@ -380,6 +385,7 @@ fi
 %dir %{_sysconfdir}/tmpfiles.d
 %{_sysconfdir}/bash_completion.d/systemctl-bash-completion.sh
 /lib/systemd/system
+%{_sysconfdir}/rpm/macros.systemd
 %{_mandir}/man1/systemctl.*
 %{_datadir}/pkgconfig/systemd.pc
 
