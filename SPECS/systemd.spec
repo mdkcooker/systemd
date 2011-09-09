@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	35
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -252,7 +252,7 @@ fi
 
 %post
 /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
-/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
+#/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 
 %post units
 if [ $1 -eq 1 ] ; then
