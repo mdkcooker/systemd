@@ -1,7 +1,7 @@
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
-%define sysvinit_release %mkrel 9
+%define sysvinit_release %mkrel 10
 
 %define libdaemon_major 0
 %define liblogin_major 0
@@ -61,6 +61,16 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
+# (TV) basically split b/c it pulls python in basesystem
+%package tools
+Summary:	Non essential systemd tools
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} = %{version}-%{release}
+Conflicts:	%{name} <= 35-10
+
+%description tools
+Non essential systemd tools
+
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
@@ -102,6 +112,7 @@ Summary:       Systemd-daemon library development files
 Group:                 Development/C
 Requires:      %{libdaemon} = %{version}-%{release}
 Provides:      libsystemd-daemon-devel = %{version}-%{release}
+Conflicts:	%{name} <= 35-10
 
 %description -n %{libdaemon_devel}
 This package provides the development files for the systemd-daemon shared library.
@@ -324,7 +335,6 @@ fi
 /lib/systemd/system-generators/systemd-*
 /lib/udev/rules.d/*.rules
 /%{_lib}/security/pam_systemd.so
-%{_bindir}/systemd-analyze
 %{_bindir}/systemd-cgls
 %{_bindir}/systemd-nspawn
 %{_bindir}/systemd-stdio-bridge
@@ -371,6 +381,10 @@ fi
 %{_docdir}/systemd
 %dir /run
 
+%files tools
+%defattr(-,root,root)
+%{_bindir}/systemd-analyze
+
 %files units
 %defattr(-,root,root)
 /bin/systemctl
@@ -380,7 +394,6 @@ fi
 %{_sysconfdir}/bash_completion.d/systemctl-bash-completion.sh
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
-%{_datadir}/pkgconfig/systemd.pc
 
 %files gtk
 %defattr(-,root,root)
@@ -414,6 +427,7 @@ fi
 %{_includedir}/systemd/sd-daemon.h
 %{_libdir}/libsystemd-daemon.so
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
+%{_datadir}/pkgconfig/systemd.pc
 
 %files -n %{liblogin}
 %defattr(-,root,root,-)
