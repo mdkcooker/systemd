@@ -47,6 +47,7 @@ Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
+Requires:       nss-myhostname
 # TODO for P12, remove when it is removed
 BuildRequires:	automake 
 BuildRequires:	autoconf
