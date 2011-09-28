@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	35
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -67,7 +67,7 @@ work as a drop-in replacement for sysvinit.
 Summary:	Non essential systemd tools
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
-Conflicts:	%{name} <= 35-10
+Conflicts:	%{name} <= 35-4
 
 %description tools
 Non essential systemd tools
@@ -113,7 +113,7 @@ Summary:       Systemd-daemon library development files
 Group:                 Development/C
 Requires:      %{libdaemon} = %{version}-%{release}
 Provides:      libsystemd-daemon-devel = %{version}-%{release}
-Conflicts:	%{name} <= 35-10
+Conflicts:	%{name} <= 35-4
 
 %description -n %{libdaemon_devel}
 This package provides the development files for the systemd-daemon shared library.
