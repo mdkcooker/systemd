@@ -15,8 +15,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	35
-Release:	%mkrel 5
+Version:	36
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -28,7 +28,7 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
 # (bor) support libnotify < 0.7; combines d0ef22 and ab85c2 (GIT)
 #Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
 # (bor) take welcome message from /etc/release (adapted by blino)
-Patch13:        systemd-30-add-mageia-support.patch
+Patch13:        systemd-36-add-mageia-support.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 172
@@ -141,7 +141,7 @@ This package provides the development files for the systemd-login shared library
 find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
-# TODO for P12, remove when it is removed
+# TODO for P13, remove when it is removed
 automake -c -f
 autoconf
 autoreconf -fi

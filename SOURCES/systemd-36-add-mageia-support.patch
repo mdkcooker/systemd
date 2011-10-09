@@ -171,24 +171,6 @@ index b111567..7bdc689 100644
  
  # If additional gettys are spawned during boot then we should make
  # sure that this is synchronized before getty.target, even though
-diff --git a/units/rescue.service.m4 b/units/rescue.service.m4
-index d2fd582..edfe0a8 100644
---- a/units/rescue.service.m4
-+++ b/units/rescue.service.m4
-@@ -28,7 +28,12 @@ ExecStart=-/bin/bash -c "exec ${SINGLE}"',
- `ExecStart=-/sbin/sulogin'
- m4_ifdef(`TARGET_MEEGO',
- `EnvironmentFile=/etc/sysconfig/init
--ExecStart=-/bin/bash -c "exec ${SINGLE}"',)))
-+ExecStart=-/bin/bash -c "exec ${SINGLE}"',
-+m4_ifdef(`TARGET_MAGEIA',
-+`EnvironmentFile=/etc/sysconfig/init
-+ExecStart=-/bin/bash -c "exec ${SINGLE}"',
-+`ExecStart=-/sbin/sulogin',))))
-+
- ExecStopPost=-/bin/systemctl --fail --no-block default
- StandardInput=tty-force
- KillMode=process
 diff --git a/units/serial-getty@.service.m4 b/units/serial-getty@.service.m4
 index 082290c..e5f0ca6 100644
 --- a/units/serial-getty@.service.m4
@@ -306,7 +288,7 @@ index 9e195ed..6c65fa6 100644
                  test -f "/etc/mandriva-release" && with_distro="mandriva"
                  test -f "/etc/meego-release" && with_distro="meego"
                  test -f "/etc/angstrom-version" && with_distro="angstrom"
-+		test -f "/etc/mageia-release" && with_distro="mageia"
++		 test -f "/etc/mageia-release" && with_distro="mageia"
                  if test "x`lsb_release -is 2>/dev/null`" = "xUbuntu"; then
                          with_distro="ubuntu"
                  fi
@@ -331,3 +313,22 @@ index 9e195ed..6c65fa6 100644
  
  AM_CONDITIONAL(HAVE_PLYMOUTH, test "$have_plymouth" = "yes")
  AM_CONDITIONAL(HAVE_SYSV_COMPAT, test "$SYSTEM_SYSV_COMPAT" = "yes")
+diff --git a/units/rescue.service.m4 b/units/rescue.service.m4
+index 19b30d8..7dd8a22 100644
+--- a/units/rescue.service.m4
++++ b/units/rescue.service.m4
+@@ -25,10 +25,13 @@ ExecStart=-/bin/bash -c "exec ${SINGLE}"',
+ m4_ifdef(`TARGET_MANDRIVA',
+ `EnvironmentFile=/etc/sysconfig/init
+ ExecStart=-/bin/bash -c "exec ${SINGLE}"',
++m4_ifdef(`TARGET_MAGEIA',
++`EnvironmentFile=/etc/sysconfig/init
++ExecStart=-/bin/bash -c "exec ${SINGLE}"',
+ m4_ifdef(`TARGET_MEEGO',
+ `EnvironmentFile=/etc/sysconfig/init
+ ExecStart=-/bin/bash -c "exec ${SINGLE}"',
+-`ExecStart=-/sbin/sulogin')))
++`ExecStart=-/sbin/sulogin'))))
+ ExecStopPost=-/bin/systemctl --fail --no-block default
+ StandardInput=tty-force
+ StandardOutput=inherit
