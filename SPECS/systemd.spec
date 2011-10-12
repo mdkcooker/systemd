@@ -15,7 +15,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	36
+Version:	37
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -339,6 +339,7 @@ fi
 %{_bindir}/systemd-cgls
 %{_bindir}/systemd-nspawn
 %{_bindir}/systemd-stdio-bridge
+%{_datadir}/systemd/kbd-model-map
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-cgls.*

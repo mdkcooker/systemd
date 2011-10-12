@@ -11,28 +11,6 @@ index 19ca753..905062c 100644
                  else if (strneq(w, "fastboot", l))
                          arg_skip = true;
                  else if (strneq(w, "forcefsck", l))
-diff --git a/src/hostname-setup.c b/src/hostname-setup.c
-index 57db9fb..fa0b5ce 100644
---- a/src/hostname-setup.c
-+++ b/src/hostname-setup.c
-@@ -30,7 +30,7 @@
- #include "util.h"
- #include "log.h"
- 
--#if defined(TARGET_FEDORA) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
-+#if defined(TARGET_FEDORA) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_MAGEIA) 
- #define FILENAME "/etc/sysconfig/network"
- #elif defined(TARGET_SUSE) || defined(TARGET_SLACKWARE) || defined(TARGET_FRUGALWARE)
- #define FILENAME "/etc/HOSTNAME"
-@@ -64,7 +64,7 @@ static int read_and_strip_hostname(const char *path, char **hn) {
- 
- static int read_distro_hostname(char **hn) {
- 
--#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
-+#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_MAGEIA)
-         int r;
-         FILE *f;
- 
 diff --git a/src/locale-setup.c b/src/locale-setup.c
 index 33111da..05c1a8a 100644
 --- a/src/locale-setup.c
@@ -332,3 +310,25 @@ index 19b30d8..7dd8a22 100644
  ExecStopPost=-/bin/systemctl --fail --no-block default
  StandardInput=tty-force
  StandardOutput=inherit
+diff --git a/src/hostname-setup.c b/src/hostname-setup.c
+index 7216b75..2c2f10c 100644
+--- a/src/hostname-setup.c
++++ b/src/hostname-setup.c
+@@ -30,7 +30,7 @@
+ #include "util.h"
+ #include "log.h"
+ 
+-#if defined(TARGET_FEDORA) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
++#if defined(TARGET_FEDORA) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_MAGEIA)
+ #define FILENAME "/etc/sysconfig/network"
+ #elif defined(TARGET_SUSE) || defined(TARGET_SLACKWARE)
+ #define FILENAME "/etc/HOSTNAME"
+@@ -64,7 +64,7 @@ static int read_and_strip_hostname(const char *path, char **hn) {
+ 
+ static int read_distro_hostname(char **hn) {
+ 
+-#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
++#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_MAGEIA)
+         int r;
+         FILE *f;
+ 
