@@ -139,8 +139,6 @@ find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
 # TODO for P13, remove when it is removed
-automake -c -f
-autoconf
 autoreconf -fi
 %configure2_5x \
 	--with-rootdir= \
