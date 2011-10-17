@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -299,17 +299,25 @@ fi
 
 %files
 %defattr(-,root,root)
+# (cg) Note some of these directories are empty, but that is intended
+%dir /run
+%dir /lib/systemd
+%dir /lib/systemd/system-generators
+%dir /lib/systemd/system-shutdown
+%dir %{_prefix}/lib/tmpfiles.d
+%dir %{_prefix}/lib/sysctl.d
+%dir %{_prefix}/lib/modules-load.d
+%dir %{_prefix}/lib/binfmt.d
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
-%dir %{_sysconfdir}/systemd/user
-/usr/lib/tmpfiles.d/legacy.conf
-/usr/lib/tmpfiles.d/systemd.conf
-/usr/lib/tmpfiles.d/tmp.conf
-/usr/lib/tmpfiles.d/x11.conf
+%{_prefix}/lib/tmpfiles.d/legacy.conf
+%{_prefix}/lib/tmpfiles.d/systemd.conf
+%{_prefix}/lib/tmpfiles.d/tmp.conf
+%{_prefix}/lib/tmpfiles.d/x11.conf
 %{_sysconfdir}/systemd/systemd-logind.conf
 %{_sysconfdir}/systemd/user.conf
 %{_sysconfdir}/xdg/systemd
@@ -326,7 +334,6 @@ fi
 /bin/systemd-notify
 /bin/systemd-tmpfiles
 /bin/systemd-tty-ask-password-agent
-%dir /lib/systemd
 /lib/systemd/systemd-*
 /lib/systemd/system-generators/systemd-*
 /lib/udev/rules.d/*.rules
@@ -346,8 +353,8 @@ fi
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-tmpfiles.*
-/usr/lib/systemd/user/*.target
-/usr/lib/systemd/user/*.service
+%{_prefix}/lib/systemd/user/*.target
+%{_prefix}/lib/systemd/user/*.service
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -376,7 +383,6 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_docdir}/systemd
-%dir /run
 
 %files tools
 %defattr(-,root,root)
@@ -384,10 +390,17 @@ fi
 
 %files units
 %defattr(-,root,root)
-/bin/systemctl
+# (cg) Note some of these directories are empty, but that is intended
+# NB I'm not totally sure of the ownership split of directories between systemd and systemd-units.
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
+%dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/tmpfiles.d
+%dir %{_sysconfdir}/sysctl.d
+%dir %{_sysconfdir}/modules-load.d
+%dir %{_sysconfdir}/binfmt.d
+%dir %{_sysconfdir}/bash_completion.d
+/bin/systemctl
 %{_sysconfdir}/bash_completion.d/systemctl-bash-completion.sh
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
@@ -421,6 +434,7 @@ fi
 
 %files -n %{libdaemon_devel}
 %defattr(-,root,root,-)
+%dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-daemon.h
 %{_libdir}/libsystemd-daemon.so
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
@@ -432,6 +446,7 @@ fi
 
 %files -n %{liblogin_devel}
 %defattr(-,root,root,-)
+%dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-login.h
 %{_libdir}/libsystemd-login.so
 %{_libdir}/pkgconfig/libsystemd-login.pc
