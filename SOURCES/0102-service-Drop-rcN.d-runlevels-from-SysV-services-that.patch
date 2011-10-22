@@ -1,0 +1,47 @@
+From e51db373c242b7541794affb2b5e411bcce26d0f Mon Sep 17 00:00:00 2001
+From: Tollef Fog Heen <tfheen@err.no>
+Date: Mon, 17 Oct 2011 21:00:42 +0200
+Subject: [PATCH 102/104] service: Drop rcN.d runlevels from SysV services
+ that also exist in rcS.d
+
+Services which claim to start in both rcN.d and rcS.d generate
+loops which for some reason seems to usually end up with dbus not
+starting and the whole machine being quite unhappy. We now rather
+assume that if a service can be started in rcS, it should not also
+start in rcN.d.
+
+Fixes Debian bug #637037
+---
+ src/service.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index e64d289..6184390 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -83,7 +83,7 @@ static const struct {
+ 
+ #define RUNLEVELS_UP "12345"
+ /* #define RUNLEVELS_DOWN "06" */
+-/* #define RUNLEVELS_BOOT "bBsS" */
++#define RUNLEVELS_BOOT "bBsS"
+ #endif
+ 
+ static const UnitActiveState state_translation_table[_SERVICE_STATE_MAX] = {
+@@ -811,6 +811,13 @@ static int service_load_sysv_path(Service *s, const char *path) {
+ 
+         if ((r = sysv_exec_commands(s)) < 0)
+                 goto finish;
++        if (s->sysv_runlevels &&
++            chars_intersect(RUNLEVELS_BOOT, s->sysv_runlevels) &&
++            chars_intersect(RUNLEVELS_UP, s->sysv_runlevels)) {
++                /* Service has both boot and "up" runlevels
++                   configured.  Kill the "up" ones. */
++                delete_chars(s->sysv_runlevels, RUNLEVELS_UP);
++        }
+ 
+         if (s->sysv_runlevels && !chars_intersect(RUNLEVELS_UP, s->sysv_runlevels)) {
+                 /* If there a runlevels configured for this service
+-- 
+1.7.6
+

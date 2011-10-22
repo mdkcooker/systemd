@@ -16,19 +16,32 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
-# (bor) for now we use messabus service to start D-Bus
-# Patch4:		0005-Set-special-D-Bus-service-to-messagebus.service.patch
-# (bor) adapt vconsole service to Mandriva configuration
-# Patch5:		0006-Adapt-vconsole-setup-to-Mandriva-configuration-based.patch
-# (bor) support libnotify < 0.7; combines d0ef22 and ab85c2 (GIT)
-#Patch12:	0001-gnome-ask-password-agent-also-support-libnotify-0.7-.patch
-# (bor) take welcome message from /etc/release (adapted by blino)
-Patch13:        systemd-36-add-mageia-support.patch
+
+# (cg) Upstream patches from git
+Patch100: 0100-util-properly-detect-what-the-last-capability-is.patch
+Patch101: 0101-manager-fix-a-crash-in-isolating.patch
+Patch102: 0102-service-Drop-rcN.d-runlevels-from-SysV-services-that.patch
+Patch103: 0103-audit-do-not-complain-if-kernel-lacks-audit.patch
+Patch104: 0104-systemctl-completion-always-invoke-with-no-legend.patch
+
+
+Patch500: systemd-36-add-mageia-support.patch
+# (cg/bor) clean up directories on boot as done by rc.sysinit
+Patch501: systemd-18-clean-dirs-on-boot.patch
+# (cg/bor) reset /etc/mtab on boot (why is it not a link)?
+Patch502: systemd-18-reset-mtab-on-boot.patch
+# (cg/bor) fix potential deadlock when onseshot unit is not finished
+Patch503: systemd-19-apply-timeoutsec-to-oneshot-too.patch
+Patch504: systemd-tmpfilesd-utmp-temp-patch.patch
+# (cg/tpg) Patches from upstream git
+Patch505: systemd-halt-pre.patch
+Patch506: systemd-33-rc-local.patch
+
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libudev-devel >= 172
@@ -47,7 +60,8 @@ Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
-Requires:       nss-myhostname
+Requires:	nss-myhostname
+Conflicts:	initscripts < 9.25
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -73,6 +87,7 @@ Non essential systemd tools
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
+Conflicts:	initscripts < 9.25
 
 %description units
 Basic configuration files, directories and installation tool for the systemd
@@ -173,70 +188,54 @@ rm -f %{buildroot}%{_sysconfdir}/systemd/system/display-manager.service
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
 
-# The following services are currently executed by rc.sysinit
-pushd %{buildroot}/lib/systemd/system/basic.target.wants && {
-	rm -f sysctl.service
-	rm -f systemd-modules-load.service
-	rm -f systemd-tmpfiles.service
-	rm -f systemd-tmpfiles-clean.timer
-popd
-}
-
-# The following services are currently installed by initscripts
-pushd %{buildroot}/lib/systemd/system/graphical.target.wants && {
-	rm -f display-manager.service
-popd
-}
-
-# The following services are currently executed by rc.sysinit
+# We are not prepared to deal with tmpfs /var/run or /var/lock
 pushd %{buildroot}/lib/systemd/system/local-fs.target.wants && {
-	rm -f cryptsetup.target
-	rm -f fsck-root.service
-	rm -f remount-rootfs.service
-	rm -f systemd-remount-api-vfs.service
-	rm -f var-lock.mount
-	rm -f var-run.mount
+  rm -f var-lock.mount
+  rm -f var-run.mount
 popd
 }
-
-# The following services are currently installed by initscripts
-pushd %{buildroot}/lib/systemd/system/multi-user.target.wants && {
-	rm -f rc-local.service
-	rm -f systemd-ask-password-wall.path
-popd
-}
-
-# The following services are currently executed by rc.sysinit
-pushd %{buildroot}/lib/systemd/system/sysinit.target.wants && {
-	rm -f systemd-ask-password-console.path
-	rm -f systemd-modules-load.service
-	rm -f systemd-random-seed-load.service
-	rm -f systemd-sysctl.service
-	rm -f systemd-tmpfiles-setup.service
-popd
-}
-
-# The following services are currently part of initscripts
-pushd %{buildroot}/lib/systemd/system && {
-	rm -f default.target
-	rm -f display-manager.service
-	rm -f prefdm.service
-	rm -f rc-local.service
-	rm -f single.service
-	rm -f sysinit.service
-popd
-}
-
-# (bor) For now mounts are performed by initscripts (Fedora)
-sed -i -e 's/^#MountAuto=yes$/MountAuto=no/' \
-        -e 's/^#SwapAuto=yes$/SwapAuto=no/' %{buildroot}/etc/systemd/system.conf
 
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/lib/systemd/system/bluetooth.target.wants
 
-# (eugeni) we need /run directory
+# use consistent naming and permissions for completion scriplets
+mv %{buildroot}%{_sysconfdir}/bash_completion.d/systemctl-bash-completion.sh \
+  %{buildroot}%{_sysconfdir}/bash_completion.d/systemctl
+chmod 644 %{buildroot}%{_sysconfdir}/bash_completion.d/systemctl
+
+# (tpg) use systemd's own mounting capability
+sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' \
+  %{buildroot}/etc/systemd/system.conf
+
+sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' \
+  %{buildroot}/etc/systemd/system.conf
+
+# (bor) disable legacy output to console, it just messes things up
+sed -i -e 's/^#SysVConsole=yes$/SysVConsole=no/' \
+  %{buildroot}/etc/systemd/system.conf
+
+# (bor) enable rpcbind.target by default so we have something to plug
+# portmapper service into
+ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
+
+# (eugeni) install /run
 mkdir %{buildroot}/run
 
+# add missing ttys (mdv #63600)
+mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
+pushd %{buildroot}/etc/systemd/system/getty.target.wants
+  for _term in 1 2 3 4 5 6 ; do
+    ln -s /lib/systemd/system/getty@.service getty@tty$_term.service
+  done
+popd
+
+# create modules.conf as a symlink to /etc/
+ln -s /etc/modules %{buildroot}%{_sysconfdir}/modules-load.d/modules.conf
+# (tpg) symlink also modprobe.preload because a lot of modules are inserted there from drak* stuff
+ln -s /etc/modprobe.preload %{buildroot}%{_sysconfdir}/modules-load.d/modprobe-preload.conf
+
+# (tpg) add rpm macros
+#install -m 0644 -D %{SOURCE1} %{buildroot}%{_sysconfdir}/rpm/macros.d/%{name}.macros
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -261,6 +260,21 @@ fi
 /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
 #/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 
+%triggerin units -- %{name}-units < 35-1
+# Enable the services we install by default.
+        /bin/systemctl --quiet enable \
+                hwclock-load.service \
+                getty@.service \
+                quotaon.service \
+                quotacheck.service \
+                remote-fs.target \
+                systemd-readahead-replay.service \
+                systemd-readahead-collect.service \
+                rsyslog.service \
+                2>&1 || :
+# rc-local is now enabled by default in base package
+rm -f /etc/systemd/system/multi-user.target.wants/rc-local.service || :
+
 %post units
 if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
@@ -275,19 +289,30 @@ if [ $1 -eq 1 ] ; then
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
         # Enable the services we install by default.
-	# (bor) do not enable prefdm.service, we start it in initscript
-        /bin/systemctl enable \
+        /bin/systemctl --quiet enable \
+                hwclock-load.service \
                 getty@.service \
-                rc-local.service \
-                remote-fs.target 2>&1 || :
+                quotaon.service \
+                quotacheck.service \
+                remote-fs.target \
+                systemd-readahead-replay.service \
+                systemd-readahead-collect.service \
+                rsyslog.service \
+                2>&1 || :
 fi
 
 %preun units
 if [ $1 -eq 0 ] ; then
-        /bin/systemctl disable \
+        /bin/systemctl --quiet disable \
+                hwclock-load.service \
                 getty@.service \
-                rc-local.service \
-                remote-fs.target 2>&1 || :
+                quotaon.service \
+                quotacheck.service \
+                remote-fs.target \
+                systemd-readahead-replay.service \
+                systemd-readahead-collect.service \
+                rsyslog.service \
+                2>&1 || :
 
         /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
@@ -394,6 +419,7 @@ fi
 # NB I'm not totally sure of the ownership split of directories between systemd and systemd-units.
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
+%dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
@@ -401,7 +427,9 @@ fi
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/bash_completion.d
 /bin/systemctl
-%{_sysconfdir}/bash_completion.d/systemctl-bash-completion.sh
+%{_sysconfdir}/bash_completion.d/systemctl
+%{_sysconfdir}/modules-load.d/*.conf
+%{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
 

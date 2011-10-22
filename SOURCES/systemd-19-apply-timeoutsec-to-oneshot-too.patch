@@ -1,0 +1,29 @@
+From: Andrey Borzenkov <arvidjaar@gmail.com>
+Subject: [PATCH] apply TimeoutSec to oneshot services too
+To: systemd-devel@lists.freedesktop.org
+
+Make sure timeout is applied also to oneshot services. We do have
+examples of long running processes that wait for external conditions
+(plymouth-quit-wait as example).
+
+Signed-off-by: Andrey Borzenkov <arvidjaar@gmail.com>
+
+---
+ src/service.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/service.c b/src/service.c
+index 39a46d6..297f97b 100644
+--- a/src/service.c
++++ b/src/service.c
+@@ -2014,7 +2014,7 @@ static void service_enter_start(Service *s) {
+ 
+         if ((r = service_spawn(s,
+                                c,
+-                               s->type == SERVICE_FORKING || s->type == SERVICE_DBUS || s->type == SERVICE_NOTIFY,
++                               s->type == SERVICE_FORKING || s->type == SERVICE_DBUS || s->type == SERVICE_NOTIFY || s->type == SERVICE_ONESHOT,
+                                true,
+                                true,
+                                true,
+-- 
+tg: (020501d..) upstream/onsehot-timeout (depends on: origin/master)

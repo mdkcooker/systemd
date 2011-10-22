@@ -1,0 +1,23 @@
+Subject: [PATCH] Reset /etc/mtab on boot as long as it is not symlink
+From: Andrey Borzenkov <arvidjaar@gmail.com>
+
+
+
+Signed-off-by: Andrey Borzenkov <arvidjaar@gmail.com>
+
+---
+
+ units/remount-rootfs.service |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/units/remount-rootfs.service b/units/remount-rootfs.service
+index 3130901..0b7e69d 100644
+--- a/units/remount-rootfs.service
++++ b/units/remount-rootfs.service
+@@ -16,4 +16,6 @@ Before=local-fs.target shutdown.target
+ Type=oneshot
+ RemainAfterExit=yes
+ ExecStart=/bin/mount / -o remount
++ExecStartPost=-/bin/cp /dev/null /etc/mtab
++ExecStartPost=-/bin/mount -f /
+ StandardOutput=syslog
