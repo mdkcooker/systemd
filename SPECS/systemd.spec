@@ -97,6 +97,7 @@ system and session manager.
 Summary:        Graphical frontend for systemd
 Group:          System/Configuration/Boot and Init
 Requires:       %{name} = %{version}-%{release}
+Requires:       polkit
 
 %description gtk
 Graphical front-end for systemd.
