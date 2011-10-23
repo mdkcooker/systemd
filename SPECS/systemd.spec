@@ -182,8 +182,19 @@ ln -s ../bin/systemctl %{buildroot}/sbin/runlevel
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
-rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
-rm -f %{buildroot}%{_sysconfdir}/systemd/system/display-manager.service
+rm -r %{buildroot}/etc/systemd/system/*.target.wants
+
+# Make sure the ghost-ing below works
+touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel2.target
+touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel3.target
+touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel4.target
+touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel5.target
+
+# Make sure these directories are properly owned
+mkdir -p %{buildroot}/lib/systemd/system/basic.target.wants
+mkdir -p %{buildroot}/lib/systemd/system/default.target.wants
+mkdir -p %{buildroot}/lib/systemd/system/dbus.target.wants
+mkdir -p %{buildroot}/lib/systemd/system/syslog.target.wants
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
@@ -434,6 +445,11 @@ fi
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
+
+%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel2.target
+%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel3.target
+%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel4.target
+%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel5.target
 
 %files gtk
 %defattr(-,root,root)
