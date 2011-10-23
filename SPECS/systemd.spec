@@ -21,7 +21,7 @@ License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
-
+Source2:        systemd-sysv-convert
 # (cg) Upstream patches from git
 Patch100: 0100-util-properly-detect-what-the-last-capability-is.patch
 Patch101: 0101-manager-fix-a-crash-in-isolating.patch
@@ -239,6 +239,9 @@ pushd %{buildroot}/etc/systemd/system/getty.target.wants
     ln -s /lib/systemd/system/getty@.service getty@tty$_term.service
   done
 popd
+
+# Install SysV conversion tool for systemd
+install -m 0755 %{SOURCE2} %{buildroot}%{_bindir}/
 
 # create modules.conf as a symlink to /etc/
 ln -s /etc/modules %{buildroot}%{_sysconfdir}/modules-load.d/modules.conf
@@ -466,6 +469,7 @@ fi
 /sbin/shutdown
 /sbin/telinit
 /sbin/runlevel
+%{_bindir}/systemd-sysv-convert
 %{_mandir}/man1/init.*
 %{_mandir}/man8/halt.*
 %{_mandir}/man8/reboot.*
