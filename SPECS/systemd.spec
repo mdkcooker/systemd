@@ -221,7 +221,7 @@ ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
-# add missing ttys (mdv #63600)
+# add missing ttys (mdv #63600
 mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
 pushd %{buildroot}/etc/systemd/system/getty.target.wants
   for _term in 1 2 3 4 5 6 ; do
@@ -244,9 +244,9 @@ touch %{buildroot}%{_sysconfdir}/locale.conf
 touch %{buildroot}%{_sysconfdir}/os-release
 touch %{buildroot}%{_sysconfdir}/machine-id
 touch %{buildroot}%{_sysconfdir}/machine-info
-
-%clean
-rm -rf %{buildroot}
+touch %{buildroot}%{_sysconfdir}/timezone
+mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
+touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
@@ -273,7 +273,7 @@ fi
                 rsyslog.service \
                 2>&1 || :
 # rc-local is now enabled by default in base package
-rm -f /etc/systemd/system/multi-user.target.wants/rc-local.service || :
+rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -314,7 +314,7 @@ if [ $1 -eq 0 ] ; then
                 rsyslog.service \
                 2>&1 || :
 
-        /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
+        /bin/rm -f %_sysconfdir/systemd/system/default.target 2>&1 || :
 fi
 
 %postun units
@@ -352,6 +352,8 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/os-release
 %ghost %config(noreplace) %{_sysconfdir}/machine-id
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
+%ghost %config(noreplace) %{_sysconfdir}/timezone
+%ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 /bin/systemd
 /bin/systemd-ask-password
 /bin/systemd-loginctl
