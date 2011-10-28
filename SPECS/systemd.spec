@@ -30,16 +30,16 @@ Patch103: 0103-audit-do-not-complain-if-kernel-lacks-audit.patch
 Patch104: 0104-systemctl-completion-always-invoke-with-no-legend.patch
 
 
+# (cg) We should clean the mageia-release stuff (ie add os-release) and push upstream.
 Patch500: systemd-36-add-mageia-support.patch
 # (cg/bor) clean up directories on boot as done by rc.sysinit
+# - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch501: systemd-18-clean-dirs-on-boot.patch
-# (cg/bor) reset /etc/mtab on boot (why is it not a link)?
-Patch502: systemd-18-reset-mtab-on-boot.patch
 # (cg/bor) fix potential deadlock when onseshot unit is not finished
+# - Lennart will do this eventually but believes this patch is insufficient.
 Patch503: systemd-19-apply-timeoutsec-to-oneshot-too.patch
+# (cg) We need to work out how to symlink (new install) or bind mount (upgrades) /var/run to /run
 Patch504: systemd-tmpfilesd-utmp-temp-patch.patch
-# (cg/tpg) Patches from upstream git
-Patch505: systemd-halt-pre.patch
 Patch506: systemd-33-rc-local.patch
 
 
