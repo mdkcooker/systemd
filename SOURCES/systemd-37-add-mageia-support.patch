@@ -7,7 +7,7 @@ index dabe32a..5034ed3 100644
  	-DKBD_SETFONT=\"/bin/setfont\" \
  	-DDEFAULT_FONT=\"latarcyrheb-sun16\"
 +else
-+if TARGET_MANDRIVA
++if TARGET_MAGEIA
 +AM_CPPFLAGS += \
 +	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
 +	-DKBD_SETFONT=\"/bin/setfont\" \
