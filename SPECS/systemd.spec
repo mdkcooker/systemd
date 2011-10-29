@@ -30,8 +30,8 @@ Patch103: 0103-audit-do-not-complain-if-kernel-lacks-audit.patch
 Patch104: 0104-systemctl-completion-always-invoke-with-no-legend.patch
 
 
-# (cg) We should clean the mageia-release stuff (ie add os-release) and push upstream.
-Patch500: systemd-36-add-mageia-support.patch
+# (cg) We should push upstream.
+Patch500: systemd-37-add-mageia-support.patch
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch501: systemd-18-clean-dirs-on-boot.patch
@@ -233,7 +233,7 @@ ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
-# add missing ttys (mdv #63600
+# add missing ttys (mdv #63600)
 mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
 pushd %{buildroot}/etc/systemd/system/getty.target.wants
   for _term in 1 2 3 4 5 6 ; do
