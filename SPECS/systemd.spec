@@ -1,7 +1,7 @@
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
-%define sysvinit_release %mkrel 9
+%define sysvinit_release %mkrel 10
 
 %define libdaemon_major 0
 %define liblogin_major 0
@@ -107,8 +107,8 @@ Summary:        System V init tools
 Group:          System/Configuration/Boot and Init
 Requires:       %{name} = %{version}-%{release}
 # (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
-Provides:       sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_release-%sysvinit_release
-Conflicts:      sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_release-%sysvinit_release
+Provides:       sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
+Conflicts:      sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
 
 %description sysvinit
 Drop-in replacement for the System V init tools of systemd.
