@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -107,8 +107,8 @@ Summary:        System V init tools
 Group:          System/Configuration/Boot and Init
 Requires:       %{name} = %{version}-%{release}
 # (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
-Provides:       sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
-Conflicts:      sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
+Provides:       sysvinit = %sysvinit_version-%sysvinit_release
+Conflicts:      SysVinit
 
 %description sysvinit
 Drop-in replacement for the System V init tools of systemd.
