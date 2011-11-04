@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -41,6 +41,7 @@ Patch503: systemd-19-apply-timeoutsec-to-oneshot-too.patch
 # (cg) We need to work out how to symlink (new install) or bind mount (upgrades) /var/run to /run
 Patch504: systemd-tmpfilesd-utmp-temp-patch.patch
 Patch506: systemd-33-rc-local.patch
+Patch507: systemd-37-fix-prefdm.service.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
