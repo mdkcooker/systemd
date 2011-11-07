@@ -318,7 +318,6 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
         /bin/systemctl --quiet disable \
-                hwclock-load.service \
                 getty@.service \
                 quotaon.service \
                 quotacheck.service \
