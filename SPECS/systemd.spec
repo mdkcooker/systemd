@@ -305,7 +305,6 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet enable \
-                hwclock-load.service \
                 getty@.service \
                 quotaon.service \
                 quotacheck.service \
