@@ -300,7 +300,7 @@ if [ $1 -eq 1 ] ; then
                 target="/lib/systemd/system/runlevel$runlevel.target"
         fi
 
-	hostnamei_old = `cat /etc/sysconfig/network | grep HOSTNAME | cut -d "=" -f2`
+	hostname_old = `cat /etc/sysconfig/network | grep HOSTNAME | cut -d "=" -f2`
 	emptyhostname = `cat %_sysconfdir/hostname`
 
 	if [ -z $emptyhostname ]; then
