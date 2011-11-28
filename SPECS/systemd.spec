@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 11
+Release:	%mkrel 12
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -300,17 +300,6 @@ if [ $1 -eq 1 ] ; then
                 target="/lib/systemd/system/runlevel$runlevel.target"
         fi
 
-	hostname_old = `cat /etc/sysconfig/network | grep HOSTNAME | cut -d "=" -f2`
-	emptyhostname = `cat %_sysconfdir/hostname`
-
-	if [ -z $emptyhostname ]; then
-		if [ ! -z $hostname_old ]; then 
-			echo $hostname_old >> %_sysconfdir/hostname
-		else
-			echo "localhost" >> %_sysconfdir/hostname
-		fi
-	fi
-
         # And symlink what we found to the new-style default.target
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
@@ -325,6 +314,18 @@ if [ $1 -eq 1 ] ; then
                 rsyslog.service \
                 2>&1 || :
 fi
+
+        hostname_old = `cat /etc/sysconfig/network | grep HOSTNAME | cut -d "=" -f2`
+        emptyhostname = `cat %_sysconfdir/hostname`
+
+        if [ -z $emptyhostname ]; then
+                if [ ! -z $hostname_old ]; then
+                        echo $hostname_old >> %_sysconfdir/hostname
+                else
+                        echo "localhost" >> %_sysconfdir/hostname
+                fi
+        fi
+
 
 %preun units
 if [ $1 -eq 0 ] ; then
