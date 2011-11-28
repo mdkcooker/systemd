@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 12
+Release:	%mkrel 13
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -315,16 +315,15 @@ if [ $1 -eq 1 ] ; then
                 2>&1 || :
 fi
 
-        hostname_old = `cat /etc/sysconfig/network | grep HOSTNAME | cut -d "=" -f2`
-        emptyhostname = `cat %_sysconfdir/hostname`
-
-        if [ -z $emptyhostname ]; then
-                if [ ! -z $hostname_old ]; then
-                        echo $hostname_old >> %_sysconfdir/hostname
-                else
-                        echo "localhost" >> %_sysconfdir/hostname
-                fi
+hostname_new=`cat %_sysconfdir/hostname 2>/dev/null`
+if [ -z $hostname_new ]; then
+        hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
+        if [ ! -z $hostname_old ]; then
+                echo $hostname_old >> %_sysconfdir/hostname
+        else
+                echo "localhost" >> %_sysconfdir/hostname
         fi
+fi
 
 
 %preun units
