@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 13
+Release:	%mkrel 14
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -79,6 +79,8 @@ work as a drop-in replacement for sysvinit.
 Summary:	Non essential systemd tools
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
+Requires:	python-dbus
+Requires:	python-cairo
 Conflicts:	%{name} <= 35-4
 
 %description tools
