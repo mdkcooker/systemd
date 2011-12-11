@@ -55,7 +55,8 @@ BuildRequires:	gtk2-devel
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
 BuildRequires:	intltool
-BuildRequires:  gperf
+BuildRequires:	gettext-devel
+BuildRequires:	gperf
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
