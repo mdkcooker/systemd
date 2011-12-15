@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 14
+Release:	%mkrel 15
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -238,9 +238,10 @@ ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
 mkdir %{buildroot}/run
 
 # add missing ttys (mdv #63600)
+# (cg) Do not start getty on tty1, it's used for X11 now (mga#3430)
 mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
 pushd %{buildroot}/etc/systemd/system/getty.target.wants
-  for _term in 1 2 3 4 5 6 ; do
+  for _term in 2 3 4 5 6 ; do
     ln -s /lib/systemd/system/getty@.service getty@tty$_term.service
   done
 popd
