@@ -16,7 +16,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 15
+Release:	%mkrel 16
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
