@@ -82,7 +82,7 @@ Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
 Requires:	python-dbus
 Requires:	python-cairo
-Conflicts:	%{name} <= 35-4
+Conflicts:	%{name} <= 37-15
 
 %description tools
 Non essential systemd tools
@@ -441,6 +441,7 @@ fi
 %files tools
 %defattr(-,root,root)
 %{_bindir}/systemd-analyze
+%{_bindir}/systemd-sysv-convert
 
 %files units
 %defattr(-,root,root)
@@ -482,7 +483,6 @@ fi
 /sbin/shutdown
 /sbin/telinit
 /sbin/runlevel
-%{_bindir}/systemd-sysv-convert
 %{_mandir}/man1/init.*
 %{_mandir}/man8/halt.*
 %{_mandir}/man8/reboot.*
