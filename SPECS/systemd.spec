@@ -16,12 +16,11 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	37
-Release:	%mkrel 17
+Release:	%mkrel 18
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.bz2
-Source2:        systemd-sysv-convert
 # (cg) Upstream patches from git
 Patch100: 0100-util-properly-detect-what-the-last-capability-is.patch
 Patch101: 0101-manager-fix-a-crash-in-isolating.patch
@@ -246,16 +245,10 @@ pushd %{buildroot}/etc/systemd/system/getty.target.wants
   done
 popd
 
-# Install SysV conversion tool for systemd
-install -m 0755 %{SOURCE2} %{buildroot}%{_bindir}/
-
 # create modules.conf as a symlink to /etc/
 ln -s /etc/modules %{buildroot}%{_sysconfdir}/modules-load.d/modules.conf
 # (tpg) symlink also modprobe.preload because a lot of modules are inserted there from drak* stuff
 ln -s /etc/modprobe.preload %{buildroot}%{_sysconfdir}/modules-load.d/modprobe-preload.conf
-
-# (tpg) add rpm macros
-#install -m 0644 -D %{SOURCE1} %{buildroot}%{_sysconfdir}/rpm/macros.d/%{name}.macros
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -441,7 +434,6 @@ fi
 %files tools
 %defattr(-,root,root)
 %{_bindir}/systemd-analyze
-%{_bindir}/systemd-sysv-convert
 
 %files units
 %defattr(-,root,root)
