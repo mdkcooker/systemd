@@ -501,9 +501,8 @@ fi
 
 %files gtk
 %defattr(-,root,root)
-# FIXME: hack to make things build for now
-#%{_bindir}/systemadm
-#%{_bindir}/systemd-gnome-ask-password-agent
+%{_bindir}/systemadm
+%{_bindir}/systemd-gnome-ask-password-agent
 %{_mandir}/man1/systemadm.*
 
 %files sysvinit
