@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	38
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -56,7 +56,7 @@ BuildRequires:	libnotify-devel
 BuildRequires:	intltool
 BuildRequires:	gettext-devel
 BuildRequires:	gperf
-BuildRequires:  libgee-devel
+BuildRequires:  pkgconfig(gee-1.0)
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
