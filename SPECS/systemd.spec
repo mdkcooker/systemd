@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	38
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -92,6 +92,7 @@ Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	initscripts < 9.25
+Requires(post): coreutils grep awk
 
 %description units
 Basic configuration files, directories and installation tool for the systemd
