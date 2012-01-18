@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	38
-Release:	%mkrel 5
+Release:	%mkrel 6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -313,6 +313,10 @@ fi
 %post
 /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
 #/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
+
+# Stop-gap until rsyslog.rpm does this on its own. (This is supposed
+# to fail when the link already exists)
+ln -s /lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
 
 %triggerin units -- %{name}-units < 35-1
 # Enable the services we install by default.
