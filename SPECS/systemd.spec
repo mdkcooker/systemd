@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	38
-Release:	%mkrel 6
+Release:	%mkrel 7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -302,6 +302,20 @@ mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/rsyslog.d/
 
 
+# automatic systemd release on rpm installs/removals
+# (see http://wiki.mandriva.com/en/Rpm_filetriggers)
+install -d %buildroot%{_var}/lib/rpm/filetriggers
+cat > %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.filter << EOF
+^./lib/systemd/system/
+EOF
+cat > %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script << EOF
+#!/bin/sh
+if [ -x /bin/systemctl ]; then 
+ /bin/systemctl daemon-reload >/dev/null 2>&1 || : 
+fi
+EOF
+chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
+
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
 # trigger is executed on both self and target install so no need to have
@@ -400,6 +414,7 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
+%config(noreplace) %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
