@@ -1,0 +1,26 @@
+From 650cab3685a77d1f2e58009769ea8e8ed5061a9a Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 14 Jan 2012 01:53:47 +0100
+Subject: [PATCH 211/217] journal: fix bad memory access (cherry picked from
+ commit 5c3759bf8a3d418fa877e6a278f3150f404745b2)
+
+---
+ src/journal/journald.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/journal/journald.c b/src/journal/journald.c
+index 2737f66..44aa7af 100644
+--- a/src/journal/journald.c
++++ b/src/journal/journald.c
+@@ -452,7 +452,7 @@ static void dispatch_message_real(Server *s,
+                         exe = strappend("_EXE=", t);
+                         free(t);
+ 
+-                        if (comm)
++                        if (exe)
+                                 IOVEC_SET_STRING(iovec[n++], exe);
+                 }
+ 
+-- 
+1.7.8.3
+

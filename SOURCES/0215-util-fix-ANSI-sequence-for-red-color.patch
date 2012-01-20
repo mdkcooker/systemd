@@ -1,0 +1,27 @@
+From fb861f69c0d32ae4983de94c122026493b6d9676 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Tue, 17 Jan 2012 12:50:42 +0100
+Subject: [PATCH 215/217] util: fix ANSI sequence for red color
+
+Red turned green by mistake in commit c1072ea0.
+(cherry picked from commit 281605bf141ce9e428577d57ed5204ec06755d8d)
+---
+ src/util.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/util.h b/src/util.h
+index e6ffad6..43071b3 100644
+--- a/src/util.h
++++ b/src/util.h
+@@ -69,7 +69,7 @@ typedef struct dual_timestamp {
+ #define FORMAT_TIMESPAN_MAX 64
+ 
+ #define ANSI_HIGHLIGHT_ON "\x1B[1;39m"
+-#define ANSI_HIGHLIGHT_RED_ON "\x1B[1;32m"
++#define ANSI_HIGHLIGHT_RED_ON "\x1B[1;31m"
+ #define ANSI_HIGHLIGHT_GREEN_ON "\x1B[1;32m"
+ #define ANSI_HIGHLIGHT_OFF "\x1B[0m"
+ 
+-- 
+1.7.8.3
+

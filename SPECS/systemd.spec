@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	38
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -31,6 +31,25 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 # Stop-gap, just to ensure things work fine with rsyslog without having to change the package right-away
 Source4:        listen.conf
 # (cg) Upstream patches from git
+Patch200: 0200-journalctl-fix-help-text.patch
+Patch201: 0201-journald-don-t-assume-size_t-and-uint64_t-are-the-sa.patch
+Patch202: 0202-logs-show-fix-missing-newline-in-short-output.patch
+Patch203: 0203-tmpfiles-fix-parsing-of-proc-net-unix-on-32Bit-machi.patch
+Patch204: 0204-journal-fix-more-32-64-bit-issues.patch
+Patch205: 0205-units-make-sure-syslog-socket-goes-away-early-during.patch
+Patch206: 0206-journal-if-the-syslog-forwarder-socket-is-full-then-.patch
+Patch207: 0207-journal-add-output-mode-that-just-prints-simple-mess.patch
+Patch208: 0208-pam-work-correctly-if-a-seat-is-specified-but-not-vt.patch
+Patch209: 0209-pam-fix-build.patch
+Patch210: 0210-journal-handle-empty-syslog-identifier-properly.patch
+Patch211: 0211-journal-fix-bad-memory-access.patch
+Patch212: 0212-util-split-out-tty_is_vc_resolve-from-default_term_f.patch
+Patch213: 0213-util-rework-ANSI-escape-code-macros.patch
+Patch214: 0214-logind-downgrade-login-message-to-debug.patch
+Patch215: 0215-util-fix-ANSI-sequence-for-red-color.patch
+Patch216: 0216-logind-simplify-session_activate-a-bit.patch
+Patch217: 0217-logind-allow-to-create-multiple-sessions-on-non-mult.patch
+
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch501: systemd-18-clean-dirs-on-boot.patch
@@ -41,6 +60,7 @@ Patch503: systemd-19-apply-timeoutsec-to-oneshot-too.patch
 Patch504: systemd-tmpfilesd-utmp-temp-patch.patch
 Patch506: systemd-33-rc-local.patch
 Patch507: systemd-37-fix-prefdm.service.patch
+Patch508: systemd-38-fix-syslog-socket-deadlock.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0

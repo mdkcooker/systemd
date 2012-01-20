@@ -1,0 +1,36 @@
+From 11a6c7fcc9cbc072ad3b6f374b4da77d61c0c221 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Fri, 20 Jan 2012 01:14:18 +0000
+Subject: [PATCH] hack: Fix syslog.socket to not cause a deadlock.
+
+---
+ units/syslog.socket |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/units/syslog.socket b/units/syslog.socket
+index 657e791..1d50da9 100644
+--- a/units/syslog.socket
++++ b/units/syslog.socket
+@@ -9,13 +9,14 @@
+ 
+ [Unit]
+ Description=Syslog Socket
+-DefaultDependencies=no
+-Before=sockets.target syslog.target
+-Conflicts=shutdown.target
+-Before=shutdown.target
++After=basic.target
++#DefaultDependencies=no
++#Before=sockets.target syslog.target
++#Conflicts=shutdown.target
++#Before=shutdown.target
+ 
+ # Pull in syslog.target to tell people that /dev/log is now accessible
+-Wants=syslog.target
++#Wants=syslog.target
+ 
+ [Socket]
+ ListenDatagram=/run/systemd/journal/syslog
+-- 
+1.7.8.3
+

@@ -1,0 +1,37 @@
+From ccebcbb38a9f24550368a03fda9fcb7388237970 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 14 Jan 2012 01:54:02 +0100
+Subject: [PATCH 210/217] journal: handle empty syslog identifier properly
+ (cherry picked from commit
+ 4c7de07481080d19c7c22a8437184c515ebaeafb)
+
+---
+ src/journal/journald.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/src/journal/journald.c b/src/journal/journald.c
+index 87f1e5b..2737f66 100644
+--- a/src/journal/journald.c
++++ b/src/journal/journald.c
+@@ -1308,10 +1308,14 @@ static int stdout_stream_line(StdoutStream *s, char *p) {
+         switch (s->state) {
+ 
+         case STDOUT_STREAM_IDENTIFIER:
+-                s->identifier = strdup(p);
+-                if (!s->identifier) {
+-                        log_error("Out of memory");
+-                        return -ENOMEM;
++                if (isempty(p))
++                        s->identifier = NULL;
++                else  {
++                        s->identifier = strdup(p);
++                        if (!s->identifier) {
++                                log_error("Out of memory");
++                                return -ENOMEM;
++                        }
+                 }
+ 
+                 s->state = STDOUT_STREAM_PRIORITY;
+-- 
+1.7.8.3
+

@@ -1,0 +1,26 @@
+From 7040a17e405f94a3a47d31d879e197156753db7d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 11 Jan 2012 16:03:42 +0100
+Subject: [PATCH 200/217] journalctl: fix --help text (cherry picked from
+ commit d1e44dd8271c0e1348bbdb0046f8fa2437c4a567)
+
+---
+ src/journal/journalctl.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index 910259f..b2ebc7a 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -57,7 +57,7 @@ static int help(void) {
+                "  -f --follow         Follow journal\n"
+                "  -n --lines=INTEGER  Journal entries to show\n"
+                "     --no-tail        Show all lines, even in follow mode\n"
+-               "  -o --output=STRING  Change journal output mode (short, short-verbose, verbose, export, json)\n"
++               "  -o --output=STRING  Change journal output mode (short, short-monotonic, verbose, export, json)\n"
+                "     --new-id128      Generate a new 128 Bit id\n",
+                program_invocation_short_name);
+ 
+-- 
+1.7.8.3
+

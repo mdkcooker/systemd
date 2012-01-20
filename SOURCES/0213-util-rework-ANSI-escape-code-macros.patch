@@ -1,0 +1,210 @@
+From 8ce9053df1a2e6712d016f1c1878077d358322ca Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 13 Jan 2012 21:56:09 +0100
+Subject: [PATCH 213/217] util: rework ANSI escape code macros (cherry picked
+ from commit
+ c1072ea0dade39a4188de5e511adfffd4ba8e42c)
+
+---
+ src/ask-password-api.c |    4 ++--
+ src/job.c              |    8 ++++----
+ src/log.c              |    2 +-
+ src/systemctl.c        |   32 ++++++++++++++++----------------
+ src/util.c             |    4 ++--
+ src/util.h             |    3 ++-
+ 6 files changed, 27 insertions(+), 26 deletions(-)
+
+diff --git a/src/ask-password-api.c b/src/ask-password-api.c
+index f57105c..ce2f3cb 100644
+--- a/src/ask-password-api.c
++++ b/src/ask-password-api.c
+@@ -89,10 +89,10 @@ int ask_password_tty(
+                         goto finish;
+                 }
+ 
+-                loop_write(ttyfd, "\x1B[1m", 4, false);
++                loop_write(ttyfd, ANSI_HIGHLIGHT_ON, sizeof(ANSI_HIGHLIGHT_ON)-1, false);
+                 loop_write(ttyfd, message, strlen(message), false);
+                 loop_write(ttyfd, " ", 1, false);
+-                loop_write(ttyfd, "\x1B[0m", 4, false);
++                loop_write(ttyfd, ANSI_HIGHLIGHT_OFF, sizeof(ANSI_HIGHLIGHT_OFF)-1, false);
+ 
+                 new_termios = old_termios;
+                 new_termios.c_lflag &= ~(ICANON|ECHO);
+diff --git a/src/job.c b/src/job.c
+index 1520d81..85f2dee 100644
+--- a/src/job.c
++++ b/src/job.c
+@@ -488,16 +488,16 @@ static void job_print_status_message(Unit *u, JobType t, JobResult result) {
+                         break;
+ 
+                 case JOB_FAILED:
+-                        unit_status_printf(u, ANSI_HIGHLIGHT_ON "FAILED" ANSI_HIGHLIGHT_OFF, "Failed to start %s", unit_description(u));
++                        unit_status_printf(u, ANSI_HIGHLIGHT_RED_ON "FAILED" ANSI_HIGHLIGHT_OFF, "Failed to start %s", unit_description(u));
+                         unit_status_printf(u, NULL, "See 'systemctl status %s' for details.", u->meta.id);
+                         break;
+ 
+                 case JOB_DEPENDENCY:
+-                        unit_status_printf(u, ANSI_HIGHLIGHT_ON " ABORT" ANSI_HIGHLIGHT_OFF, "Dependency failed. Aborted start of %s", unit_description(u));
++                        unit_status_printf(u, ANSI_HIGHLIGHT_RED_ON " ABORT" ANSI_HIGHLIGHT_OFF, "Dependency failed. Aborted start of %s", unit_description(u));
+                         break;
+ 
+                 case JOB_TIMEOUT:
+-                        unit_status_printf(u, ANSI_HIGHLIGHT_ON " TIME " ANSI_HIGHLIGHT_OFF, "Timed out starting %s", unit_description(u));
++                        unit_status_printf(u, ANSI_HIGHLIGHT_RED_ON " TIME " ANSI_HIGHLIGHT_OFF, "Timed out starting %s", unit_description(u));
+                         break;
+ 
+                 default:
+@@ -509,7 +509,7 @@ static void job_print_status_message(Unit *u, JobType t, JobResult result) {
+                 switch (result) {
+ 
+                 case JOB_TIMEOUT:
+-                        unit_status_printf(u, ANSI_HIGHLIGHT_ON " TIME " ANSI_HIGHLIGHT_OFF, "Timed out stopping %s", unit_description(u));
++                        unit_status_printf(u, ANSI_HIGHLIGHT_RED_ON " TIME " ANSI_HIGHLIGHT_OFF, "Timed out stopping %s", unit_description(u));
+                         break;
+ 
+                 case JOB_DONE:
+diff --git a/src/log.c b/src/log.c
+index 3dfe654..5754b4d 100644
+--- a/src/log.c
++++ b/src/log.c
+@@ -277,7 +277,7 @@ static int write_to_console(
+         }
+ 
+         if (highlight)
+-                IOVEC_SET_STRING(iovec[n++], ANSI_HIGHLIGHT_ON);
++                IOVEC_SET_STRING(iovec[n++], ANSI_HIGHLIGHT_RED_ON);
+         IOVEC_SET_STRING(iovec[n++], buffer);
+         if (highlight)
+                 IOVEC_SET_STRING(iovec[n++], ANSI_HIGHLIGHT_OFF);
+diff --git a/src/systemctl.c b/src/systemctl.c
+index b72fcbf..d7d7d67 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -166,12 +166,12 @@ static void agent_open_if_enabled(void) {
+         agent_open();
+ }
+ 
+-static const char *ansi_highlight(bool b) {
++static const char *ansi_highlight_red(bool b) {
+ 
+         if (!on_tty())
+                 return "";
+ 
+-        return b ? ANSI_HIGHLIGHT_ON : ANSI_HIGHLIGHT_OFF;
++        return b ? ANSI_HIGHLIGHT_RED_ON : ANSI_HIGHLIGHT_OFF;
+ }
+ 
+ static const char *ansi_highlight_green(bool b) {
+@@ -383,14 +383,14 @@ static void output_units_list(const struct unit_info *unit_infos, unsigned c) {
+                 n_shown++;
+ 
+                 if (streq(u->load_state, "error")) {
+-                        on_loaded = ansi_highlight(true);
+-                        off_loaded = ansi_highlight(false);
++                        on_loaded = ansi_highlight_red(true);
++                        off_loaded = ansi_highlight_red(false);
+                 } else
+                         on_loaded = off_loaded = "";
+ 
+                 if (streq(u->active_state, "failed")) {
+-                        on_active = ansi_highlight(true);
+-                        off_active = ansi_highlight(false);
++                        on_active = ansi_highlight_red(true);
++                        off_active = ansi_highlight_red(false);
+                 } else
+                         on_active = off_active = "";
+ 
+@@ -593,8 +593,8 @@ static void output_unit_file_list(const UnitFileList *units, unsigned c) {
+                 if (u->state == UNIT_FILE_MASKED ||
+                     u->state == UNIT_FILE_MASKED_RUNTIME ||
+                     u->state == UNIT_FILE_DISABLED) {
+-                        on  = ansi_highlight(true);
+-                        off = ansi_highlight(false);
++                        on  = ansi_highlight_red(true);
++                        off = ansi_highlight_red(false);
+                 } else if (u->state == UNIT_FILE_ENABLED) {
+                         on  = ansi_highlight_green(true);
+                         off = ansi_highlight_green(false);
+@@ -2069,8 +2069,8 @@ static void print_status_info(UnitStatusInfo *i) {
+                 printf("\t  Follow: unit currently follows state of %s\n", i->following);
+ 
+         if (streq_ptr(i->load_state, "error")) {
+-                on = ansi_highlight(true);
+-                off = ansi_highlight(false);
++                on = ansi_highlight_red(true);
++                off = ansi_highlight_red(false);
+         } else
+                 on = off = "";
+ 
+@@ -2086,8 +2086,8 @@ static void print_status_info(UnitStatusInfo *i) {
+         ss = streq_ptr(i->active_state, i->sub_state) ? NULL : i->sub_state;
+ 
+         if (streq_ptr(i->active_state, "failed")) {
+-                on = ansi_highlight(true);
+-                off = ansi_highlight(false);
++                on = ansi_highlight_red(true);
++                off = ansi_highlight_red(false);
+         } else if (streq_ptr(i->active_state, "active") || streq_ptr(i->active_state, "reloading")) {
+                 on = ansi_highlight_green(true);
+                 off = ansi_highlight_green(false);
+@@ -2163,8 +2163,8 @@ static void print_status_info(UnitStatusInfo *i) {
+                         good = is_clean_exit(p->code, p->status);
+ 
+                 if (!good) {
+-                        on = ansi_highlight(true);
+-                        off = ansi_highlight(false);
++                        on = ansi_highlight_red(true);
++                        off = ansi_highlight_red(false);
+                 } else
+                         on = off = "";
+ 
+@@ -2274,8 +2274,8 @@ static void print_status_info(UnitStatusInfo *i) {
+ 
+         if (i->need_daemon_reload)
+                 printf("\n%sWarning:%s Unit file changed on disk, 'systemctl %s daemon-reload' recommended.\n",
+-                       ansi_highlight(true),
+-                       ansi_highlight(false),
++                       ansi_highlight_red(true),
++                       ansi_highlight_red(false),
+                        arg_scope == UNIT_FILE_SYSTEM ? "--system" : "--user");
+ }
+ 
+diff --git a/src/util.c b/src/util.c
+index f5571ca..7450565 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -2467,14 +2467,14 @@ int ask(char *ret, const char *replies, const char *text, ...) {
+                 bool need_nl = true;
+ 
+                 if (on_tty)
+-                        fputs("\x1B[1m", stdout);
++                        fputs(ANSI_HIGHLIGHT_ON, stdout);
+ 
+                 va_start(ap, text);
+                 vprintf(text, ap);
+                 va_end(ap);
+ 
+                 if (on_tty)
+-                        fputs("\x1B[0m", stdout);
++                        fputs(ANSI_HIGHLIGHT_OFF, stdout);
+ 
+                 fflush(stdout);
+ 
+diff --git a/src/util.h b/src/util.h
+index 2d19276..e6ffad6 100644
+--- a/src/util.h
++++ b/src/util.h
+@@ -68,7 +68,8 @@ typedef struct dual_timestamp {
+ #define FORMAT_TIMESTAMP_PRETTY_MAX 256
+ #define FORMAT_TIMESPAN_MAX 64
+ 
+-#define ANSI_HIGHLIGHT_ON "\x1B[1;31m"
++#define ANSI_HIGHLIGHT_ON "\x1B[1;39m"
++#define ANSI_HIGHLIGHT_RED_ON "\x1B[1;32m"
+ #define ANSI_HIGHLIGHT_GREEN_ON "\x1B[1;32m"
+ #define ANSI_HIGHLIGHT_OFF "\x1B[0m"
+ 
+-- 
+1.7.8.3
+
