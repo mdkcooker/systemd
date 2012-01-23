@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	38
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -322,6 +322,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/rsyslog.d/
 
 
+# Create unowned folders
+%mkdir -p %_libdir/systemd/user/
+
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
 install -d %buildroot%{_var}/lib/rpm/filetriggers
@@ -424,7 +427,6 @@ if [ $1 -ge 1 ] ; then
 fi
 
 %files
-%defattr(-,root,root)
 # (cg) Note some of these directories are empty, but that is intended
 %dir /run
 %dir /lib/systemd
@@ -434,6 +436,8 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
+%dir %_libdir/systemd
+%dir %_libdir/systemd/user/
 %config(noreplace) %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
