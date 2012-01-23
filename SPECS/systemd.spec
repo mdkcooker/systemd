@@ -323,7 +323,7 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/rsyslog.d/
 
 
 # Create unowned folders
-%mkdir -p %_libdir/systemd/user/
+mkdir -p %_libdir/systemd/user/
 
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
