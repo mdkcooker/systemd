@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	39
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -65,6 +65,7 @@ Requires:	udev >= 172
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
 Requires:	nss-myhostname
+Requires:       lockdev
 Conflicts:	initscripts < 9.25
 
 %description
