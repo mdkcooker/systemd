@@ -22,8 +22,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	39
-Release:	%mkrel 3
+Version:	40
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -59,6 +59,7 @@ BuildRequires:	intltool
 BuildRequires:	gettext-devel
 BuildRequires:	gperf
 BuildRequires:  pkgconfig(gee-1.0)
+BuildRequires:  cryptsetup-devel
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
@@ -303,6 +304,9 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
 install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/rsyslog.d/
+
+# Let rsyslog read from /proc/kmsg for now
+sed -i -e 's/\#ImportKernel=yes/ImportKernel=no/' %{buildroot}%{_sysconfdir}/systemd/systemd-journald.conf
 
 # Create unowned folders
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
