@@ -61,6 +61,7 @@ BuildRequires:	gperf
 BuildRequires:	pkgconfig(gee-1.0)
 BuildRequires:	cryptsetup-devel
 BuildRequires:	pkgconfig(libkmod)
+BuildRequires:	xsltproc
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
