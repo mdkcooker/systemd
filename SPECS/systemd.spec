@@ -29,7 +29,7 @@ Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 # Stop-gap, just to ensure things work fine with rsyslog without having to change the package right-away
-Source4:        listen.conf
+Source4:	listen.conf
 
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
@@ -58,15 +58,16 @@ BuildRequires:	libnotify-devel
 BuildRequires:	intltool
 BuildRequires:	gettext-devel
 BuildRequires:	gperf
-BuildRequires:  pkgconfig(gee-1.0)
-BuildRequires:  cryptsetup-devel
+BuildRequires:	pkgconfig(gee-1.0)
+BuildRequires:	cryptsetup-devel
+BuildRequires:	pkgconfig(libkmod)
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	udev >= 172
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
 Requires:	nss-myhostname
-Requires:       lockdev
+Requires:	lockdev
 Conflicts:	initscripts < 9.25
 
 %description
