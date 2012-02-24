@@ -1,0 +1,30 @@
+From 97da16c0f03e5d9a6fec702e1c38fba45c1b5bea Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Thu, 23 Feb 2012 16:11:53 +0000
+Subject: [PATCH 502/505] Some more tmpfiles fixes
+
+---
+ tmpfiles.d/systemd.conf |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/tmpfiles.d/systemd.conf b/tmpfiles.d/systemd.conf
+index be29c06..ca912fe 100644
+--- a/tmpfiles.d/systemd.conf
++++ b/tmpfiles.d/systemd.conf
+@@ -7,8 +7,11 @@
+ 
+ # See tmpfiles.d(5) for details
+ 
+-d /run/user 0755 root root 10d
+-F /run/utmp 0664 root utmp -
++#d /run/user 0755 root root 10d
++d /var/run/user 0755 root root 10d
++#F /run/utmp 0664 root utmp -
++#Look into systemd TODO need symlink from /var/run to /run/
++F /var/run/utmp 0664 root utmp -
+ 
+ f /var/log/wtmp 0664 root utmp -
+ f /var/log/btmp 0600 root utmp -
+-- 
+1.7.9.1
+

@@ -22,8 +22,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	40
-Release:	%mkrel 3
+Version:	43
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -34,15 +34,15 @@ Source4:        listen.conf
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
-Patch501: systemd-18-clean-dirs-on-boot.patch
+Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 # (cg/bor) fix potential deadlock when onseshot unit is not finished
 # - Lennart will do this eventually but believes this patch is insufficient.
-Patch503: systemd-19-apply-timeoutsec-to-oneshot-too.patch
+Patch501: 0501-apply-TimeoutSec-to-oneshot-services-too.patch
 # (cg) We need to work out how to symlink (new install) or bind mount (upgrades) /var/run to /run
-Patch504: systemd-tmpfilesd-utmp-temp-patch.patch
-Patch506: systemd-33-rc-local.patch
-Patch507: systemd-37-fix-prefdm.service.patch
-Patch508: systemd-38-fix-syslog-socket-deadlock.patch
+Patch502: 0502-Some-more-tmpfiles-fixes.patch
+Patch503: 0503-Add-mandriva-unit-for-rc-local.service.patch
+Patch504: 0504-Mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
+Patch505: 0505-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
@@ -197,13 +197,11 @@ This package provides the development files for the systemd-id128 shared library
 find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
-# TODO for P13, remove when it is removed
-autoreconf -fi
 %configure2_5x \
-	--with-rootprefix= \
-	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
-	--with-rootlibdir=/%{_lib}
+  --with-distro=mageia \
+  --disable-static \
+  --with-rootprefix= \
+  --with-rootlibdir=/%{_lib}
 
 %make
 
@@ -216,7 +214,8 @@ find %{buildroot} \( -name '*.a' -o -name '*.la' \) -exec rm {} \;
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
 mkdir -p %{buildroot}/sbin
-ln -s ../bin/systemd %{buildroot}/sbin/init
+ln -s ../lib/systemd/systemd %{buildroot}/bin/systemd
+ln -s ../lib/systemd/systemd %{buildroot}/sbin/init
 ln -s ../bin/systemctl %{buildroot}/sbin/reboot
 ln -s ../bin/systemctl %{buildroot}/sbin/halt
 ln -s ../bin/systemctl %{buildroot}/sbin/poweroff
@@ -276,15 +275,6 @@ ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
 
 # (eugeni) install /run
 mkdir %{buildroot}/run
-
-# add missing ttys (mdv #63600)
-# (cg) Do not start getty on tty1, it's used for X11 now (mga#3430)
-mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
-pushd %{buildroot}/etc/systemd/system/getty.target.wants
-  for _term in 2 3 4 5 6 ; do
-    ln -s /lib/systemd/system/getty@.service getty@tty$_term.service
-  done
-popd
 
 # create modules.conf as a symlink to /etc/
 ln -s /etc/modules %{buildroot}%{_sysconfdir}/modules-load.d/modules.conf
@@ -459,7 +449,7 @@ fi
 /bin/systemd-notify
 /bin/systemd-tmpfiles
 /bin/systemd-tty-ask-password-agent
-/lib/systemd/systemd-*
+/lib/systemd/systemd*
 /lib/systemd/system-generators/systemd-*
 /lib/udev/rules.d/*.rules
 /%{_lib}/security/pam_systemd.so
@@ -522,7 +512,6 @@ fi
 # NB I'm not totally sure of the ownership split of directories between systemd and systemd-units.
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
-%dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
@@ -532,7 +521,6 @@ fi
 /bin/systemctl
 %{_sysconfdir}/bash_completion.d/systemd
 %{_sysconfdir}/modules-load.d/*.conf
-%{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
 

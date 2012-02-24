@@ -1,0 +1,39 @@
+From 02181c7fa44d40a9b11383bdcf3705b03958dc0d Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Thu, 23 Feb 2012 16:15:37 +0000
+Subject: [PATCH 503/505] Add mandriva unit for rc-local.service
+
+This is a patch that I think should have little effect as we
+are 'mageia'... Applying for now and will clean it up later.
+---
+ units/mandriva/rc-local.service |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+), 0 deletions(-)
+ create mode 100644 units/mandriva/rc-local.service
+
+diff --git a/units/mandriva/rc-local.service b/units/mandriva/rc-local.service
+new file mode 100644
+index 0000000..0fc1c62
+--- /dev/null
++++ b/units/mandriva/rc-local.service
+@@ -0,0 +1,18 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=/etc/rc.local Compatibility
++ConditionPathExists=/etc/rc.d/rc.local
++
++[Service]
++Type=forking
++ExecStart=-/etc/rc.d/rc.local start
++TimeoutSec=0
++StandardOutput=tty
++RemainAfterExit=yes
++SysVStartPriority=99
+-- 
+1.7.9.1
+
