@@ -43,6 +43,7 @@ Patch502: 0502-Some-more-tmpfiles-fixes.patch
 Patch503: 0503-Add-mandriva-unit-for-rc-local.service.patch
 Patch504: 0504-Mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
 Patch505: 0505-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
+Patch506: 0506-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
