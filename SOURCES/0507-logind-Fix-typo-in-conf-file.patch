@@ -1,0 +1,25 @@
+From f2affe2b0ccdcf694e55c372e985070414b01202 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Mon, 27 Feb 2012 22:53:37 +0000
+Subject: [PATCH 507/508] logind: Fix typo in conf file
+
+---
+ src/login/systemd-logind.conf |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/systemd-logind.conf b/src/login/systemd-logind.conf
+index 9909804..a8d9833 100644
+--- a/src/login/systemd-logind.conf
++++ b/src/login/systemd-logind.conf
+@@ -5,7 +5,7 @@
+ #  the Free Software Foundation; either version 2 of the License, or
+ #  (at your option) any later version.
+ #
+-# See system-logind.conf(5) for details
++# See systemd-logind.conf(5) for details
+ 
+ [Login]
+ #NAutoVTs=6
+-- 
+1.7.9.2
+

@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	43
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -44,6 +44,8 @@ Patch503: 0503-Add-mandriva-unit-for-rc-local.service.patch
 Patch504: 0504-Mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
 Patch505: 0505-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
 Patch506: 0506-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch507: 0507-logind-Fix-typo-in-conf-file.patch
+Patch508: 0508-main-Enable-quiet-mode-when-bootspash-is-enabled.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
