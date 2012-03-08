@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	43
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -31,6 +31,8 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 # Stop-gap, just to ensure things work fine with rsyslog without having to change the package right-away
 Source4:	listen.conf
 
+# (cg) Upstream cherry picks
+Patch100: 0100-journal-make-sure-to-refresh-window-position-and-poi.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -45,7 +47,7 @@ Patch504: 0504-Mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
 Patch505: 0505-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
 Patch506: 0506-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 Patch507: 0507-logind-Fix-typo-in-conf-file.patch
-Patch508: 0508-main-Enable-quiet-mode-when-bootspash-is-enabled.patch
+Patch508: 0508-mageia-Fallback-message-when-display-manager-fails.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
