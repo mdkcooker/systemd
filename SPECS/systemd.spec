@@ -23,13 +23,11 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	43
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
-# Stop-gap, just to ensure things work fine with rsyslog without having to change the package right-away
-Source4:	listen.conf
 
 # (cg) Upstream cherry picks
 Patch100: 0100-journal-make-sure-to-refresh-window-position-and-poi.patch
@@ -299,10 +297,6 @@ touch %{buildroot}%{_sysconfdir}/timezone
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 
-# Install rsyslog fragment
-mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
-install -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/rsyslog.d/
-
 # Let rsyslog read from /proc/kmsg for now
 sed -i -e 's/\#ImportKernel=yes/ImportKernel=no/' %{buildroot}%{_sysconfdir}/systemd/systemd-journald.conf
 
@@ -338,10 +332,6 @@ fi
 /bin/systemd-machine-id-setup > /dev/null 2>&1 || :
 #/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 
-# Stop-gap until rsyslog.rpm does this on its own. (This is supposed
-# to fail when the link already exists)
-ln -s /lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
-
 %triggerin units -- %{name}-units < 35-1
 # Enable the services we install by default.
         /bin/systemctl --quiet enable \
@@ -352,7 +342,6 @@ ln -s /lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/d
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
-                rsyslog.service \
                 2>&1 || :
 # rc-local is now enabled by default in base package
 rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
@@ -378,7 +367,6 @@ if [ $1 -eq 1 ] ; then
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
-                rsyslog.service \
                 2>&1 || :
 fi
 
@@ -402,7 +390,6 @@ if [ $1 -eq 0 ] ; then
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
-                rsyslog.service \
                 2>&1 || :
 
         /bin/rm -f %_sysconfdir/systemd/system/default.target 2>&1 || :
@@ -448,7 +435,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-%config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 /bin/systemd
 /bin/systemd-ask-password
 /bin/systemd-loginctl
