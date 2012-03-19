@@ -22,15 +22,16 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	43
-Release:	%mkrel 5
+Version:	44
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 
 # (cg) Upstream cherry picks
-Patch100: 0100-journal-make-sure-to-refresh-window-position-and-poi.patch
+# (cg) CVE-2012-1174
+Patch100: 0100-util-never-follow-symlinks-in-rm_rf_children.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -205,6 +206,7 @@ find src/ -name "*.vala" -exec touch '{}' \;
 %build
 %configure2_5x \
   --with-distro=mageia \
+  --disable-coredump \
   --disable-static \
   --with-rootprefix= \
   --with-rootlibdir=/%{_lib}
@@ -264,6 +266,13 @@ mv %{buildroot}%{_sysconfdir}/bash_completion.d/systemd-bash-completion.sh \
   %{buildroot}%{_sysconfdir}/bash_completion.d/systemd
 chmod 644 %{buildroot}%{_sysconfdir}/bash_completion.d/systemd
 
+# (cg) Set up the pager to make it generally more useful
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d
+cat > %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh << EOF
+export SYSTEMD_PAGER="/usr/bin/less -FR"
+EOF
+chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
+
 # (tpg) use systemd's own mounting capability
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' \
   %{buildroot}/etc/systemd/system.conf
@@ -284,8 +293,6 @@ mkdir %{buildroot}/run
 
 # create modules.conf as a symlink to /etc/
 ln -s /etc/modules %{buildroot}%{_sysconfdir}/modules-load.d/modules.conf
-# (tpg) symlink also modprobe.preload because a lot of modules are inserted there from drak* stuff
-ln -s /etc/modprobe.preload %{buildroot}%{_sysconfdir}/modules-load.d/modprobe-preload.conf
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -420,7 +427,7 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %config(noreplace) %{_sysconfdir}/systemd/systemd-journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
-%{_prefix}/lib/sysctl.d/coredump.conf
+#%{_prefix}/lib/sysctl.d/coredump.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
@@ -454,12 +461,7 @@ fi
 %{_bindir}/systemd-stdio-bridge
 %{_datadir}/systemd/kbd-model-map
 %{_mandir}/man1/systemd.*
-%{_mandir}/man1/systemd-notify.*
-%{_mandir}/man1/systemd-cgls.*
-%{_mandir}/man1/systemd-cgtop.*
-%{_mandir}/man1/systemd-ask-password.1.*
-%{_mandir}/man1/systemd-loginctl.1.*
-%{_mandir}/man1/systemd-nspawn.1.*
+%{_mandir}/man1/systemd-*
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
@@ -512,8 +514,10 @@ fi
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/bash_completion.d
+%dir %{_sysconfdir}/profile.d
 /bin/systemctl
 %{_sysconfdir}/bash_completion.d/systemd
+%{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/modules-load.d/*.conf
 /lib/systemd/system
 %{_mandir}/man1/systemctl.*
