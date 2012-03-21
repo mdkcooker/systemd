@@ -514,7 +514,6 @@ fi
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/bash_completion.d
-%dir %{_sysconfdir}/profile.d
 /bin/systemctl
 %{_sysconfdir}/bash_completion.d/systemd
 %{_sysconfdir}/profile.d/40systemd.sh
