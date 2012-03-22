@@ -318,7 +318,7 @@ EOF
 chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
 
 # This file is already in sytemd-ui rpm
-rm -fr %buildroot %_mandir/man1/systemadm.1.*
+rm -fr %buildroot%_mandir/man1/systemadm.1.*
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
