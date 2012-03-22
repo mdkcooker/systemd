@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -56,7 +56,6 @@ BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pam-devel
 BuildRequires:	dbus-glib-devel
 BuildRequires:	vala >= 0.9
-BuildRequires:	gtk2-devel  
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
 BuildRequires:	intltool
@@ -108,15 +107,6 @@ Requires(post): coreutils grep awk
 %description units
 Basic configuration files, directories and installation tool for the systemd
 system and session manager.
-
-%package gtk
-Summary:        Graphical frontend for systemd
-Group:          System/Configuration/Boot and Init
-Requires:       %{name} = %{version}-%{release}
-Requires:       polkit
-
-%description gtk
-Graphical front-end for systemd.
 
 %package sysvinit
 Summary:        System V init tools
@@ -327,6 +317,9 @@ fi
 EOF
 chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
 
+# This file is already in sytemd-ui rpm
+rm -fr %buildroot %_mandir/man1/systemadm.1.*
+
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
 # trigger is executed on both self and target install so no need to have
@@ -525,12 +518,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel3.target
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel4.target
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel5.target
-
-%files gtk
-%defattr(-,root,root)
-%{_bindir}/systemadm
-%{_bindir}/systemd-gnome-ask-password-agent
-%{_mandir}/man1/systemadm.*
 
 %files sysvinit
 %defattr(-,root,root,-)
