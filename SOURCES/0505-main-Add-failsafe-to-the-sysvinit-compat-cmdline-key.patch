@@ -1,7 +1,7 @@
-From 22f39b79982bbfc95361baffb532718a303dbd28 Mon Sep 17 00:00:00 2001
+From ea93085ae1b46a030c9bc3bce11c22544c8317d5 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 26 Feb 2012 17:45:58 +0000
-Subject: [PATCH 506/506] main: Add 'failsafe' to the sysvinit compat cmdline
+Subject: [PATCH 505/509] main: Add 'failsafe' to the sysvinit compat cmdline
  keywords.
 
 This is just a synonym for systemd.unit=rescue.target (the
@@ -25,5 +25,5 @@ index ed317b4..60b41f1 100644
                  "-s",        SPECIAL_RESCUE_TARGET,
                  "s",         SPECIAL_RESCUE_TARGET,
 -- 
-1.7.9.2
+1.7.9.3
 

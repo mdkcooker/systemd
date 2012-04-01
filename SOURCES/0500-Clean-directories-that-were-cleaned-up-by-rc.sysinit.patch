@@ -1,12 +1,12 @@
-From 5b905f85f290b3c59589ce4b2672a6d2d0ba2bf3 Mon Sep 17 00:00:00 2001
+From 063313bba9ae835c798ad2ca25e2567b8e13a35d Mon Sep 17 00:00:00 2001
 From: Andrey Borzenkov <arvidjaar@gmail.com>
 Date: Sat, 22 Oct 2011 16:56:08 +0100
-Subject: [PATCH 500/505] Clean directories that were cleaned up by rc.sysinit
+Subject: [PATCH 500/509] Clean directories that were cleaned up by rc.sysinit
 
 Signed-off-by: Andrey Borzenkov <arvidjaar@gmail.com>
 ---
  tmpfiles.d/x11.conf |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/tmpfiles.d/x11.conf b/tmpfiles.d/x11.conf
 index 7f81af6..e6f39cf 100644
@@ -28,5 +28,5 @@ index 7f81af6..e6f39cf 100644
  
  # Unlink the X11 lock files
 -- 
-1.7.9.1
+1.7.9.3
 

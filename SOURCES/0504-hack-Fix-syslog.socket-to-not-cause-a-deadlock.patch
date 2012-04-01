@@ -1,14 +1,14 @@
-From 7b53ac480ee0525715e0ae76d86978cd024f5473 Mon Sep 17 00:00:00 2001
+From fe8105b136e7c79320867423dde959635892c8b4 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Fri, 20 Jan 2012 01:14:18 +0000
-Subject: [PATCH 505/505] hack: Fix syslog.socket to not cause a deadlock.
+Subject: [PATCH 504/509] hack: Fix syslog.socket to not cause a deadlock.
 
 ---
  units/syslog.socket |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/units/syslog.socket b/units/syslog.socket
-index 1c54857..7d2029a 100644
+index 0e211e1..f5faed8 100644
 --- a/units/syslog.socket
 +++ b/units/syslog.socket
 @@ -9,13 +9,14 @@
@@ -32,5 +32,5 @@ index 1c54857..7d2029a 100644
  [Socket]
  ListenDatagram=/run/systemd/journal/syslog
 -- 
-1.7.9.1
+1.7.9.3
 

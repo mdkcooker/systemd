@@ -1,11 +1,11 @@
-From 97da16c0f03e5d9a6fec702e1c38fba45c1b5bea Mon Sep 17 00:00:00 2001
+From 74a3d6db2cedc96cb27b7b20af1231a8efad38f7 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 23 Feb 2012 16:11:53 +0000
-Subject: [PATCH 502/505] Some more tmpfiles fixes
+Subject: [PATCH 502/509] Some more tmpfiles fixes
 
 ---
  tmpfiles.d/systemd.conf |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/tmpfiles.d/systemd.conf b/tmpfiles.d/systemd.conf
 index be29c06..ca912fe 100644
@@ -26,5 +26,5 @@ index be29c06..ca912fe 100644
  f /var/log/wtmp 0664 root utmp -
  f /var/log/btmp 0600 root utmp -
 -- 
-1.7.9.1
+1.7.9.3
 

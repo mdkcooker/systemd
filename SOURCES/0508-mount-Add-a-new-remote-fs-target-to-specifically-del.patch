@@ -1,0 +1,206 @@
+From 621244df8b17c608c71c800b3a05fbd04e0f3ad7 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Tue, 27 Mar 2012 20:38:53 +0100
+Subject: [PATCH 508/509] mount: Add a new remote-fs* target to specifically
+ delay logins until home dirs are available
+
+Previously, systemd-user-sessions.service started after remote-fs.target.
+If the user had any NFS mounts defined, this prevented logins until these
+were processed.
+
+If the user was using NFS for their home directories, this configuration
+makes sense, but equally, the user may have remote mounts defined that
+are non-critical for logins and thus shouldn't delay login availability.
+
+Even using the "nofail" mount option does not help as
+systemd-user-sessions.service will still wait for remote-fs.target which
+although it does not require units, it does still have to run, thus it
+will wait for remote-fs-pre.target which in turn will wait for the
+network to be ready. All these things will delay the startup.
+
+Therefore, rather than start after remote-fs.target directly, instead
+provide an more granular remote-fs-login.target that will only have
+dependances of fstab entries not marked with nofail.
+
+Thus if an NFS mount is not critical for logins, it should be marked
+with nofail mount option and it will not delay the login availability.
+---
+ Makefile.am                            |    1 +
+ man/systemd.special.xml                |   19 +++++++++++++++++
+ src/mount.c                            |   36 ++++++++++++++++++++++++++------
+ src/special.h                          |    1 +
+ units/remote-fs-login.target           |    9 ++++++++
+ units/systemd-user-sessions.service.in |    2 +-
+ 6 files changed, 61 insertions(+), 7 deletions(-)
+ create mode 100644 units/remote-fs-login.target
+
+diff --git a/Makefile.am b/Makefile.am
+index 2f6794a..fb81e81 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -271,6 +271,7 @@ dist_systemunit_DATA = \
+ 	units/local-fs.target \
+ 	units/local-fs-pre.target \
+ 	units/remote-fs.target \
++	units/remote-fs-login.target \
+ 	units/remote-fs-pre.target \
+ 	units/network.target \
+ 	units/nss-lookup.target \
+diff --git a/man/systemd.special.xml b/man/systemd.special.xml
+index 116a43c..73dbc1d 100644
+--- a/man/systemd.special.xml
++++ b/man/systemd.special.xml
+@@ -68,6 +68,7 @@
+                 <filename>reboot.target</filename>,
+                 <filename>remote-fs.target</filename>,
+                 <filename>remote-fs-pre.target</filename>,
++                <filename>remote-fs-login.target</filename>,
+                 <filename>rescue.target</filename>,
+                 <filename>rpcbind.target</filename>,
+                 <filename>runlevel2.target</filename>,
+@@ -400,6 +401,24 @@
+                                 </listitem>
+                         </varlistentry>
+                         <varlistentry>
++                                <term><filename>remote-fs-login.target</filename></term>
++                                <listitem>
++                                        <para>Similar to
++                                        <filename>remote-fs.target</filename>,
++                                        but only for remote mount points marked
++                                        without <option>nofail</option>.
++                                        Remote mounts with nofail are
++                                        considered to be non-critical to
++                                        the login process. If any such mount
++                                        points exist, remote-fs.target will
++                                        automatically require in this target.
++                                        systemd-user-sessions.service is ordered
++                                        after this target, thus ensuring logins
++                                        are only available when all (required)
++                                        remote mounts are ready.</para>
++                                </listitem>
++                        </varlistentry>
++                        <varlistentry>
+                                 <term><filename>rescue.target</filename></term>
+                                 <listitem>
+                                         <para>A special target unit
+diff --git a/src/mount.c b/src/mount.c
+index ed0f819..8b3b130 100644
+--- a/src/mount.c
++++ b/src/mount.c
+@@ -320,9 +320,9 @@ static bool needs_quota(MountParameters *p) {
+ }
+ 
+ static int mount_add_fstab_links(Mount *m) {
+-        const char *target, *after, *tu_wants = NULL;
++        const char *target, *after, *tu_wants = NULL, *login_target = NULL;
+         MountParameters *p;
+-        Unit *tu;
++        Unit *tu, *ltu = NULL;
+         int r;
+         bool noauto, nofail, handle, automount;
+ 
+@@ -351,6 +351,7 @@ static int mount_add_fstab_links(Mount *m) {
+         if (mount_is_network(p)) {
+                 target = SPECIAL_REMOTE_FS_TARGET;
+                 after = tu_wants = SPECIAL_REMOTE_FS_PRE_TARGET;
++                login_target = SPECIAL_REMOTE_FS_LOGIN_TARGET;
+         } else {
+                 target = SPECIAL_LOCAL_FS_TARGET;
+                 after = SPECIAL_LOCAL_FS_PRE_TARGET;
+@@ -372,6 +373,19 @@ static int mount_add_fstab_links(Mount *m) {
+                         return r;
+         }
+ 
++        /* If this unit must not fail, and we have a login_target we should
++         * ensure we add appropriate deps to the target */
++        if (login_target && !nofail) {
++                /* Make sure our current target pulls in this one */
++                r = unit_add_dependency_by_name(tu, UNIT_WANTS, login_target, NULL, true);
++                if (r < 0)
++                        return r;
++                /* Load the login target unit for use below */
++                r = manager_load_unit(UNIT(m)->manager, login_target, NULL, NULL, &ltu);
++                if (r < 0)
++                        return r;
++        }
++
+         if (automount) {
+                 Unit *am;
+ 
+@@ -385,9 +399,14 @@ static int mount_add_fstab_links(Mount *m) {
+                                 return r;
+ 
+                 /* Install automount unit */
+-                if (!nofail) /* automount + fail */
++                if (!nofail) { /* automount + fail */
++                        if (ltu) {
++                                /* This mount should hold up logins */
++                                if ((r = unit_add_two_dependencies(ltu, UNIT_AFTER, UNIT_REQUIRES, am, true)) < 0)
++                                        return r;
++                        }
+                         return unit_add_two_dependencies(tu, UNIT_AFTER, UNIT_REQUIRES, am, true);
+-                else /* automount + nofail */
++                } else /* automount + nofail */
+                         return unit_add_two_dependencies(tu, UNIT_AFTER, UNIT_WANTS, am, true);
+ 
+         } else if (handle && !noauto) {
+@@ -395,9 +414,14 @@ static int mount_add_fstab_links(Mount *m) {
+                 /* Automatically add mount points that aren't natively
+                  * configured to local-fs.target */
+ 
+-                if (!nofail) /* auto + fail */
++                if (!nofail) { /* auto + fail */
++                        if (ltu) {
++                                /* This mount should hold up logins */
++                                if ((r = unit_add_two_dependencies(ltu, UNIT_AFTER, UNIT_REQUIRES, UNIT(m), true)) < 0)
++                                        return r;
++                        }
+                         return unit_add_two_dependencies(tu, UNIT_AFTER, UNIT_REQUIRES, UNIT(m), true);
+-                else /* auto + nofail */
++                } else /* auto + nofail */
+                         return unit_add_dependency(tu, UNIT_WANTS, UNIT(m), true);
+         }
+ 
+diff --git a/src/special.h b/src/special.h
+index 8185eaf..567ce35 100644
+--- a/src/special.h
++++ b/src/special.h
+@@ -47,6 +47,7 @@
+ #define SPECIAL_LOCAL_FS_TARGET "local-fs.target"         /* LSB's $local_fs */
+ #define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
+ #define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
++#define SPECIAL_REMOTE_FS_LOGIN_TARGET "remote-fs-login.target"
+ #define SPECIAL_REMOTE_FS_PRE_TARGET "remote-fs-pre.target"
+ #define SPECIAL_SWAP_TARGET "swap.target"
+ #define SPECIAL_BASIC_TARGET "basic.target"
+diff --git a/units/remote-fs-login.target b/units/remote-fs-login.target
+new file mode 100644
+index 0000000..5e6b63c
+--- /dev/null
++++ b/units/remote-fs-login.target
+@@ -0,0 +1,9 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=Remote File Systems needed for Logins
+diff --git a/units/systemd-user-sessions.service.in b/units/systemd-user-sessions.service.in
+index a93d586..0b37bbd 100644
+--- a/units/systemd-user-sessions.service.in
++++ b/units/systemd-user-sessions.service.in
+@@ -7,7 +7,7 @@
+ 
+ [Unit]
+ Description=Permit User Sessions
+-After=local-fs.target remote-fs.target
++After=local-fs.target remote-fs-login.target
+ 
+ [Service]
+ Type=oneshot
+-- 
+1.7.9.3
+

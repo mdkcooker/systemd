@@ -1,7 +1,7 @@
-From 8a7715f782ab11265c53752d24ca3aef728e0b17 Mon Sep 17 00:00:00 2001
+From 86835e86dde1ba97e47415c63898c8b641777694 Mon Sep 17 00:00:00 2001
 From: Andrey Borzenkov <arvidjaar@gmail.com>
 Date: Thu, 23 Feb 2012 16:10:33 +0000
-Subject: [PATCH 501/505] apply TimeoutSec to oneshot services too
+Subject: [PATCH 501/509] apply TimeoutSec to oneshot services too
 
 Make sure timeout is applied also to oneshot services. We do have
 examples of long running processes that wait for external conditions
@@ -10,13 +10,13 @@ examples of long running processes that wait for external conditions
 Signed-off-by: Andrey Borzenkov <arvidjaar@gmail.com>
 ---
  src/service.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/service.c b/src/service.c
-index ec2725a..dd95525 100644
+index 8b5c0b0..572396b 100644
 --- a/src/service.c
 +++ b/src/service.c
-@@ -2109,7 +2109,7 @@ static void service_enter_start(Service *s) {
+@@ -2110,7 +2110,7 @@ static void service_enter_start(Service *s) {
  
          if ((r = service_spawn(s,
                                 c,
@@ -26,5 +26,5 @@ index ec2725a..dd95525 100644
                                 true,
                                 true,
 -- 
-1.7.9.1
+1.7.9.3
 

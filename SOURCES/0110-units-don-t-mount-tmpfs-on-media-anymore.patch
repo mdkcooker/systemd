@@ -1,0 +1,74 @@
+From 3ac4186cf97b479f086ccc8377f42620f9359243 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 27 Mar 2012 17:04:22 +0200
+Subject: [PATCH 110/115] units: don't mount tmpfs on /media anymore
+
+udisks2 doesn't use /media anymore, instead mounts removable media in a
+user-private directory beneath /run. /media is hence mostly obsolete and
+hence it makes little sense to continue to mount a tmpfs to it.
+
+Distributions should consider dropping the mount point entirely since
+nothing uses it anymore.
+
+Conflicts:
+
+	TODO
+---
+ Makefile.am       |    7 ++-----
+ units/media.mount |   16 ----------------
+ 2 files changed, 2 insertions(+), 21 deletions(-)
+ delete mode 100644 units/media.mount
+
+diff --git a/Makefile.am b/Makefile.am
+index 75b2d41..a4520f6 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -297,7 +297,6 @@ dist_systemunit_DATA = \
+ 	units/sys-kernel-security.mount \
+ 	units/sys-fs-fuse-connections.mount \
+ 	units/var-run.mount \
+-	units/media.mount \
+ 	units/remount-rootfs.service \
+ 	units/printer.target \
+ 	units/sound.target \
+@@ -2339,13 +2338,11 @@ systemd-install-data-hook:
+ 		rm -f systemd-remount-api-vfs.service \
+ 			fsck-root.service \
+ 			remount-rootfs.service \
+-			var-run.mount \
+-			media.mount && \
++			var-run.mount && \
+ 		$(LN_S) ../systemd-remount-api-vfs.service systemd-remount-api-vfs.service && \
+ 		$(LN_S) ../fsck-root.service fsck-root.service && \
+ 		$(LN_S) ../remount-rootfs.service remount-rootfs.service && \
+-		$(LN_S) ../var-run.mount var-run.mount && \
+-		$(LN_S) ../media.mount media.mount )
++		$(LN_S) ../var-run.mount var-run.mount )
+ 	( cd $(DESTDIR)$(userunitdir) && \
+ 		rm -f shutdown.target sockets.target bluetooth.target printer.target sound.target && \
+ 		$(LN_S) $(systemunitdir)/shutdown.target shutdown.target && \
+diff --git a/units/media.mount b/units/media.mount
+deleted file mode 100644
+index 66a5a5c..0000000
+--- a/units/media.mount
++++ /dev/null
+@@ -1,16 +0,0 @@
+-#  This file is part of systemd.
+-#
+-#  systemd is free software; you can redistribute it and/or modify it
+-#  under the terms of the GNU General Public License as published by
+-#  the Free Software Foundation; either version 2 of the License, or
+-#  (at your option) any later version.
+-
+-[Unit]
+-Description=Media Directory
+-Before=local-fs.target
+-
+-[Mount]
+-What=tmpfs
+-Where=/media
+-Type=tmpfs
+-Options=mode=755,nosuid,nodev,noexec
+-- 
+1.7.9.3
+

@@ -1,7 +1,7 @@
-From cffaec40d817df85c9b6973228ed432ffaffab4c Mon Sep 17 00:00:00 2001
+From 3e4db6f65dbbebe24b71de06a26d7d6a494f19ca Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 8 Mar 2012 21:56:11 +0000
-Subject: [PATCH 508/508] mageia: Fallback message when display manager fails.
+Subject: [PATCH 506/509] mageia: Fallback message when display manager fails.
 
 Provide a unit for displaying a message to the user when the
 display manager fails. This can be when no dm application is
@@ -19,10 +19,10 @@ https://bugs.mageia.org/show_bug.cgi?id=4769
  create mode 100644 units/mageia/display-manager-failure.service
 
 diff --git a/Makefile.am b/Makefile.am
-index 9762da1..0672ca3 100644
+index 472d5ce..a41be84 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -405,6 +405,7 @@ endif
+@@ -401,6 +401,7 @@ endif
  if TARGET_MAGEIA
  dist_systemunit_DATA += \
  	units/mageia/prefdm.service \
@@ -32,13 +32,13 @@ index 9762da1..0672ca3 100644
  systemgenerator_PROGRAMS += \
 diff --git a/units/mageia/display-manager-failure.service b/units/mageia/display-manager-failure.service
 new file mode 100644
-index 0000000..9bc7980
+index 0000000..291cd46
 --- /dev/null
 +++ b/units/mageia/display-manager-failure.service
 @@ -0,0 +1,29 @@
 +[Unit]
 +Description=Display Manager Failure Message
-+After=dev-tty1.device systemd-user-sessions.service plymouth-quit-wait.service
++After=dev-tty1.device systemd-user-sessions.service plymouth-quit-wait.service graphical.target
 +
 +Conflicts=getty@tty1.service
 +After=getty@tty1.service
@@ -66,10 +66,10 @@ index 0000000..9bc7980
 +KillSignal=SIGHUP
 +
 diff --git a/units/mageia/prefdm.service b/units/mageia/prefdm.service
-index 858a61f..bf967e5 100644
+index 5d9f3f7..a97d7bf 100644
 --- a/units/mageia/prefdm.service
 +++ b/units/mageia/prefdm.service
-@@ -15,6 +15,7 @@ After=network-auth.target
+@@ -14,6 +14,7 @@ After=livesys-late.service systemd-user-sessions.service
  # Do not stop plymouth, it is done in prefdm if required (or left to the dm)
  Conflicts=getty@tty1.service plymouth-quit.service
  After=getty@tty1.service plymouth-quit.service
@@ -78,5 +78,5 @@ index 858a61f..bf967e5 100644
  [Service]
  ExecStart=/etc/X11/prefdm -nodaemon
 -- 
-1.7.9.2
+1.7.9.3
 

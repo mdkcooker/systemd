@@ -1,0 +1,29 @@
+From 4537e0871112a00d3b948b6467ad7afde778b01e Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Sun, 1 Apr 2012 11:25:53 +0100
+Subject: [PATCH 509/509] analyze: Cosmetic exit when the bootup is not yet
+ complete.
+
+This is just a nicer message than a python traceback.
+---
+ src/systemd-analyze |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/systemd-analyze b/src/systemd-analyze
+index 8148bfb..cd24389 100755
+--- a/src/systemd-analyze
++++ b/src/systemd-analyze
+@@ -31,6 +31,10 @@ def acquire_start_time():
+         startup_time = int(properties.Get('org.freedesktop.systemd1.Manager', 'StartupTimestampMonotonic'))
+         finish_time = int(properties.Get('org.freedesktop.systemd1.Manager', 'FinishTimestampMonotonic'))
+ 
++        if (finish_time < 1):
++                sys.stderr.write("Bootup is not yet finished. Please try again later.\n")
++                sys.exit(1)
++
+         assert initrd_time <= startup_time
+         assert startup_time <= finish_time
+ 
+-- 
+1.7.9.3
+

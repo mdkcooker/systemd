@@ -1,7 +1,7 @@
-From 5ebff5337594d690b322078c512eb222d34aaa82 Mon Sep 17 00:00:00 2001
+From b1b74bca8af8d866b2b70007e9b2887520451274 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Fri, 2 Mar 2012 10:39:10 +0100
-Subject: [PATCH] util: never follow symlinks in rm_rf_children()
+Subject: [PATCH 100/115] util: never follow symlinks in rm_rf_children()
 
 The function checks if the entry is a directory before recursing, but
 there is a window between the check and the open, during which the

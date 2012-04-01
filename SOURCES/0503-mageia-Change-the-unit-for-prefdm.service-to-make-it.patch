@@ -1,23 +1,26 @@
-From 98f76a1d09763bdd774988ffddfe06e32757c724 Mon Sep 17 00:00:00 2001
+From 585fb9cdc02d9fefaf4b5a09c337bdb8808bbe3a Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Fri, 4 Nov 2011 00:28:35 +0000
-Subject: [PATCH 504/505] Mageia: Change the unit for prefdm.service to make
+Subject: [PATCH 503/509] mageia: Change the unit for prefdm.service to make
  it work a bit more like Fedora
 
+Do not wait for some of the Fedora units that we have traditionally not
+waited for in Mageia or Mandriva before it.
 ---
- units/mageia/prefdm.service |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+ units/mageia/prefdm.service |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/units/mageia/prefdm.service b/units/mageia/prefdm.service
-index 4a896bf..858a61f 100644
+index 4a896bf..5d9f3f7 100644
 --- a/units/mageia/prefdm.service
 +++ b/units/mageia/prefdm.service
-@@ -8,14 +8,16 @@
+@@ -7,15 +7,16 @@
+ 
  [Unit]
  Description=Display Manager
- After=livesys-late.service rc-local.service systemd-user-sessions.service
+-After=livesys-late.service rc-local.service systemd-user-sessions.service
 -After=network.target acpid.service fs.service haldaemon.service
-+After=network-auth.target
++After=livesys-late.service systemd-user-sessions.service
  
 -# Do not stop plymouth, it is done in prefdm if required
 -Conflicts=plymouth-quit.service
@@ -36,5 +39,5 @@ index 4a896bf..858a61f 100644
  RestartSec=0
 +IgnoreSIGPIPE=no
 -- 
-1.7.9.1
+1.7.9.3
 

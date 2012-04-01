@@ -1,7 +1,7 @@
-From f2affe2b0ccdcf694e55c372e985070414b01202 Mon Sep 17 00:00:00 2001
-From: Colin Guthrie <colin@mageia.org>
-Date: Mon, 27 Feb 2012 22:53:37 +0000
-Subject: [PATCH 507/508] logind: Fix typo in conf file
+From c82a21c39ebd7189a7edc0f9e7e557314994b195 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Elan=20Ruusam=C3=A4e?= <glen@delfi.ee>
+Date: Sat, 24 Mar 2012 15:06:00 +0200
+Subject: [PATCH 105/115] man: minor typo in reference to manual page
 
 ---
  src/login/systemd-logind.conf |    2 +-
@@ -21,5 +21,5 @@ index 9909804..a8d9833 100644
  [Login]
  #NAutoVTs=6
 -- 
-1.7.9.2
+1.7.9.3
 

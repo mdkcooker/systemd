@@ -23,15 +23,29 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 
 # (cg) Upstream cherry picks
-# (cg) CVE-2012-1174
 Patch100: 0100-util-never-follow-symlinks-in-rm_rf_children.patch
+Patch101: 0101-journal-react-with-immediate-rotation-to-a-couple-of.patch
+Patch102: 0102-journal-PAGE_SIZE-is-not-known-on-ppc-and-other-arch.patch
+Patch103: 0103-man-systemd-cat-1-typo-fix.patch
+Patch104: 0104-logind-close-FIFO-before-ending-sessions-cleanly.patch
+Patch105: 0105-man-minor-typo-in-reference-to-manual-page.patch
+Patch106: 0106-journalctl-loginctl-drop-systemd-prefix-in-binary-na.patch
+Patch107: 0107-build-sys-do-not-set-CFLAGS-directly.patch
+Patch108: 0108-build-sys-separate-ldflags-from-cflags.patch
+Patch109: 0109-cat-fix-priority-type.patch
+Patch110: 0110-units-don-t-mount-tmpfs-on-media-anymore.patch
+Patch111: 0111-units-get-rid-of-var-run.mount-and-var-lock.mount.patch
+Patch112: 0112-journal-properly-handle-if-we-interleave-files-with-.patch
+Patch113: 0113-job-fix-loss-of-ordering-with-restart-jobs.patch
+Patch114: 0114-job-add-debug-prints-where-job-type-gets-changed.patch
+Patch115: 0115-rename-etc-systemd-systemd-login-journal-d.conf-to-l.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -39,14 +53,14 @@ Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 # (cg/bor) fix potential deadlock when onseshot unit is not finished
 # - Lennart will do this eventually but believes this patch is insufficient.
 Patch501: 0501-apply-TimeoutSec-to-oneshot-services-too.patch
-# (cg) We need to work out how to symlink (new install) or bind mount (upgrades) /var/run to /run
 Patch502: 0502-Some-more-tmpfiles-fixes.patch
-Patch503: 0503-Add-mandriva-unit-for-rc-local.service.patch
-Patch504: 0504-Mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
-Patch505: 0505-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
-Patch506: 0506-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch507: 0507-logind-Fix-typo-in-conf-file.patch
-Patch508: 0508-mageia-Fallback-message-when-display-manager-fails.patch
+Patch503: 0503-mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
+Patch504: 0504-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
+Patch505: 0505-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch506: 0506-mageia-Fallback-message-when-display-manager-fails.patch
+Patch507: 0507-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
+Patch508: 0508-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
+Patch509: 0509-analyze-Cosmetic-exit-when-the-bootup-is-not-yet-com.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
@@ -196,6 +210,7 @@ find src/ -name "*.vala" -exec touch '{}' \;
 %build
 %configure2_5x \
   --with-distro=mageia \
+  --disable-gtk \
   --disable-coredump \
   --disable-static \
   --with-rootprefix= \
@@ -295,7 +310,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 
 # Let rsyslog read from /proc/kmsg for now
-sed -i -e 's/\#ImportKernel=yes/ImportKernel=no/' %{buildroot}%{_sysconfdir}/systemd/systemd-journald.conf
+sed -i -e 's/\#ImportKernel=yes/ImportKernel=no/' %{buildroot}%{_sysconfdir}/systemd/journald.conf
 
 # Create unowned folders
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
@@ -418,14 +433,14 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
-%config(noreplace) %{_sysconfdir}/systemd/systemd-journald.conf
+%config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 #%{_prefix}/lib/sysctl.d/coredump.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
 %{_prefix}/lib/tmpfiles.d/x11.conf
-%{_sysconfdir}/systemd/systemd-logind.conf
+%{_sysconfdir}/systemd/logind.conf
 %{_sysconfdir}/systemd/user.conf
 %{_sysconfdir}/xdg/systemd
 %ghost %config(noreplace) %{_sysconfdir}/hostname
@@ -435,10 +450,10 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+/bin/journalctl
+/bin/loginctl
 /bin/systemd
 /bin/systemd-ask-password
-/bin/systemd-loginctl
-/bin/systemd-journalctl
 /bin/systemd-machine-id-setup
 /bin/systemd-notify
 /bin/systemd-tmpfiles
@@ -453,6 +468,8 @@ fi
 %{_bindir}/systemd-nspawn
 %{_bindir}/systemd-stdio-bridge
 %{_datadir}/systemd/kbd-model-map
+%{_mandir}/man1/journalctl.*
+%{_mandir}/man1/loginctl.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-*
 %{_mandir}/man3/*
