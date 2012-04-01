@@ -256,13 +256,6 @@ mkdir -p %{buildroot}/lib/systemd/system/syslog.target.wants
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
 
-# We are not prepared to deal with tmpfs /var/run or /var/lock
-pushd %{buildroot}/lib/systemd/system/local-fs.target.wants && {
-  rm -f var-lock.mount
-  rm -f var-run.mount
-popd
-}
-
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/lib/systemd/system/bluetooth.target.wants
 
@@ -277,13 +270,6 @@ cat > %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh << EOF
 export SYSTEMD_PAGER="/usr/bin/less -FR"
 EOF
 chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
-
-# (tpg) use systemd's own mounting capability
-sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' \
-  %{buildroot}/etc/systemd/system.conf
-
-sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' \
-  %{buildroot}/etc/systemd/system.conf
 
 # (bor) disable legacy output to console, it just messes things up
 sed -i -e 's/^#SysVConsole=yes$/SysVConsole=no/' \
