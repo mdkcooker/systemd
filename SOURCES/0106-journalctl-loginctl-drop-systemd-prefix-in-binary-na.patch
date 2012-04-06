@@ -1,7 +1,7 @@
 From 202e8c3bab0792d3db71fbc7699a2219d2ca5a59 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 26 Mar 2012 20:58:47 +0200
-Subject: [PATCH 106/115] journalctl,loginctl: drop systemd- prefix in binary
+Subject: [PATCH 106/125] journalctl,loginctl: drop systemd- prefix in binary
  names
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

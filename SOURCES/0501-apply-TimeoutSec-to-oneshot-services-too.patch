@@ -1,4 +1,4 @@
-From 86835e86dde1ba97e47415c63898c8b641777694 Mon Sep 17 00:00:00 2001
+From 4391713d64dd8f8b5033a0ad0338144cb0571e84 Mon Sep 17 00:00:00 2001
 From: Andrey Borzenkov <arvidjaar@gmail.com>
 Date: Thu, 23 Feb 2012 16:10:33 +0000
 Subject: [PATCH 501/509] apply TimeoutSec to oneshot services too
@@ -13,7 +13,7 @@ Signed-off-by: Andrey Borzenkov <arvidjaar@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/service.c b/src/service.c
-index 8b5c0b0..572396b 100644
+index bf2e0a9..1dcd993 100644
 --- a/src/service.c
 +++ b/src/service.c
 @@ -2110,7 +2110,7 @@ static void service_enter_start(Service *s) {

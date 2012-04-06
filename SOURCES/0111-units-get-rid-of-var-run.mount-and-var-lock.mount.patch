@@ -1,7 +1,7 @@
 From 2c46d7513a60b7132dbf6cba891a2f40e0e5b8fe Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 27 Mar 2012 17:11:00 +0200
-Subject: [PATCH 111/115] units: get rid of var-run.mount and var-lock.mount
+Subject: [PATCH 111/125] units: get rid of var-run.mount and var-lock.mount
 
 Since a number of distribitions don't need this compat glue anymore drop
 it from systemd upstream. Distributions which still haven't converted

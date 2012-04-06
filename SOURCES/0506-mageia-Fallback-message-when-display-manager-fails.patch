@@ -1,4 +1,4 @@
-From 3e4db6f65dbbebe24b71de06a26d7d6a494f19ca Mon Sep 17 00:00:00 2001
+From a892ad9f53f52544257c3d9ca01fa6fa3cf76a70 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 8 Mar 2012 21:56:11 +0000
 Subject: [PATCH 506/509] mageia: Fallback message when display manager fails.

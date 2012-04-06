@@ -1,7 +1,7 @@
 From a824056c04cd409226d522eaf9c04a0867c33c8c Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 22 Mar 2012 02:06:40 +0100
-Subject: [PATCH 104/115] logind: close FIFO before ending sessions cleanly
+Subject: [PATCH 104/125] logind: close FIFO before ending sessions cleanly
 
 For clean session endings ask logind explicitly to get rid of the FIFO
 before closing it so that the FIFO logic doesn't result in su/sudo to be

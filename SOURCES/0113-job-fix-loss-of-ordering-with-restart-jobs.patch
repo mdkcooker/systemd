@@ -1,7 +1,7 @@
 From 2b34647d5f2cede5362f5cf7b642fb0e4a302b42 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 28 Mar 2012 00:42:27 +0200
-Subject: [PATCH 113/115] job: fix loss of ordering with restart jobs
+Subject: [PATCH 113/125] job: fix loss of ordering with restart jobs
 
 Suppose that foo.service/start is a job waiting on other job bar.service/start
 to finish. And then foo.service/restart is enqueued (not using

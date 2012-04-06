@@ -1,0 +1,69 @@
+From 02344d5c6c36813564dbab7a4d6ac3617e13f498 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 3 Apr 2012 14:43:48 +0200
+Subject: [PATCH 122/125] systemctl: make -f short for both --follow and
+ --force
+
+Conflicts:
+
+	TODO
+---
+ src/systemctl.c |   19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/src/systemctl.c b/src/systemctl.c
+index f51085f..4b27b69 100644
+--- a/src/systemctl.c
++++ b/src/systemctl.c
+@@ -4247,7 +4247,8 @@ static int systemctl_parse_argv(int argc, char *argv[]) {
+                 ARG_NO_ASK_PASSWORD,
+                 ARG_FAILED,
+                 ARG_RUNTIME,
+-                ARG_FOLLOW
++                ARG_FOLLOW,
++                ARG_FORCE
+         };
+ 
+         static const struct option options[] = {
+@@ -4271,7 +4272,7 @@ static int systemctl_parse_argv(int argc, char *argv[]) {
+                 { "order",     no_argument,       NULL, ARG_ORDER     },
+                 { "require",   no_argument,       NULL, ARG_REQUIRE   },
+                 { "root",      required_argument, NULL, ARG_ROOT      },
+-                { "force",     no_argument,       NULL, 'f'           },
++                { "force",     no_argument,       NULL, ARG_FORCE     },
+                 { "no-reload", no_argument,       NULL, ARG_NO_RELOAD },
+                 { "kill-mode", required_argument, NULL, ARG_KILL_MODE }, /* undocumented on purpose */
+                 { "kill-who",  required_argument, NULL, ARG_KILL_WHO  },
+@@ -4392,8 +4393,18 @@ static int systemctl_parse_argv(int argc, char *argv[]) {
+                         arg_quiet = true;
+                         break;
+ 
++                case ARG_FORCE:
++                        arg_force ++;
++                        break;
++
++                case ARG_FOLLOW:
++                        arg_follow = true;
++                        break;
++
+                 case 'f':
++                        /* -f is short for both --follow and --force! */
+                         arg_force ++;
++                        arg_follow = true;
+                         break;
+ 
+                 case ARG_NO_RELOAD:
+@@ -4439,10 +4450,6 @@ static int systemctl_parse_argv(int argc, char *argv[]) {
+                         }
+                         break;
+ 
+-                case ARG_FOLLOW:
+-                        arg_follow = true;
+-                        break;
+-
+                 case 'o':
+                         arg_output = output_mode_from_string(optarg);
+                         if (arg_output < 0) {
+-- 
+1.7.9.3
+

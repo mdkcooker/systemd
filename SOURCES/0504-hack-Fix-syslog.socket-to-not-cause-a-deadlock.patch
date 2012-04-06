@@ -1,4 +1,4 @@
-From fe8105b136e7c79320867423dde959635892c8b4 Mon Sep 17 00:00:00 2001
+From 663a24664907f958f04ccbef0e859d57e3e16d52 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Fri, 20 Jan 2012 01:14:18 +0000
 Subject: [PATCH 504/509] hack: Fix syslog.socket to not cause a deadlock.

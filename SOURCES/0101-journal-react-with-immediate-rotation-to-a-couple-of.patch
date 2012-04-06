@@ -1,7 +1,7 @@
 From bba50272c88efe29eafd124857a9f0dc8e874ae5 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 21 Mar 2012 23:40:51 +0100
-Subject: [PATCH 101/115] journal: react with immediate rotation to a couple
+Subject: [PATCH 101/125] journal: react with immediate rotation to a couple
  of more errors
 
 ---

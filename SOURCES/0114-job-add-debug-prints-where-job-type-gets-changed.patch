@@ -1,7 +1,7 @@
 From 6f665527c685a232e899e2525ac785c0b4a0d538 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 28 Mar 2012 01:26:04 +0200
-Subject: [PATCH 114/115] job: add debug prints where job type gets changed
+Subject: [PATCH 114/125] job: add debug prints where job type gets changed
 
 ---
  src/job.c |   20 ++++++++++++--------

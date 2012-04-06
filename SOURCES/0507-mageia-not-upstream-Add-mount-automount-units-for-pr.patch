@@ -1,4 +1,4 @@
-From 2d5f73baf023aac5b9b9ae102ad4d6389d9ba106 Mon Sep 17 00:00:00 2001
+From d83e869c74a5bbb9a9c50647c8680811e7f47b29 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sat, 24 Mar 2012 23:13:25 +0000
 Subject: [PATCH 507/509] mageia(not-upstream): Add mount+automount units for

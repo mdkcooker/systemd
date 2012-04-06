@@ -1,7 +1,7 @@
 From ffad1456255adeeb8d25b13645f9af5b64f116c0 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 22 Mar 2012 00:35:19 +0100
-Subject: [PATCH 103/115] man: systemd-cat(1) typo fix
+Subject: [PATCH 103/125] man: systemd-cat(1) typo fix
 
 Noticed by Sergey Ptashnick
 ---

@@ -1,4 +1,4 @@
-From 74a3d6db2cedc96cb27b7b20af1231a8efad38f7 Mon Sep 17 00:00:00 2001
+From 95ac19cd87fa0d6b15c0b8514f0ea2f7b2aa073e Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 23 Feb 2012 16:11:53 +0000
 Subject: [PATCH 502/509] Some more tmpfiles fixes

@@ -1,4 +1,4 @@
-From 621244df8b17c608c71c800b3a05fbd04e0f3ad7 Mon Sep 17 00:00:00 2001
+From e43f69429046f7657d8f942cf8fd32482687f44b Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Tue, 27 Mar 2012 20:38:53 +0100
 Subject: [PATCH 508/509] mount: Add a new remote-fs* target to specifically

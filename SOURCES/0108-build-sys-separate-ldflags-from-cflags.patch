@@ -1,7 +1,7 @@
 From 9b6bee8f2f8cfb140a4f2769c4d416d97b9a3646 Mon Sep 17 00:00:00 2001
 From: Lucas De Marchi <lucas.demarchi@profusion.mobi>
 Date: Mon, 19 Mar 2012 13:20:43 -0300
-Subject: [PATCH 108/115] build-sys: separate ldflags from cflags
+Subject: [PATCH 108/125] build-sys: separate ldflags from cflags
 
 ---
  Makefile.am  |    1 +

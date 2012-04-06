@@ -1,7 +1,7 @@
 From 53b92c2c6c80a4a24e538708e58492a03ca6eb7b Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay.sievers@vrfy.org>
 Date: Fri, 30 Mar 2012 23:18:33 +0200
-Subject: [PATCH 115/115] rename /etc/systemd/systemd-{login,journal}d.conf to
+Subject: [PATCH 115/125] rename /etc/systemd/systemd-{login,journal}d.conf to
  {login,journal}d.conf
 
 ---

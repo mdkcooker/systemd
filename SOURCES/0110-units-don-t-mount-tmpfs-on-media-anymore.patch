@@ -1,7 +1,7 @@
 From 3ac4186cf97b479f086ccc8377f42620f9359243 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 27 Mar 2012 17:04:22 +0200
-Subject: [PATCH 110/115] units: don't mount tmpfs on /media anymore
+Subject: [PATCH 110/125] units: don't mount tmpfs on /media anymore
 
 udisks2 doesn't use /media anymore, instead mounts removable media in a
 user-private directory beneath /run. /media is hence mostly obsolete and

@@ -1,7 +1,7 @@
 From 283e9a8e8279c3ec28df040595a092e1e5bdae97 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 21 Mar 2012 23:47:44 +0100
-Subject: [PATCH 102/115] journal: PAGE_SIZE is not known on ppc and other
+Subject: [PATCH 102/125] journal: PAGE_SIZE is not known on ppc and other
  archs
 
 Let's use NAME_MAX, as suggested by Dan Walsh

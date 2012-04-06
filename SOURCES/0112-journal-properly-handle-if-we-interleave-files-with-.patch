@@ -1,7 +1,7 @@
 From 907e124de44b9048e3be9f12fab9eb60339ff2c9 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 27 Mar 2012 18:50:34 +0200
-Subject: [PATCH 112/115] journal: properly handle if we interleave files with
+Subject: [PATCH 112/125] journal: properly handle if we interleave files with
  different boot ids
 
 If we try to locate a monotonic time in a file that doesn't have any

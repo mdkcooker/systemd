@@ -1,7 +1,7 @@
 From c82a21c39ebd7189a7edc0f9e7e557314994b195 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Elan=20Ruusam=C3=A4e?= <glen@delfi.ee>
 Date: Sat, 24 Mar 2012 15:06:00 +0200
-Subject: [PATCH 105/115] man: minor typo in reference to manual page
+Subject: [PATCH 105/125] man: minor typo in reference to manual page
 
 ---
  src/login/systemd-logind.conf |    2 +-

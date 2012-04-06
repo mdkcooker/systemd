@@ -1,4 +1,4 @@
-From ea93085ae1b46a030c9bc3bce11c22544c8317d5 Mon Sep 17 00:00:00 2001
+From 3b9c6714fec3936acef8e0a1baabbb55a51e9f67 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 26 Feb 2012 17:45:58 +0000
 Subject: [PATCH 505/509] main: Add 'failsafe' to the sysvinit compat cmdline

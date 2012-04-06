@@ -1,7 +1,7 @@
 From 73b179877dd38aa58da43e83c83170f97dec20c0 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 27 Mar 2012 00:20:48 +0200
-Subject: [PATCH 109/115] cat: fix priority type
+Subject: [PATCH 109/125] cat: fix priority type
 
 Needs to be "int", not "char". Spotted by Frederic Crozat.
 ---
