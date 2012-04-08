@@ -1,0 +1,44 @@
+From 26998f4d67ad8f7ff7fef87f085b2034cb7992a2 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Fri, 6 Apr 2012 11:21:27 +0100
+Subject: [PATCH] mageia: Tweaks to the display-manager-failure service
+
+Make it come after shutdown.target. This prevents it kicking in when
+shutting down or rebooting with some display managers
+
+Don't start after plymouth-quit-wait.service as plymouth is quit by
+ExecStartPre. Likewise, no need to wait for graphical.target to
+complete.
+
+Send SIGRTMIN+21 (53) to systemd to make it shut up.
+
+Use agetty.
+---
+ units/mageia/display-manager-failure.service |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/units/mageia/display-manager-failure.service b/units/mageia/display-manager-failure.service
+index 291cd46..87e3032 100644
+--- a/units/mageia/display-manager-failure.service
++++ b/units/mageia/display-manager-failure.service
+@@ -1,14 +1,15 @@
+ [Unit]
+ Description=Display Manager Failure Message
+-After=dev-tty1.device systemd-user-sessions.service plymouth-quit-wait.service graphical.target
++After=dev-tty1.device systemd-user-sessions.service shutdown.target
+ 
+ Conflicts=getty@tty1.service
+ After=getty@tty1.service
+ 
+ [Service]
+ Environment=TERM=linux
++ExecStartPre=-/bin/kill -s 53 1
+ ExecStartPre=-/bin/plymouth quit
+-ExecStart=-/sbin/mingetty --noissue --nohostname --loginprog /usr/bin/display-manager-failure-message --autologin nobody tty1
++ExecStart=-/sbin/agetty --noissue --nohostname -n --autologin nobody --login-program /usr/bin/display-manager-failure-message tty1
+ Restart=always
+ RestartSec=0
+ UtmpIdentifier=tty1
+-- 
+1.7.9.3
+

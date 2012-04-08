@@ -1,7 +1,7 @@
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
-%define sysvinit_release %mkrel 17
+%define sysvinit_release %mkrel 18
 
 %define libdaemon_major 0
 %define liblogin_major 0
@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 6
+Release:	%mkrel 7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -51,7 +51,8 @@ Patch117: 0117-journal-decrease-default-mmap-window-size-to-allow-a.patch
 Patch118: 0118-install-check-for-proper-return-from-dirent_ensure_t.patch
 Patch119: 0119-Revert-socket-if-we-fail-to-create-an-instantiated-s.patch
 Patch120: 0120-analyze-Cosmetic-exit-when-the-bootup-is-not-yet-com.patch
-Patch121: 0121-service-schedule-JOB_RESTART-from-SERVICE_AUTO_RESTA.patch
+# (cg) Hmmm, this seems to break OnFailure handling.
+#Patch121: 0121-service-schedule-JOB_RESTART-from-SERVICE_AUTO_RESTA.patch
 Patch122: 0122-systemctl-make-f-short-for-both-follow-and-force.patch
 Patch123: 0123-journal-in-json-and-export-mode-use-double-underscor.patch
 Patch124: 0124-fix-a-couple-of-AF_UNIX-connect-calls.patch
@@ -70,7 +71,7 @@ Patch505: 0505-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 Patch506: 0506-mageia-Fallback-message-when-display-manager-fails.patch
 Patch507: 0507-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
 Patch508: 0508-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch509: 0509-mageia-Make-the-display-manager-failure-service-come.patch
+Patch509: 0509-mageia-Tweaks-to-the-display-manager-failure-service.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
