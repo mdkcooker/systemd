@@ -99,6 +99,7 @@ Requires:	util-linux-ng >= 2.18
 Requires:	nss-myhostname
 Requires:	lockdev
 Conflicts:	initscripts < 9.25
+Provides:	should-restart = system
 
 %description
 systemd is a system and session manager for Linux, compatible with
