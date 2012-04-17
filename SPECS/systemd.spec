@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -66,12 +66,11 @@ Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 Patch501: 0501-apply-TimeoutSec-to-oneshot-services-too.patch
 Patch502: 0502-Some-more-tmpfiles-fixes.patch
 Patch503: 0503-mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
-Patch504: 0504-hack-Fix-syslog.socket-to-not-cause-a-deadlock.patch
-Patch505: 0505-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch506: 0506-mageia-Fallback-message-when-display-manager-fails.patch
-Patch507: 0507-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
-Patch508: 0508-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch509: 0509-mageia-Tweaks-to-the-display-manager-failure-service.patch
+Patch504: 0504-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch505: 0505-mageia-Fallback-message-when-display-manager-fails.patch
+Patch506: 0506-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
+Patch507: 0507-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
+Patch508: 0508-mageia-Tweaks-to-the-display-manager-failure-service.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
