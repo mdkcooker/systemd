@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -71,6 +71,7 @@ Patch505: 0505-mageia-Fallback-message-when-display-manager-fails.patch
 Patch506: 0506-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
 Patch507: 0507-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
 Patch508: 0508-mageia-Tweaks-to-the-display-manager-failure-service.patch
+Patch509: 0509-mageia-Correct-usage-of-M4_DEFINES-vs.-M4_DISTRO_FLA.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
