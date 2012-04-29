@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 9
+Release:	%mkrel 10
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -364,7 +364,7 @@ if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
         runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
         if [ -z "$runlevel" ] ; then
-                target="/lib/systemd/system/graphical.target"
+                target="/lib/systemd/system/multi-user.target"
         else
                 target="/lib/systemd/system/runlevel$runlevel.target"
         fi
