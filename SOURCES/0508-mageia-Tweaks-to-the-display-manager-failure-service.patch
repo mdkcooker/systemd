@@ -10,7 +10,7 @@ Don't start after plymouth-quit-wait.service as plymouth is quit by
 ExecStartPre. Likewise, no need to wait for graphical.target to
 complete.
 
-Send SIGRTMIN+21 (53) to systemd to make it shut up.
+Send SIGRTMIN+21 (55) to systemd to make it shut up.
 
 Use agetty.
 ---
@@ -32,7 +32,7 @@ index 291cd46..87e3032 100644
  
  [Service]
  Environment=TERM=linux
-+ExecStartPre=-/bin/kill -s 53 1
++ExecStartPre=-/bin/kill -55 1
  ExecStartPre=-/bin/plymouth quit
 -ExecStart=-/sbin/mingetty --noissue --nohostname --loginprog /usr/bin/display-manager-failure-message --autologin nobody tty1
 +ExecStart=-/sbin/agetty --noissue --nohostname -n --autologin nobody --login-program /usr/bin/display-manager-failure-message tty1
