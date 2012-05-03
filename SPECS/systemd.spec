@@ -56,6 +56,9 @@ Patch122: 0122-journal-in-json-and-export-mode-use-double-underscor.patch
 Patch123: 0123-fix-a-couple-of-AF_UNIX-connect-calls.patch
 Patch124: 0124-logind-log-with-AUTH-facility.patch
 Patch125: 0125-tmpfiles-open-directories-with-O_NOATIME-to-preserve.patch
+Patch126: 0126-transaction-cancel-jobs-non-recursively-on-isolate.patch
+Patch127: 0127-timedated-introduce-systemd-timedated-ntp.target-whi.patch
+Patch128: 0128-disable-killing-on-entering-START_PRE-START.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
