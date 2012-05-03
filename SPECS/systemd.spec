@@ -51,12 +51,10 @@ Patch117: 0117-journal-decrease-default-mmap-window-size-to-allow-a.patch
 Patch118: 0118-install-check-for-proper-return-from-dirent_ensure_t.patch
 Patch119: 0119-Revert-socket-if-we-fail-to-create-an-instantiated-s.patch
 Patch120: 0120-analyze-Cosmetic-exit-when-the-bootup-is-not-yet-com.patch
-# (cg) Hmmm, this seems to break OnFailure handling.
-#Patch121: 0121-service-schedule-JOB_RESTART-from-SERVICE_AUTO_RESTA.patch
-Patch122: 0122-systemctl-make-f-short-for-both-follow-and-force.patch
-Patch123: 0123-journal-in-json-and-export-mode-use-double-underscor.patch
-Patch124: 0124-fix-a-couple-of-AF_UNIX-connect-calls.patch
-Patch125: 0125-logind-log-with-AUTH-facility.patch
+Patch121: 0121-systemctl-make-f-short-for-both-follow-and-force.patch
+Patch122: 0122-journal-in-json-and-export-mode-use-double-underscor.patch
+Patch123: 0123-fix-a-couple-of-AF_UNIX-connect-calls.patch
+Patch124: 0124-logind-log-with-AUTH-facility.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
