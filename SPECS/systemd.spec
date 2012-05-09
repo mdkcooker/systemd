@@ -60,6 +60,7 @@ Patch126: 0126-units-exclude-gettys-from-isolate-requests.patch
 Patch127: 0127-transaction-cancel-jobs-non-recursively-on-isolate.patch
 Patch128: 0128-timedated-introduce-systemd-timedated-ntp.target-whi.patch
 Patch129: 0129-disable-killing-on-entering-START_PRE-START.patch
+Patch130: 0130-logind-fix-memory-leak.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
