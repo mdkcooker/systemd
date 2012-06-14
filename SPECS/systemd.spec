@@ -23,7 +23,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	44
-Release:	%mkrel 13
+Release:	%mkrel 14
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -77,7 +77,6 @@ Patch507: 0507-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
 Patch508: 0508-mageia-Tweaks-to-the-display-manager-failure-service.patch
 Patch509: 0509-mageia-Correct-usage-of-M4_DEFINES-vs.-M4_DISTRO_FLA.patch
 Patch510: 0510-units-Silence-systemd-console-output-on-getty-start.patch
-Patch511: 0511-Ensure-that-common-NFS-services-are-started-before-a.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
