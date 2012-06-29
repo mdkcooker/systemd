@@ -1,7 +1,7 @@
-From e43f69429046f7657d8f942cf8fd32482687f44b Mon Sep 17 00:00:00 2001
+From be2fa170101067782b34935c85d98f6746df4773 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Tue, 27 Mar 2012 20:38:53 +0100
-Subject: [PATCH 508/509] mount: Add a new remote-fs* target to specifically
+Subject: [PATCH 506/509] mount: Add a new remote-fs* target to specifically
  delay logins until home dirs are available
 
 Previously, systemd-user-sessions.service started after remote-fs.target.
@@ -26,19 +26,19 @@ Thus if an NFS mount is not critical for logins, it should be marked
 with nofail mount option and it will not delay the login availability.
 ---
  Makefile.am                            |    1 +
- man/systemd.special.xml                |   19 +++++++++++++++++
- src/mount.c                            |   36 ++++++++++++++++++++++++++------
- src/special.h                          |    1 +
- units/remote-fs-login.target           |    9 ++++++++
+ man/systemd.special.xml                |   19 +++++++++++++++++++
+ src/core/special.h                     |    1 +
+ src/fstab-generator/fstab-generator.c  |   12 +++++++++++-
+ units/remote-fs-login.target           |    9 +++++++++
  units/systemd-user-sessions.service.in |    2 +-
- 6 files changed, 61 insertions(+), 7 deletions(-)
+ 6 files changed, 42 insertions(+), 2 deletions(-)
  create mode 100644 units/remote-fs-login.target
 
 diff --git a/Makefile.am b/Makefile.am
-index 2f6794a..fb81e81 100644
+index 1486770..6ff7944 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -271,6 +271,7 @@ dist_systemunit_DATA = \
+@@ -268,6 +268,7 @@ dist_systemunit_DATA = \
  	units/local-fs.target \
  	units/local-fs-pre.target \
  	units/remote-fs.target \
@@ -47,10 +47,10 @@ index 2f6794a..fb81e81 100644
  	units/network.target \
  	units/nss-lookup.target \
 diff --git a/man/systemd.special.xml b/man/systemd.special.xml
-index 116a43c..73dbc1d 100644
+index 96befd5..66ac1ef 100644
 --- a/man/systemd.special.xml
 +++ b/man/systemd.special.xml
-@@ -68,6 +68,7 @@
+@@ -78,6 +78,7 @@
                  <filename>reboot.target</filename>,
                  <filename>remote-fs.target</filename>,
                  <filename>remote-fs-pre.target</filename>,
@@ -58,7 +58,7 @@ index 116a43c..73dbc1d 100644
                  <filename>rescue.target</filename>,
                  <filename>rpcbind.target</filename>,
                  <filename>runlevel2.target</filename>,
-@@ -400,6 +401,24 @@
+@@ -533,6 +534,24 @@
                                  </listitem>
                          </varlistentry>
                          <varlistentry>
@@ -83,89 +83,11 @@ index 116a43c..73dbc1d 100644
                                  <term><filename>rescue.target</filename></term>
                                  <listitem>
                                          <para>A special target unit
-diff --git a/src/mount.c b/src/mount.c
-index ed0f819..8b3b130 100644
---- a/src/mount.c
-+++ b/src/mount.c
-@@ -320,9 +320,9 @@ static bool needs_quota(MountParameters *p) {
- }
- 
- static int mount_add_fstab_links(Mount *m) {
--        const char *target, *after, *tu_wants = NULL;
-+        const char *target, *after, *tu_wants = NULL, *login_target = NULL;
-         MountParameters *p;
--        Unit *tu;
-+        Unit *tu, *ltu = NULL;
-         int r;
-         bool noauto, nofail, handle, automount;
- 
-@@ -351,6 +351,7 @@ static int mount_add_fstab_links(Mount *m) {
-         if (mount_is_network(p)) {
-                 target = SPECIAL_REMOTE_FS_TARGET;
-                 after = tu_wants = SPECIAL_REMOTE_FS_PRE_TARGET;
-+                login_target = SPECIAL_REMOTE_FS_LOGIN_TARGET;
-         } else {
-                 target = SPECIAL_LOCAL_FS_TARGET;
-                 after = SPECIAL_LOCAL_FS_PRE_TARGET;
-@@ -372,6 +373,19 @@ static int mount_add_fstab_links(Mount *m) {
-                         return r;
-         }
- 
-+        /* If this unit must not fail, and we have a login_target we should
-+         * ensure we add appropriate deps to the target */
-+        if (login_target && !nofail) {
-+                /* Make sure our current target pulls in this one */
-+                r = unit_add_dependency_by_name(tu, UNIT_WANTS, login_target, NULL, true);
-+                if (r < 0)
-+                        return r;
-+                /* Load the login target unit for use below */
-+                r = manager_load_unit(UNIT(m)->manager, login_target, NULL, NULL, &ltu);
-+                if (r < 0)
-+                        return r;
-+        }
-+
-         if (automount) {
-                 Unit *am;
- 
-@@ -385,9 +399,14 @@ static int mount_add_fstab_links(Mount *m) {
-                                 return r;
- 
-                 /* Install automount unit */
--                if (!nofail) /* automount + fail */
-+                if (!nofail) { /* automount + fail */
-+                        if (ltu) {
-+                                /* This mount should hold up logins */
-+                                if ((r = unit_add_two_dependencies(ltu, UNIT_AFTER, UNIT_REQUIRES, am, true)) < 0)
-+                                        return r;
-+                        }
-                         return unit_add_two_dependencies(tu, UNIT_AFTER, UNIT_REQUIRES, am, true);
--                else /* automount + nofail */
-+                } else /* automount + nofail */
-                         return unit_add_two_dependencies(tu, UNIT_AFTER, UNIT_WANTS, am, true);
- 
-         } else if (handle && !noauto) {
-@@ -395,9 +414,14 @@ static int mount_add_fstab_links(Mount *m) {
-                 /* Automatically add mount points that aren't natively
-                  * configured to local-fs.target */
- 
--                if (!nofail) /* auto + fail */
-+                if (!nofail) { /* auto + fail */
-+                        if (ltu) {
-+                                /* This mount should hold up logins */
-+                                if ((r = unit_add_two_dependencies(ltu, UNIT_AFTER, UNIT_REQUIRES, UNIT(m), true)) < 0)
-+                                        return r;
-+                        }
-                         return unit_add_two_dependencies(tu, UNIT_AFTER, UNIT_REQUIRES, UNIT(m), true);
--                else /* auto + nofail */
-+                } else /* auto + nofail */
-                         return unit_add_dependency(tu, UNIT_WANTS, UNIT(m), true);
-         }
- 
-diff --git a/src/special.h b/src/special.h
-index 8185eaf..567ce35 100644
---- a/src/special.h
-+++ b/src/special.h
-@@ -47,6 +47,7 @@
+diff --git a/src/core/special.h b/src/core/special.h
+index bc9b330..6faf08b 100644
+--- a/src/core/special.h
++++ b/src/core/special.h
+@@ -49,6 +49,7 @@
  #define SPECIAL_LOCAL_FS_TARGET "local-fs.target"         /* LSB's $local_fs */
  #define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
  #define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
@@ -173,6 +95,43 @@ index 8185eaf..567ce35 100644
  #define SPECIAL_REMOTE_FS_PRE_TARGET "remote-fs-pre.target"
  #define SPECIAL_SWAP_TARGET "swap.target"
  #define SPECIAL_BASIC_TARGET "basic.target"
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index d9ba3e3..7fd726c 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -217,7 +217,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+         FILE *f = NULL;
+         bool noauto, nofail, automount, isbind, isnetwork;
+         int r;
+-        const char *post, *pre;
++        const char *post, *pre, *login = NULL;
+ 
+         assert(what);
+         assert(where);
+@@ -247,6 +247,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+         if (isnetwork) {
+                 post = SPECIAL_REMOTE_FS_TARGET;
+                 pre = SPECIAL_REMOTE_FS_PRE_TARGET;
++                login = SPECIAL_REMOTE_FS_LOGIN_TARGET;
+         } else {
+                 post = SPECIAL_LOCAL_FS_TARGET;
+                 pre = SPECIAL_LOCAL_FS_PRE_TARGET;
+@@ -293,6 +294,15 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+                         "Before=%s\n",
+                         post);
+ 
++        if (login && !nofail)
++                /* This is a network mount without nofail option, therefore
++                   hold up logins */
++                fprintf(f,
++                        "Before=%s\n"
++                        "Wants=%s\n",
++                        login,
++                        login);
++
+         fprintf(f,
+                 "\n"
+                 "[Mount]\n"
 diff --git a/units/remote-fs-login.target b/units/remote-fs-login.target
 new file mode 100644
 index 0000000..5e6b63c
@@ -189,7 +148,7 @@ index 0000000..5e6b63c
 +[Unit]
 +Description=Remote File Systems needed for Logins
 diff --git a/units/systemd-user-sessions.service.in b/units/systemd-user-sessions.service.in
-index a93d586..0b37bbd 100644
+index 363093e..e519b0f 100644
 --- a/units/systemd-user-sessions.service.in
 +++ b/units/systemd-user-sessions.service.in
 @@ -7,7 +7,7 @@
@@ -202,5 +161,5 @@ index a93d586..0b37bbd 100644
  [Service]
  Type=oneshot
 -- 
-1.7.9.3
+1.7.10.3
 

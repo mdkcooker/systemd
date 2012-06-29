@@ -1,7 +1,7 @@
-From a892ad9f53f52544257c3d9ca01fa6fa3cf76a70 Mon Sep 17 00:00:00 2001
+From 6aa4a3eac1a2be62da89ef3316aa53b78588b8bc Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 8 Mar 2012 21:56:11 +0000
-Subject: [PATCH 506/509] mageia: Fallback message when display manager fails.
+Subject: [PATCH 504/507] mageia: Fallback message when display manager fails.
 
 Provide a unit for displaying a message to the user when the
 display manager fails. This can be when no dm application is
@@ -11,18 +11,22 @@ Much like the prefdm script, the actual message is included
 in the initscripts package.
 
 https://bugs.mageia.org/show_bug.cgi?id=4769
+
+v2: Use agetty rather than mingetty + quit plymouth + don't wait for
+    graphical.target
+v3: Use Type=idle now available upstream
 ---
  Makefile.am                                  |    1 +
- units/mageia/display-manager-failure.service |   29 ++++++++++++++++++++++++++
+ units/mageia/display-manager-failure.service |   30 ++++++++++++++++++++++++++
  units/mageia/prefdm.service                  |    1 +
- 3 files changed, 31 insertions(+)
+ 3 files changed, 32 insertions(+)
  create mode 100644 units/mageia/display-manager-failure.service
 
 diff --git a/Makefile.am b/Makefile.am
-index 472d5ce..a41be84 100644
+index 1b61b8c..4cc20f2 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -401,6 +401,7 @@ endif
+@@ -419,6 +419,7 @@ endif
  if TARGET_MAGEIA
  dist_systemunit_DATA += \
  	units/mageia/prefdm.service \
@@ -32,13 +36,13 @@ index 472d5ce..a41be84 100644
  systemgenerator_PROGRAMS += \
 diff --git a/units/mageia/display-manager-failure.service b/units/mageia/display-manager-failure.service
 new file mode 100644
-index 0000000..291cd46
+index 0000000..3a79ba5
 --- /dev/null
 +++ b/units/mageia/display-manager-failure.service
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,30 @@
 +[Unit]
 +Description=Display Manager Failure Message
-+After=dev-tty1.device systemd-user-sessions.service plymouth-quit-wait.service graphical.target
++After=dev-tty1.device systemd-user-sessions.service shutdown.target
 +
 +Conflicts=getty@tty1.service
 +After=getty@tty1.service
@@ -46,7 +50,8 @@ index 0000000..291cd46
 +[Service]
 +Environment=TERM=linux
 +ExecStartPre=-/bin/plymouth quit
-+ExecStart=-/sbin/mingetty --noissue --nohostname --loginprog /usr/bin/display-manager-failure-message --autologin nobody tty1
++ExecStart=-/sbin/agetty --noissue --nohostname -n --autologin nobody --login-program /usr/bin/display-manager-failure-message tty1
++Type=idle
 +Restart=always
 +RestartSec=0
 +UtmpIdentifier=tty1
@@ -66,7 +71,7 @@ index 0000000..291cd46
 +KillSignal=SIGHUP
 +
 diff --git a/units/mageia/prefdm.service b/units/mageia/prefdm.service
-index 5d9f3f7..a97d7bf 100644
+index db41294..84990b4 100644
 --- a/units/mageia/prefdm.service
 +++ b/units/mageia/prefdm.service
 @@ -14,6 +14,7 @@ After=livesys-late.service systemd-user-sessions.service
@@ -78,5 +83,5 @@ index 5d9f3f7..a97d7bf 100644
  [Service]
  ExecStart=/etc/X11/prefdm -nodaemon
 -- 
-1.7.9.3
+1.7.10.3
 

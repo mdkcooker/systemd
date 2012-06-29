@@ -1,7 +1,7 @@
-From 03cee07bd1be92fc3d50875ea4c667821dfc7c20 Mon Sep 17 00:00:00 2001
+From cfe78f5cb9bcba10f9f71e84aaef407c92bca36a Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Fri, 4 Nov 2011 00:28:35 +0000
-Subject: [PATCH 503/509] mageia: Change the unit for prefdm.service to make
+Subject: [PATCH 502/509] mageia: Change the unit for prefdm.service to make
  it work a bit more like Fedora
 
 Do not wait for some of the Fedora units that we have traditionally not
@@ -11,7 +11,7 @@ waited for in Mageia or Mandriva before it.
  1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/units/mageia/prefdm.service b/units/mageia/prefdm.service
-index 4a896bf..5d9f3f7 100644
+index c85a7a9..db41294 100644
 --- a/units/mageia/prefdm.service
 +++ b/units/mageia/prefdm.service
 @@ -7,15 +7,16 @@
@@ -39,5 +39,5 @@ index 4a896bf..5d9f3f7 100644
  RestartSec=0
 +IgnoreSIGPIPE=no
 -- 
-1.7.9.3
+1.7.10.3
 

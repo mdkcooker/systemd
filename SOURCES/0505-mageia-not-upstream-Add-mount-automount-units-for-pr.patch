@@ -1,7 +1,7 @@
-From d83e869c74a5bbb9a9c50647c8680811e7f47b29 Mon Sep 17 00:00:00 2001
+From 79089d06c613f296f39e9a4093c4e1b713dc786e Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sat, 24 Mar 2012 23:13:25 +0000
-Subject: [PATCH 507/509] mageia(not-upstream): Add mount+automount units for
+Subject: [PATCH 505/509] mageia(not-upstream): Add mount+automount units for
  /proc/bus/usb
 
 This is just a temporary fix until draknetcenter (or lsdetect)
@@ -10,20 +10,20 @@ can be refactored to not use /proc/bus/usb
 https://bugs.mageia.org/show_bug.cgi?id=4500
 ---
  Makefile.am                             |   15 +++++++++++++++
- src/mount-setup.c                       |    5 ++---
+ src/core/mount-setup.c                  |    2 --
  units/mageia/proc-bus-usb-setup.service |   19 +++++++++++++++++++
  units/mageia/proc-bus-usb.automount     |   15 +++++++++++++++
  units/mageia/proc-bus-usb.mount         |   16 ++++++++++++++++
- 5 files changed, 67 insertions(+), 3 deletions(-)
+ 5 files changed, 65 insertions(+), 2 deletions(-)
  create mode 100644 units/mageia/proc-bus-usb-setup.service
  create mode 100644 units/mageia/proc-bus-usb.automount
  create mode 100644 units/mageia/proc-bus-usb.mount
 
 diff --git a/Makefile.am b/Makefile.am
-index a41be84..2f6794a 100644
+index 4cc20f2..1486770 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -402,10 +402,25 @@ if TARGET_MAGEIA
+@@ -420,10 +420,25 @@ if TARGET_MAGEIA
  dist_systemunit_DATA += \
  	units/mageia/prefdm.service \
  	units/mageia/display-manager-failure.service \
@@ -49,29 +49,19 @@ index a41be84..2f6794a 100644
  endif
  
  if HAVE_PLYMOUTH
-diff --git a/src/mount-setup.c b/src/mount-setup.c
-index 7c14ea8..94f7a0a 100644
---- a/src/mount-setup.c
-+++ b/src/mount-setup.c
-@@ -70,8 +70,7 @@ static const MountPoint mount_table[] = {
- 
- static const char * const ignore_paths[] = {
-         "/sys/fs/selinux",
--        "/selinux",
--        "/proc/bus/usb"
-+        "/selinux"
- };
- 
- bool mount_point_is_api(const char *path) {
-@@ -80,7 +79,7 @@ bool mount_point_is_api(const char *path) {
-         /* Checks if this mount point is considered "API", and hence
-          * should be ignored */
- 
--        for (i = 0; i < ELEMENTSOF(mount_table); i ++)
-+        for (i = 0; i < ELEMENTSOF(mount_table); i++)
-                 if (path_equal(path, mount_table[i].where))
-                         return true;
- 
+diff --git a/src/core/mount-setup.c b/src/core/mount-setup.c
+index cdbee14..98f287a 100644
+--- a/src/core/mount-setup.c
++++ b/src/core/mount-setup.c
+@@ -81,8 +81,6 @@ static const char ignore_paths[] =
+         /* Legacy cgroup mount points */
+         "/dev/cgroup\0"
+         "/cgroup\0"
+-        /* Legacy kernel file system */
+-        "/proc/bus/usb\0"
+         /* Container bind mounts */
+         "/proc/sys\0"
+         "/dev/console\0"
 diff --git a/units/mageia/proc-bus-usb-setup.service b/units/mageia/proc-bus-usb-setup.service
 new file mode 100644
 index 0000000..edaeb20
@@ -141,5 +131,5 @@ index 0000000..084b306
 +Type=usbfs
 +Options=devmode=0664,devgid=43
 -- 
-1.7.9.3
+1.7.10.3
 

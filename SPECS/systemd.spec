@@ -7,80 +7,55 @@
 %define liblogin_major 0
 %define libjournal_major 0
 %define libid128_major 0
+%define libudev_major 1
+%define libgudev_api 1.0
+%define libgudev_major 0
 
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
-%define libdaemon_devel %mklibname -d systemd-daemon %{libdaemon_major}
+%define libdaemon_devel %mklibname -d systemd-daemon
 
 %define liblogin %mklibname systemd-login %{liblogin_major}
-%define liblogin_devel %mklibname -d systemd-login %{liblogin_major}
+%define liblogin_devel %mklibname -d systemd-login
 
 %define libjournal %mklibname systemd-journal %{libjournal_major}
-%define libjournal_devel %mklibname -d systemd-journal %{libjournal_major}
+%define libjournal_devel %mklibname -d systemd-journal
 
 %define libid128 %mklibname systemd-id128 %{libid128_major}
-%define libid128_devel %mklibname -d systemd-id128 %{libid128_major}
+%define libid128_devel %mklibname -d systemd-id128
+
+%define libudev %mklibname udev %{libudev_major}
+%define libudev_devel %mklibname -d udev
+
+%define libgudev %mklibname gudev %{libgudev_api} %{libgudev_major}
+%define libgudev_devel %mklibname -d gudev %{libgudev_api}
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	44
-Release:	%mkrel 14
+Version:	185
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 
 # (cg) Upstream cherry picks
-Patch100: 0100-util-never-follow-symlinks-in-rm_rf_children.patch
-Patch101: 0101-journal-react-with-immediate-rotation-to-a-couple-of.patch
-Patch102: 0102-journal-PAGE_SIZE-is-not-known-on-ppc-and-other-arch.patch
-Patch103: 0103-man-systemd-cat-1-typo-fix.patch
-Patch104: 0104-logind-close-FIFO-before-ending-sessions-cleanly.patch
-Patch105: 0105-man-minor-typo-in-reference-to-manual-page.patch
-Patch106: 0106-journalctl-loginctl-drop-systemd-prefix-in-binary-na.patch
-Patch107: 0107-build-sys-do-not-set-CFLAGS-directly.patch
-Patch108: 0108-build-sys-separate-ldflags-from-cflags.patch
-Patch109: 0109-cat-fix-priority-type.patch
-Patch110: 0110-units-don-t-mount-tmpfs-on-media-anymore.patch
-Patch111: 0111-units-get-rid-of-var-run.mount-and-var-lock.mount.patch
-Patch112: 0112-journal-properly-handle-if-we-interleave-files-with-.patch
-Patch113: 0113-job-fix-loss-of-ordering-with-restart-jobs.patch
-Patch114: 0114-job-add-debug-prints-where-job-type-gets-changed.patch
-Patch115: 0115-rename-etc-systemd-systemd-login-journal-d.conf-to-l.patch
-Patch116: 0116-bash-completion-update-naming-of-loginctl.patch
-Patch117: 0117-journal-decrease-default-mmap-window-size-to-allow-a.patch
-Patch118: 0118-install-check-for-proper-return-from-dirent_ensure_t.patch
-Patch119: 0119-Revert-socket-if-we-fail-to-create-an-instantiated-s.patch
-Patch120: 0120-analyze-Cosmetic-exit-when-the-bootup-is-not-yet-com.patch
-Patch121: 0121-systemctl-make-f-short-for-both-follow-and-force.patch
-Patch122: 0122-journal-in-json-and-export-mode-use-double-underscor.patch
-Patch123: 0123-fix-a-couple-of-AF_UNIX-connect-calls.patch
-Patch124: 0124-logind-log-with-AUTH-facility.patch
-Patch125: 0125-tmpfiles-open-directories-with-O_NOATIME-to-preserve.patch
-Patch126: 0126-units-exclude-gettys-from-isolate-requests.patch
-Patch127: 0127-transaction-cancel-jobs-non-recursively-on-isolate.patch
-Patch128: 0128-timedated-introduce-systemd-timedated-ntp.target-whi.patch
-Patch129: 0129-disable-killing-on-entering-START_PRE-START.patch
-Patch130: 0130-logind-fix-memory-leak.patch
+Patch100: 0100-units-add-systemd-debug-shell.service.patch
+Patch101: 0101-udev-always-use-rootprefix-lib-udev-for-libexecdir.patch
+Patch102: 0102-service-timeout-for-oneshot-services.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
-# (cg/bor) fix potential deadlock when onseshot unit is not finished
-# - Lennart will do this eventually but believes this patch is insufficient.
-Patch501: 0501-apply-TimeoutSec-to-oneshot-services-too.patch
-Patch502: 0502-Some-more-tmpfiles-fixes.patch
-Patch503: 0503-mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
-Patch504: 0504-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch505: 0505-mageia-Fallback-message-when-display-manager-fails.patch
-Patch506: 0506-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
-Patch507: 0507-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch508: 0508-mageia-Tweaks-to-the-display-manager-failure-service.patch
-Patch509: 0509-mageia-Correct-usage-of-M4_DEFINES-vs.-M4_DISTRO_FLA.patch
-Patch510: 0510-units-Silence-systemd-console-output-on-getty-start.patch
+Patch501: 0501-Some-more-tmpfiles-fixes.patch
+Patch502: 0502-mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
+Patch503: 0503-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch504: 0504-mageia-Fallback-message-when-display-manager-fails.patch
+Patch505: 0505-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
+Patch506: 0506-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
+Patch507: 0507-mageia-Correct-usage-of-M4_DEFINES-vs.-M4_DISTRO_FLA.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
-BuildRequires:	libudev-devel >= 172
 BuildRequires:	libcap-devel
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pam-devel
@@ -94,17 +69,25 @@ BuildRequires:	gperf
 BuildRequires:	pkgconfig(gee-1.0)
 BuildRequires:	cryptsetup-devel
 BuildRequires:	pkgconfig(libkmod)
+BuildRequires:	pkgconfig(blkid)
+BuildRequires:	pkgconfig(gobject-introspection-1.0)
 BuildRequires:	xsltproc
 BuildRequires:	docbook-style-xsl
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
-Requires:	udev >= 172
 Requires:	initscripts >= 9.21-3
 Requires:	util-linux-ng >= 2.18
 Requires:	nss-myhostname
 Requires:	lockdev
 Conflicts:	initscripts < 9.25
 Provides:	should-restart = system
+Provides: udev = %{version}-%{release}
+Obsoletes: udev < 185
+Provides:  systemd-sysvinit = %{version}-%{release}
+Conflicts: systemd-sysvinit < 185
+Obsoletes: systemd-sysvinit < 185
+Provides:  sysvinit = %sysvinit_version-%sysvinit_release
+Conflicts: SysVinit
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -139,17 +122,6 @@ Requires(post): coreutils grep awk
 Basic configuration files, directories and installation tool for the systemd
 system and session manager.
 
-%package sysvinit
-Summary:        System V init tools
-Group:          System/Configuration/Boot and Init
-Requires:       %{name} = %{version}-%{release}
-# (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
-Provides:       sysvinit = %sysvinit_version-%sysvinit_release
-Conflicts:      SysVinit
-
-%description sysvinit
-Drop-in replacement for the System V init tools of systemd.
-
 %package -n %{libdaemon}
 Summary:       Systemd-daemon library package
 Group:         System/Libraries
@@ -162,8 +134,11 @@ This package provides the systemd-daemon shared library.
 Summary:       Systemd-daemon library development files
 Group:         Development/C
 Requires:      %{libdaemon} = %{version}-%{release}
+Conflicts:     %{name} <= 35-4
 Provides:      libsystemd-daemon-devel = %{version}-%{release}
-Conflicts:	%{name} <= 35-4
+# (cg) Obsolete the old, versioned devel package
+Provides:      %{mklibname -d systemd-daemon 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-daemon 0} < 185
 
 %description -n %{libdaemon_devel}
 This package provides the development files for the systemd-daemon shared library.
@@ -181,6 +156,9 @@ Summary:       Systemd-login library development files
 Group:         Development/C
 Requires:      %{liblogin} = %{version}-%{release}
 Provides:      libsystemd-login-devel = %{version}-%{release}
+# (cg) Obsolete the old, versioned devel package
+Provides:      %{mklibname -d systemd-login 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-login 0} < 185
 
 %description -n %{liblogin_devel}
 This package provides the development files for the systemd-login shared library.
@@ -198,6 +176,9 @@ Summary:       Systemd-journal library development files
 Group:         Development/C
 Requires:      %{libjournal} = %{version}-%{release}
 Provides:      libsystemd-journal-devel = %{version}-%{release}
+# (cg) Obsolete the old, versioned devel package
+Provides:      %{mklibname -d systemd-journal 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-journal 0} < 185
 
 %description -n %{libjournal_devel}
 This package provides the development files for the systemd-journal shared library.
@@ -215,9 +196,53 @@ Summary:       Systemd-id128 library development files
 Group:         Development/C
 Requires:      %{libid128} = %{version}-%{release}
 Provides:      libsystemd-id128-devel = %{version}-%{release}
+# (cg) Obsolete the old, versioned devel package
+Provides:      %{mklibname -d systemd-id128 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-id128 0} < 185
 
 %description -n %{libid128_devel}
 This package provides the development files for the systemd-id128 shared library.
+
+%package -n %{libudev}
+Summary:       udev library package
+Group:         System/Libraries
+
+%description -n %{libudev}
+This package provides the udev shared library.
+
+%package -n %{libudev_devel}
+Summary:       udev library development files
+Group:         Development/C
+Requires:      %{libudev} = %{version}-%{release}
+Provides:      udev-devel = %{version}-%{release}
+Provides:      libudev-devel = %{version}-%{release}
+# (cg) Obsolete the old, versioned devel package
+Provides:      %{mklibname -d udev 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d udev 0} < 185
+
+%description -n %{libudev_devel}
+This package provides the development files for the udev shared library.
+
+%package -n %{libgudev}
+Summary:       gudev library package
+Group:         System/Libraries
+Provides:      libgudev = %{version}-%{release}
+
+%description -n %{libgudev}
+This package provides the gudev shared library.
+
+%package -n %{libgudev_devel}
+Summary:       gudev library development files
+Group:         Development/C
+Requires:      %{libgudev} = %{version}-%{release}
+Provides:      libgudev-devel = %{version}-%{release}
+# (cg) Obsolete the old, versioned devel package
+Provides:      %{mklibname -d gudev 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d gudev 0} < 185
+
+%description -n %{libgudev_devel}
+This package provides the development files for the gudev shared library.
+
 
 %prep
 %setup -q
@@ -225,13 +250,17 @@ This package provides the development files for the systemd-id128 shared library
 find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
+autoreconf
 %configure2_5x \
   --with-distro=mageia \
-  --disable-gtk \
   --disable-coredump \
   --disable-static \
+  --disable-selinux \
   --with-rootprefix= \
-  --with-rootlibdir=/%{_lib}
+  --with-rootlibdir=/%{_lib} \
+  --with-firmware-path=/lib/firmware/updates:/lib/firmware \
+  --with-usb-ids-path=/usr/share/usb.ids \
+  --with-pci-ids-path=/usr/share/pci.ids
 
 %make
 
@@ -252,6 +281,9 @@ ln -s ../bin/systemctl %{buildroot}/sbin/poweroff
 ln -s ../bin/systemctl %{buildroot}/sbin/shutdown
 ln -s ../bin/systemctl %{buildroot}/sbin/telinit
 ln -s ../bin/systemctl %{buildroot}/sbin/runlevel
+
+# Also add a symlink for udevadm for now as lots of things use an absolute path
+ln -s ..%{_bindir}/udevadm %{buildroot}/sbin/udevadm
 
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
@@ -314,9 +346,6 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 
 # Let rsyslog read from /proc/kmsg for now
 sed -i -e 's/\#ImportKernel=yes/ImportKernel=no/' %{buildroot}%{_sysconfdir}/systemd/journald.conf
-
-# Create unowned folders
-mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
@@ -424,22 +453,18 @@ fi
 %dir /lib/systemd
 %dir /lib/systemd/system-generators
 %dir /lib/systemd/system-shutdown
+%dir /lib/systemd/system-sleep
+%dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
-%dir %_libdir/systemd
-%dir %_libdir/systemd/user/
 %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
+%config(noreplace) %{_sysconfdir}/udev/udev.conf
 %{_sysconfdir}/xdg/systemd
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
@@ -448,6 +473,18 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+# (cg) NB dbus policy files are not really config that users are expected to
+# edit manually and thus should NOT be marked as config(noreplace).
+# This should really be fixed in upstream dbus (work in progress)
+# to separate these policy files from /etc and ship them in /usr instead
+# but allow override by admins by copying to /etc.
+# There are security implications here (CVE's have been issued due to mistakes
+# in these type of files)
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 #%{_prefix}/lib/sysctl.d/coredump.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
@@ -457,19 +494,31 @@ fi
 /bin/loginctl
 /bin/systemd
 /bin/systemd-ask-password
+/bin/systemd-inhibit
 /bin/systemd-machine-id-setup
 /bin/systemd-notify
 /bin/systemd-tmpfiles
 /bin/systemd-tty-ask-password-agent
+/sbin/init
+/sbin/reboot
+/sbin/halt
+/sbin/poweroff
+/sbin/shutdown
+/sbin/telinit
+/sbin/runlevel
+/sbin/udevadm
 /lib/systemd/systemd*
 /lib/systemd/system-generators/systemd-*
-/lib/udev/rules.d/*.rules
+/lib/udev
 /%{_lib}/security/pam_systemd.so
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgls
 %{_bindir}/systemd-cgtop
+%{_bindir}/systemd-delta
+%{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-nspawn
 %{_bindir}/systemd-stdio-bridge
+%{_bindir}/udevadm
 %{_datadir}/systemd/kbd-model-map
 %{_mandir}/man1/journalctl.*
 %{_mandir}/man1/loginctl.*
@@ -479,9 +528,16 @@ fi
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
-%{_mandir}/man8/systemd-tmpfiles.*
-%{_prefix}/lib/systemd/user/*.target
-%{_prefix}/lib/systemd/user/*.service
+%{_mandir}/man8/systemd-*
+%{_mandir}/man8/udevadm.*
+%{_mandir}/man1/init.*
+%{_mandir}/man8/halt.*
+%{_mandir}/man8/reboot.*
+%{_mandir}/man8/shutdown.*
+%{_mandir}/man8/poweroff.*
+%{_mandir}/man8/telinit.*
+%{_mandir}/man8/runlevel.*
+%{_prefix}/lib/systemd/user
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -539,23 +595,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel4.target
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel5.target
 
-%files sysvinit
-%defattr(-,root,root,-)
-/sbin/init
-/sbin/reboot
-/sbin/halt
-/sbin/poweroff
-/sbin/shutdown
-/sbin/telinit
-/sbin/runlevel
-%{_mandir}/man1/init.*
-%{_mandir}/man8/halt.*
-%{_mandir}/man8/reboot.*
-%{_mandir}/man8/shutdown.*
-%{_mandir}/man8/poweroff.*
-%{_mandir}/man8/telinit.*
-%{_mandir}/man8/runlevel.*
-
 %files -n %{libdaemon}
 %defattr(-,root,root,-)
 /%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
@@ -569,6 +608,9 @@ fi
 %{_datadir}/pkgconfig/systemd.pc
 # TODO: Move in its own sub package
 %{_includedir}/systemd/sd-messages.h
+%{_includedir}/systemd/sd-readahead.h
+%{_includedir}/systemd/sd-shutdown.h
+
 
 %files -n %{liblogin}
 %defattr(-,root,root,-)
@@ -602,3 +644,26 @@ fi
 %{_includedir}/systemd/sd-id128.h
 %{_libdir}/libsystemd-id128.so
 %{_libdir}/pkgconfig/libsystemd-id128.pc
+
+%files -n %{libudev}
+%defattr(-,root,root,-)
+/%{_lib}/libudev.so.%{libudev_major}*
+
+%files -n %{libudev_devel}
+%defattr(-,root,root,-)
+%{_libdir}/libudev.so
+%{_includedir}/libudev.h
+%{_datadir}/pkgconfig/udev.pc
+%{_libdir}/pkgconfig/libudev.pc
+
+%files -n %{libgudev}
+%defattr(-,root,root,-)
+/%{_lib}/libgudev-%{libgudev_api}.so.%{libgudev_major}*
+%{_libdir}/girepository-1.0/GUdev-%{libgudev_api}.typelib
+
+%files -n %{libgudev_devel}
+%defattr(-,root,root,-)
+%{_libdir}/libgudev-%{libgudev_api}.so
+%{_includedir}/gudev-%{libgudev_api}
+%{_libdir}/pkgconfig/gudev-%{libgudev_api}.pc
+%{_datadir}/gir-1.0/GUdev-%{libgudev_api}.gir

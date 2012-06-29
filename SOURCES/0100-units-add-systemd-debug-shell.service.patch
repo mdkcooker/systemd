@@ -1,0 +1,100 @@
+From e9c5627a0591622fb39abb42a7d8bc0e8b17d3b2 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Thu, 7 Jun 2012 16:03:33 +0200
+Subject: [PATCH 100/102] units: add systemd-debug-shell.service
+
+If enabled, the service provides a root shell from an early boot. It also
+remains active late into shutdown. It is useful for debugging startup and
+shutdown problems.
+
+This is the unit referenced in
+http://freedesktop.org/wiki/Software/systemd/Debugging#early_debug_shell
+(cherry picked from commit ed061a8dc2acd93c2eb569d2d983d5a77f7e5b77)
+---
+ Makefile.am                          |    5 ++++-
+ configure.ac                         |    6 ++++++
+ units/systemd-debug-shell.service.in |   25 +++++++++++++++++++++++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 units/systemd-debug-shell.service.in
+
+diff --git a/Makefile.am b/Makefile.am
+index 976d4b2..b408b57 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -340,7 +340,8 @@ nodist_systemunit_DATA = \
+ 	units/user@.service \
+ 	units/systemd-udev.service \
+ 	units/systemd-udev-trigger.service \
+-	units/systemd-udev-settle.service
++	units/systemd-udev-settle.service \
++	units/systemd-debug-shell.service
+ 
+ dist_userunit_DATA = \
+ 	units/user/default.target \
+@@ -378,6 +379,7 @@ EXTRA_DIST += \
+ 	units/systemd-udev.service \
+ 	units/systemd-udev-trigger.service \
+ 	units/systemd-udev-settle.service \
++	units/systemd-debug-shell.service.in \
+ 	units/hibernate.service.in \
+ 	units/suspend.service.in \
+ 	introspect.awk \
+@@ -3011,6 +3013,7 @@ SED_PROCESS = \
+ 		-e 's,@VERSION\@,$(VERSION),g' \
+ 		-e 's,@rootprefix\@,$(rootprefix),g' \
+ 		-e 's,@udevlibexecdir\@,$(libexecdir)/udev,g' \
++		-e 's,@sushell\@,$(sushell),g' \
+ 		< $< > $@ || rm $@
+ 
+ units/%: units/%.in Makefile
+diff --git a/configure.ac b/configure.ac
+index c499d22..59892cb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -172,6 +172,12 @@ if test "x$enable_selinux" != "xno"; then
+         fi
+ fi
+ AM_CONDITIONAL(HAVE_SELINUX, [test "$have_selinux" = "yes"])
++if test "x${have_selinux}" != xno ; then
++        sushell=/sbin/sushell
++else
++        sushell=/bin/bash
++fi
++AC_SUBST(sushell)
+ 
+ # ------------------------------------------------------------------------------
+ have_xz=no
+diff --git a/units/systemd-debug-shell.service.in b/units/systemd-debug-shell.service.in
+new file mode 100644
+index 0000000..70c01c2
+--- /dev/null
++++ b/units/systemd-debug-shell.service.in
+@@ -0,0 +1,25 @@
++[Unit]
++Description=Early root shell on tty9 FOR DEBUGGING ONLY
++DefaultDependencies=no
++IgnoreOnIsolate=yes
++
++[Service]
++Environment=TERM=linux
++ExecStart=@sushell@
++Restart=always
++RestartSec=0
++StandardInput=tty
++TTYPath=/dev/tty9
++TTYReset=yes
++TTYVHangup=yes
++KillMode=process
++IgnoreSIGPIPE=no
++# bash ignores SIGTERM
++KillSignal=SIGHUP
++
++# Unset locale for the console getty since the console has problems
++# displaying some internationalized messages.
++Environment=LANG= LANGUAGE= LC_CTYPE= LC_NUMERIC= LC_TIME= LC_COLLATE= LC_MONETARY= LC_MESSAGES= LC_PAPER= LC_NAME= LC_ADDRESS= LC_TELEPHONE= LC_MEASUREMENT= LC_IDENTIFICATION=
++
++[Install]
++WantedBy=sysinit.target
+-- 
+1.7.10.3
+

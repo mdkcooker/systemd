@@ -1,0 +1,111 @@
+From 4e41bf94912f117d5e163274d8b009a195f272f9 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Sun, 10 Jun 2012 17:23:43 +0200
+Subject: [PATCH 101/102] udev: always use $(rootprefix)/lib/udev for
+ libexecdir
+
+On Sat, Jun 9, 2012 at 12:46 AM, Malte Starostik <lists@malte.homeip.net> wrote:
+> From: Malte Starostik <m-starostik@versanet.de>
+>
+> Rules get installed in $(libexecdir)/udev/, so are keymaps.  Helper
+> binaries go to $(rootprefix)/lib/udev though.  Problem is, in the code,
+> both are referenced via UDEVLIBEXECDIR which is defined to the former
+> location.  Result: systemd-udev can't find e.g. the keymap binary to
+> apply keymaps.
+(cherry picked from commit 8e8eb8fbafcaa841fa5393e396acde27b26edf2f)
+---
+ Makefile.am  |   16 +++++++---------
+ autogen.sh   |    1 -
+ configure.ac |    1 -
+ 3 files changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index b408b57..1b61b8c 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -63,15 +63,15 @@ pkgsysconfdir=$(sysconfdir)/systemd
+ userunitdir=$(prefix)/lib/systemd/user
+ tmpfilesdir=$(prefix)/lib/tmpfiles.d
+ sysctldir=$(prefix)/lib/sysctl.d
+-usergeneratordir=$(pkglibexecdir)/user-generators
++usergeneratordir=$(prefix)/lib/systemd/user-generators
+ pkgincludedir=$(includedir)/systemd
+ systemgeneratordir=$(rootlibexecdir)/system-generators
+ systemshutdowndir=$(rootlibexecdir)/system-shutdown
+ systemsleepdir=$(rootlibexecdir)/system-sleep
+ systemunitdir=$(rootprefix)/lib/systemd/system
+ udevlibexecdir=$(rootprefix)/lib/udev
+-udevhomedir = $(libexecdir)/udev
+-udevrulesdir = $(libexecdir)/udev/rules.d
++udevhomedir = $(udevlibexecdir)
++udevrulesdir = $(udevlibexecdir)/rules.d
+ 
+ # And these are the special ones for /
+ rootprefix=@rootprefix@
+@@ -132,7 +132,7 @@ AM_CPPFLAGS = \
+ 	-DSYSTEM_SLEEP_PATH=\"$(systemsleepdir)\" \
+ 	-DSYSTEMD_KBD_MODEL_MAP=\"$(pkgdatadir)/kbd-model-map\" \
+ 	-DX_SERVER=\"$(bindir)/X\" \
+-	-DUDEVLIBEXECDIR=\""$(libexecdir)/udev"\" \
++	-DUDEVLIBEXECDIR=\"$(udevlibexecdir)\" \
+ 	-DPOLKIT_AGENT_BINARY_PATH=\"$(bindir)/pkttyagent\" \
+ 	-I $(top_srcdir)/src \
+ 	-I $(top_srcdir)/src/shared \
+@@ -1441,7 +1441,6 @@ MANPAGES += \
+ 
+ udev-confdirs:
+ 	-mkdir -p $(DESTDIR)$(sysconfdir)/udev/rules.d
+-	-mkdir -p $(DESTDIR)$(libexecdir)/udev/devices
+ 
+ INSTALL_DATA_HOOKS += udev-confdirs
+ 
+@@ -1922,7 +1921,7 @@ CLEANFILES += \
+ 	src/udev/keymap/keys-from-name.gperf \
+ 	src/udev/keymap/keyboard-force-release.sh
+ 
+-udevkeymapdir = $(libexecdir)/udev/keymaps
++udevkeymapdir = $(udevlibexecdir)/keymaps
+ dist_udevkeymap_DATA = \
+ 	keymaps/acer \
+ 	keymaps/acer-aspire_5720 \
+@@ -1983,7 +1982,7 @@ dist_udevkeymap_DATA = \
+ 	keymaps/toshiba-satellite_m30x \
+ 	keymaps/zepto-znote
+ 
+-udevkeymapforcereldir = $(libexecdir)/udev/keymaps/force-release
++udevkeymapforcereldir = $(udevlibexecdir)/keymaps/force-release
+ dist_udevkeymapforcerel_DATA = \
+ 	keymaps-force-release/dell-touchpad \
+ 	keymaps-force-release/dell-xps \
+@@ -2999,7 +2998,6 @@ SED_PROCESS = \
+ 		-e 's,@SYSTEMD_NOTIFY\@,$(rootbindir)/systemd-notify,g' \
+ 		-e 's,@pkgsysconfdir\@,$(pkgsysconfdir),g' \
+ 		-e 's,@pkgdatadir\@,$(pkgdatadir),g' \
+-		-e 's,@pkglibexecdir\@,$(pkglibexecdir),g' \
+ 		-e 's,@systemunitdir\@,$(systemunitdir),g' \
+ 		-e 's,@userunitdir\@,$(userunitdir),g' \
+ 		-e 's,@PACKAGE_VERSION\@,$(PACKAGE_VERSION),g' \
+@@ -3012,7 +3010,7 @@ SED_PROCESS = \
+ 		-e 's,@includedir\@,$(includedir),g' \
+ 		-e 's,@VERSION\@,$(VERSION),g' \
+ 		-e 's,@rootprefix\@,$(rootprefix),g' \
+-		-e 's,@udevlibexecdir\@,$(libexecdir)/udev,g' \
++		-e 's,@udevlibexecdir\@,$(udevlibexecdir),g' \
+ 		-e 's,@sushell\@,$(sushell),g' \
+ 		< $< > $@ || rm $@
+ 
+diff --git a/configure.ac b/configure.ac
+index 59892cb..8ae5ab2 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -761,7 +761,6 @@ AC_MSG_RESULT([
+         datarootdir:             ${datarootdir}
+         includedir:              ${includedir}
+         include_prefix:          ${INCLUDE_PREFIX}
+-        libexec dir:             ${libexecdir}
+         lib dir:                 ${libdir}
+         rootlib dir:             ${with_rootlibdir}
+         PAM modules dir:         ${with_pamlibdir}
+-- 
+1.7.10.3
+

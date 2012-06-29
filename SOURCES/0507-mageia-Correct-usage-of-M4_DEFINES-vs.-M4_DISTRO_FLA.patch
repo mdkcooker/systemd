@@ -1,7 +1,8 @@
-From 3f947123abfce1a9f80746c95819172c6a6fae8d Mon Sep 17 00:00:00 2001
+From c36e5c33bcafb070f9e22e1248e34f14d630add4 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 26 Apr 2012 09:46:49 +0100
-Subject: [PATCH] mageia: Correct usage of M4_DEFINES vs. M4_DISTRO_FLAG.
+Subject: [PATCH 507/507] mageia: Correct usage of M4_DEFINES vs.
+ M4_DISTRO_FLAG.
 
 This seems to have been a problem since mageia support was merged,
 as upstream had changed how this bit worked without us reaslising.
@@ -10,10 +11,10 @@ as upstream had changed how this bit worked without us reaslising.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index 53c8f0e..b1a466c 100644
+index 8ae5ab2..07da43e 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -493,7 +493,7 @@ case $with_distro in
+@@ -593,7 +593,7 @@ case $with_distro in
          mageia)
                  SYSTEM_SYSVINIT_PATH=/etc/rc.d/init.d
                  AC_DEFINE(TARGET_MAGEIA, [], [Target is Mageia])
@@ -23,5 +24,5 @@ index 53c8f0e..b1a466c 100644
                  ;;
          other)
 -- 
-1.7.10
+1.7.10.3
 
