@@ -1,0 +1,283 @@
+From f37013e9dfe6dc3e57a7714b12d2a118719de9e9 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Sat, 30 Jun 2012 14:37:54 +0100
+Subject: [PATCH] units: Rename systemd-udev.service to systemd-udevd.service
+
+This naming convention is more inline with other systemd daemon
+unit names (systemd-logind.service, systemd-localed.service etc)
+(cherry picked from commit 213570246538fdc01c16d96d8ba28bbd549827a5)
+
+Conflicts:
+	Makefile.am
+	TODO
+	man/systemd-udevd.xml
+	units/.gitignore
+	units/systemd-udev-settle.service.in
+	units/systemd-udev-trigger.service.in
+---
+ Makefile.am                           | 18 +++++++++---------
+ units/systemd-udev-control.socket     | 19 -------------------
+ units/systemd-udev-kernel.socket      | 19 -------------------
+ units/systemd-udev-settle.service.in  |  2 +-
+ units/systemd-udev-trigger.service.in |  4 ++--
+ units/systemd-udev.service.in         | 23 -----------------------
+ units/systemd-udevd-control.socket    | 19 +++++++++++++++++++
+ units/systemd-udevd-kernel.socket     | 19 +++++++++++++++++++
+ units/systemd-udevd.service.in        | 23 +++++++++++++++++++++++
+ 9 files changed, 73 insertions(+), 73 deletions(-)
+ delete mode 100644 units/systemd-udev-control.socket
+ delete mode 100644 units/systemd-udev-kernel.socket
+ delete mode 100644 units/systemd-udev.service.in
+ create mode 100644 units/systemd-udevd-control.socket
+ create mode 100644 units/systemd-udevd-kernel.socket
+ create mode 100644 units/systemd-udevd.service.in
+
+diff --git a/Makefile.am b/Makefile.am
+index 1b61b8c..95e1bfb 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -306,8 +306,8 @@ dist_systemunit_DATA = \
+ 	units/systemd-ask-password-wall.path \
+ 	units/systemd-ask-password-console.path \
+ 	units/syslog.target \
+-	units/systemd-udev-control.socket \
+-	units/systemd-udev-kernel.socket \
++	units/systemd-udevd-control.socket \
++	units/systemd-udevd-kernel.socket \
+ 	units/systemd-timedated-ntp.target  \
+ 	units/system-update.target
+ 
+@@ -338,7 +338,7 @@ nodist_systemunit_DATA = \
+ 	units/rescue.service \
+ 	units/suspend.service \
+ 	units/user@.service \
+-	units/systemd-udev.service \
++	units/systemd-udevd.service \
+ 	units/systemd-udev-trigger.service \
+ 	units/systemd-udev-settle.service \
+ 	units/systemd-debug-shell.service
+@@ -376,7 +376,7 @@ EXTRA_DIST += \
+ 	units/fsck@.service.in \
+ 	units/fsck-root.service.in \
+ 	units/user@.service.in \
+-	units/systemd-udev.service \
++	units/systemd-udevd.service \
+ 	units/systemd-udev-trigger.service \
+ 	units/systemd-udev-settle.service \
+ 	units/systemd-debug-shell.service.in \
+@@ -1476,21 +1476,21 @@ CLEANFILES += \
+ 	src/udev/udev.pc
+ 
+ EXTRA_DIST += \
+-	units/systemd-udev.service.in \
++	units/systemd-udevd.service.in \
+ 	units/systemd-udev-trigger.service.in \
+ 	units/systemd-udev-settle.service.in
+ 
+ CLEANFILES += \
+-	units/systemd-udev.service \
++	units/systemd-udevd.service \
+ 	units/systemd-udev-trigger.service \
+ 	units/systemd-udev-settle.service
+ 
+ systemd-install-hook:
+ 	mkdir -p $(DESTDIR)$(systemunitdir)/sockets.target.wants
+-	ln -sf ../systemd-udev-control.socket $(DESTDIR)$(systemunitdir)/sockets.target.wants/systemd-udev-control.socket
+-	ln -sf ../systemd-udev-kernel.socket $(DESTDIR)$(systemunitdir)/sockets.target.wants/systemd-udev-kernel.socket
++	ln -sf ../systemd-udevd-control.socket $(DESTDIR)$(systemunitdir)/sockets.target.wants/systemd-udevd-control.socket
++	ln -sf ../systemd-udevd-kernel.socket $(DESTDIR)$(systemunitdir)/sockets.target.wants/systemd-udevd-kernel.socket
+ 	mkdir -p $(DESTDIR)$(systemunitdir)/sysinit.target.wants
+-	ln -sf ../systemd-udev.service $(DESTDIR)$(systemunitdir)/sysinit.target.wants/systemd-udev.service
++	ln -sf ../systemd-udevd.service $(DESTDIR)$(systemunitdir)/sysinit.target.wants/systemd-udevd.service
+ 	ln -sf ../systemd-udev-trigger.service $(DESTDIR)$(systemunitdir)/sysinit.target.wants/systemd-udev-trigger.service
+ 
+ INSTALL_DATA_HOOKS += systemd-install-hook
+diff --git a/units/systemd-udev-control.socket b/units/systemd-udev-control.socket
+deleted file mode 100644
+index 5b25e06..0000000
+--- a/units/systemd-udev-control.socket
++++ /dev/null
+@@ -1,19 +0,0 @@
+-#  This file is part of systemd.
+-#
+-#  systemd is free software; you can redistribute it and/or modify it
+-#  under the terms of the GNU Lesser General Public License as published by
+-#  the Free Software Foundation; either version 2.1 of the License, or
+-#  (at your option) any later version.
+-
+-[Unit]
+-Description=udev Control Socket
+-Documentation=man:udev(7)
+-Documentation=man:systemd-udevd(8)
+-DefaultDependencies=no
+-ConditionCapability=CAP_MKNOD
+-
+-[Socket]
+-Service=systemd-udev.service
+-ListenSequentialPacket=/run/udev/control
+-SocketMode=0600
+-PassCredentials=yes
+diff --git a/units/systemd-udev-kernel.socket b/units/systemd-udev-kernel.socket
+deleted file mode 100644
+index 68c23a6..0000000
+--- a/units/systemd-udev-kernel.socket
++++ /dev/null
+@@ -1,19 +0,0 @@
+-#  This file is part of systemd.
+-#
+-#  systemd is free software; you can redistribute it and/or modify it
+-#  under the terms of the GNU Lesser General Public License as published by
+-#  the Free Software Foundation; either version 2.1 of the License, or
+-#  (at your option) any later version.
+-
+-[Unit]
+-Description=udev Kernel Socket
+-Documentation=man:udev(7)
+-Documentation=man:systemd-udevd(8)
+-DefaultDependencies=no
+-ConditionCapability=CAP_MKNOD
+-
+-[Socket]
+-Service=systemd-udev.service
+-ReceiveBuffer=134217728
+-ListenNetlink=kobject-uevent 1
+-PassCredentials=yes
+diff --git a/units/systemd-udev-settle.service.in b/units/systemd-udev-settle.service.in
+index d637700..12a3d7b 100644
+--- a/units/systemd-udev-settle.service.in
++++ b/units/systemd-udev-settle.service.in
+@@ -20,7 +20,7 @@ Description=udev Wait for Complete Device Initialization
+ Documentation=man:udev(7)
+ Documentation=man:systemd-udevd(8)
+ DefaultDependencies=no
+-Wants=systemd-udev.service
++Wants=systemd-udevd.service
+ After=udev-trigger.service
+ Before=basic.target
+ ConditionCapability=CAP_MKNOD
+diff --git a/units/systemd-udev-trigger.service.in b/units/systemd-udev-trigger.service.in
+index 2f34d53..e9512ea 100644
+--- a/units/systemd-udev-trigger.service.in
++++ b/units/systemd-udev-trigger.service.in
+@@ -9,8 +9,8 @@
+ Description=udev Coldplug all Devices
+ Documentation=man:udev(7)
+ Documentation=man:systemd-udevd(8)
+-Wants=systemd-udev.service
+-After=systemd-udev-kernel.socket systemd-udev-control.socket
++Wants=systemd-udevd.service
++After=systemd-udevd-kernel.socket systemd-udevd-control.socket
+ DefaultDependencies=no
+ ConditionCapability=CAP_MKNOD
+ 
+diff --git a/units/systemd-udev.service.in b/units/systemd-udev.service.in
+deleted file mode 100644
+index a78dc8b..0000000
+--- a/units/systemd-udev.service.in
++++ /dev/null
+@@ -1,23 +0,0 @@
+-#  This file is part of systemd.
+-#
+-#  systemd is free software; you can redistribute it and/or modify it
+-#  under the terms of the GNU Lesser General Public License as published by
+-#  the Free Software Foundation; either version 2.1 of the License, or
+-#  (at your option) any later version.
+-
+-[Unit]
+-Description=udev Kernel Device Manager
+-Documentation=man:udev(7)
+-Documentation=man:systemd-udevd(8)
+-Wants=systemd-udev-control.socket systemd-udev-kernel.socket
+-After=systemd-udev-control.socket systemd-udev-kernel.socket
+-Before=basic.target
+-DefaultDependencies=no
+-ConditionCapability=CAP_MKNOD
+-
+-[Service]
+-Type=notify
+-OOMScoreAdjust=-1000
+-Sockets=systemd-udev-control.socket systemd-udev-kernel.socket
+-Restart=on-failure
+-ExecStart=@rootlibexecdir@/systemd-udevd
+diff --git a/units/systemd-udevd-control.socket b/units/systemd-udevd-control.socket
+new file mode 100644
+index 0000000..cd14969
+--- /dev/null
++++ b/units/systemd-udevd-control.socket
+@@ -0,0 +1,19 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU Lesser General Public License as published by
++#  the Free Software Foundation; either version 2.1 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=udev Control Socket
++Documentation=man:udev(7)
++Documentation=man:systemd-udevd(8)
++DefaultDependencies=no
++ConditionCapability=CAP_MKNOD
++
++[Socket]
++Service=systemd-udevd.service
++ListenSequentialPacket=/run/udev/control
++SocketMode=0600
++PassCredentials=yes
+diff --git a/units/systemd-udevd-kernel.socket b/units/systemd-udevd-kernel.socket
+new file mode 100644
+index 0000000..ab82693
+--- /dev/null
++++ b/units/systemd-udevd-kernel.socket
+@@ -0,0 +1,19 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU Lesser General Public License as published by
++#  the Free Software Foundation; either version 2.1 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=udev Kernel Socket
++Documentation=man:udev(7)
++Documentation=man:systemd-udevd(8)
++DefaultDependencies=no
++ConditionCapability=CAP_MKNOD
++
++[Socket]
++Service=systemd-udevd.service
++ReceiveBuffer=134217728
++ListenNetlink=kobject-uevent 1
++PassCredentials=yes
+diff --git a/units/systemd-udevd.service.in b/units/systemd-udevd.service.in
+new file mode 100644
+index 0000000..e8dfc7a
+--- /dev/null
++++ b/units/systemd-udevd.service.in
+@@ -0,0 +1,23 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU Lesser General Public License as published by
++#  the Free Software Foundation; either version 2.1 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=udev Kernel Device Manager
++Documentation=man:udev(7)
++Documentation=man:systemd-udevd(8)
++Wants=systemd-udevd-control.socket systemd-udevd-kernel.socket
++After=systemd-udevd-control.socket systemd-udevd-kernel.socket
++Before=basic.target
++DefaultDependencies=no
++ConditionCapability=CAP_MKNOD
++
++[Service]
++Type=notify
++OOMScoreAdjust=-1000
++Sockets=systemd-udevd-control.socket systemd-udevd-kernel.socket
++Restart=on-failure
++ExecStart=@rootlibexecdir@/systemd-udevd
+-- 
+1.7.11
+

@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	185
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -42,6 +42,7 @@ Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 Patch100: 0100-units-add-systemd-debug-shell.service.patch
 Patch101: 0101-udev-always-use-rootprefix-lib-udev-for-libexecdir.patch
 Patch102: 0102-service-timeout-for-oneshot-services.patch
+Patch103: 0103-units-Rename-systemd-udev.service-to-systemd-udevd.s.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
