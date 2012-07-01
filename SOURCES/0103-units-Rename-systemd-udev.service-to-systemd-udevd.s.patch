@@ -1,4 +1,4 @@
-From f37013e9dfe6dc3e57a7714b12d2a118719de9e9 Mon Sep 17 00:00:00 2001
+From 79c6f3772b27ec987fa8c3e53360ddf4152a2f49 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sat, 30 Jun 2012 14:37:54 +0100
 Subject: [PATCH] units: Rename systemd-udev.service to systemd-udevd.service
@@ -18,13 +18,13 @@ Conflicts:
  Makefile.am                           | 18 +++++++++---------
  units/systemd-udev-control.socket     | 19 -------------------
  units/systemd-udev-kernel.socket      | 19 -------------------
- units/systemd-udev-settle.service.in  |  2 +-
+ units/systemd-udev-settle.service.in  |  4 ++--
  units/systemd-udev-trigger.service.in |  4 ++--
  units/systemd-udev.service.in         | 23 -----------------------
  units/systemd-udevd-control.socket    | 19 +++++++++++++++++++
  units/systemd-udevd-kernel.socket     | 19 +++++++++++++++++++
  units/systemd-udevd.service.in        | 23 +++++++++++++++++++++++
- 9 files changed, 73 insertions(+), 73 deletions(-)
+ 9 files changed, 74 insertions(+), 74 deletions(-)
  delete mode 100644 units/systemd-udev-control.socket
  delete mode 100644 units/systemd-udev-kernel.socket
  delete mode 100644 units/systemd-udev.service.in
@@ -143,18 +143,20 @@ index 68c23a6..0000000
 -ListenNetlink=kobject-uevent 1
 -PassCredentials=yes
 diff --git a/units/systemd-udev-settle.service.in b/units/systemd-udev-settle.service.in
-index d637700..12a3d7b 100644
+index d637700..0ff94bc 100644
 --- a/units/systemd-udev-settle.service.in
 +++ b/units/systemd-udev-settle.service.in
-@@ -20,7 +20,7 @@ Description=udev Wait for Complete Device Initialization
+@@ -20,8 +20,8 @@ Description=udev Wait for Complete Device Initialization
  Documentation=man:udev(7)
  Documentation=man:systemd-udevd(8)
  DefaultDependencies=no
 -Wants=systemd-udev.service
+-After=udev-trigger.service
 +Wants=systemd-udevd.service
- After=udev-trigger.service
++After=systemd-udev-trigger.service
  Before=basic.target
  ConditionCapability=CAP_MKNOD
+ 
 diff --git a/units/systemd-udev-trigger.service.in b/units/systemd-udev-trigger.service.in
 index 2f34d53..e9512ea 100644
 --- a/units/systemd-udev-trigger.service.in
