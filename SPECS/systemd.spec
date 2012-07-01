@@ -38,6 +38,17 @@ Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 
+Source10: 50-udev-mageia.rules
+Source11: 69-printeracl.rules
+# (hk) udev rules for zte 3g modems with drakx-net
+Source12: 61-mobile-zte-drakx-net.rules
+
+# (blino) net rules and helpers
+Source20: 76-net.rules
+Source21: udev_net_create_ifcfg
+Source22: udev_net_action
+Source23: udev_net.sysconfig
+
 # (cg) Upstream cherry picks
 Patch100: 0100-units-add-systemd-debug-shell.service.patch
 Patch101: 0101-udev-always-use-rootprefix-lib-udev-for-libexecdir.patch
@@ -275,6 +286,19 @@ rm -rf %{buildroot}
 %makeinstall_std
 find %{buildroot} \( -name '*.a' -o -name '*.la' \) -exec rm {} \;
 
+install -m 644 %SOURCE10 %{buildroot}/lib/udev/rules.d/
+install -m 644 %SOURCE11 %{buildroot}/lib/udev/rules.d/
+# udev rules for zte 3g modems and drakx-net
+install -m 0644 %SOURCE12 %{buildroot}/lib/udev/rules.d/
+
+# net rules
+install -m 0644 %SOURCE20 %{buildroot}/lib/udev/rules.d/
+install -m 0755 %SOURCE21 %{buildroot}/lib/udev/net_create_ifcfg
+install -m 0755 %SOURCE22 %{buildroot}/lib/udev/net_action
+install -m 0755 -d %{buildroot}%{_sysconfdir}/sysconfig
+install -m 0644 %SOURCE23 %{buildroot}%{_sysconfdir}/sysconfig/udev_net
+
+
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
 mkdir -p %{buildroot}/sbin
@@ -465,6 +489,7 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
 %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
+%config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf

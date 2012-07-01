@@ -1,0 +1,26 @@
+#!/bin/sh
+
+[ -z "$INTERFACE" ] && exit 0
+[ ! -f /var/lock/subsys/network ] && exit 0
+
+# (cg) Note that the above is not enough to prevent this script kicking in on
+# boot as /var/lock may be messy from the previous boot.
+# The systemd service mandriva-clean-var-run-lock.service should tidy it up
+# but it cannot run until after udev has started due to it being needed to mount
+# /var filesystems. 
+# We can remove the hack below once /var/lock is a symlink to /run/lock which
+# is on tmpfs and thus requires no cleaning.
+# Please also see the corresponding code/comment in /etc/init.d/network
+[ ! -f /run/.mageia-network ] && exit 0
+
+[ "${INTERFACE#ppp}" = "$INTERFACE" ] && /usr/sbin/mdv-network-event $ACTION $INTERFACE
+
+[ -r /etc/sysconfig/udev_net ] && . /etc/sysconfig/udev_net
+[ -n "$BLACKLIST_ALL" ] && eval "case $INTERFACE in $BLACKLIST_ALL) exit 1;; esac"
+
+CFG=/etc/sysconfig/network-scripts/ifcfg-$INTERFACE
+[ ! -r $CFG ] && exit 0
+
+export IN_HOTPLUG=1
+[ "$ACTION" = add ] && exec /sbin/ifup $INTERFACE daemon
+[ "$ACTION" = remove ] && exec /sbin/ifdown $INTERFACE daemon
