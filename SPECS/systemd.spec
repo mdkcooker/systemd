@@ -54,6 +54,10 @@ Patch504: 0504-mageia-Fallback-message-when-display-manager-fails.patch
 Patch505: 0505-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
 Patch506: 0506-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
 Patch507: 0507-mageia-Correct-usage-of-M4_DEFINES-vs.-M4_DISTRO_FLA.patch
+Patch508: 0508-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch509: 0509-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch510: 0510-reinstate-TIMEOUT-handling.patch
+Patch511: 0511-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
