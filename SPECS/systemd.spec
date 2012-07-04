@@ -31,8 +31,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	185
-Release:	%mkrel 4
+Version:	186
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -50,25 +50,19 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-units-add-systemd-debug-shell.service.patch
-Patch101: 0101-udev-always-use-rootprefix-lib-udev-for-libexecdir.patch
-Patch102: 0102-service-timeout-for-oneshot-services.patch
-Patch103: 0103-units-Rename-systemd-udev.service-to-systemd-udevd.s.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 Patch501: 0501-Some-more-tmpfiles-fixes.patch
-Patch502: 0502-mageia-Change-the-unit-for-prefdm.service-to-make-it.patch
-Patch503: 0503-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch504: 0504-mageia-Fallback-message-when-display-manager-fails.patch
-Patch505: 0505-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
-Patch506: 0506-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch507: 0507-mageia-Correct-usage-of-M4_DEFINES-vs.-M4_DISTRO_FLA.patch
-Patch508: 0508-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-Patch509: 0509-Allow-booting-from-live-cd-in-virtualbox.patch
-Patch510: 0510-reinstate-TIMEOUT-handling.patch
-Patch511: 0511-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+Patch502: 0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch503: 0503-mageia-Fallback-message-when-display-manager-fails.patch
+Patch504: 0504-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
+Patch505: 0505-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
+Patch506: 0506-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch507: 0507-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch508: 0508-reinstate-TIMEOUT-handling.patch
+Patch509: 0509-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
@@ -349,10 +343,6 @@ export SYSTEMD_PAGER="/usr/bin/less -FR"
 EOF
 chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
-# (bor) disable legacy output to console, it just messes things up
-sed -i -e 's/^#SysVConsole=yes$/SysVConsole=no/' \
-  %{buildroot}/etc/systemd/system.conf
-
 # (bor) enable rpcbind.target by default so we have something to plug
 # portmapper service into
 ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
@@ -373,9 +363,6 @@ touch %{buildroot}%{_sysconfdir}/timezone
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 
-# Let rsyslog read from /proc/kmsg for now
-sed -i -e 's/\#ImportKernel=yes/ImportKernel=no/' %{buildroot}%{_sysconfdir}/systemd/journald.conf
-
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
 install -d %{buildroot}%{_var}/lib/rpm/filetriggers
@@ -395,6 +382,9 @@ chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
 
 # This file is already in sytemd-ui rpm
 rm -fr %buildroot%_mandir/man1/systemadm.*
+
+# (cg) This should be moving at some point upstream so pre-empt it
+mv %{buildroot}%{_sysconfdir}/rpm %{buildroot}%{_prefix}/lib
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
@@ -636,6 +626,7 @@ fi
 %{_libdir}/libsystemd-daemon.so
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
 %{_datadir}/pkgconfig/systemd.pc
+%{_prefix}/lib/rpm/macros.systemd
 # TODO: Move in its own sub package
 %{_includedir}/systemd/sd-messages.h
 %{_includedir}/systemd/sd-readahead.h

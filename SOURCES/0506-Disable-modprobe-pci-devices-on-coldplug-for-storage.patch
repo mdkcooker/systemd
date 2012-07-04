@@ -1,7 +1,7 @@
-From c5860d516e44f7d797fd52cf678b10294b1d60b0 Mon Sep 17 00:00:00 2001
+From 7605b131cfa3380f8dea73cc396193fc98583273 Mon Sep 17 00:00:00 2001
 From: Frederic Crozat <fcrozat@mandriva.com>
 Date: Sun, 1 Jul 2012 17:44:41 +0100
-Subject: [PATCH 508/511] Disable modprobe pci devices on coldplug for storage
+Subject: [PATCH 506/509] Disable modprobe pci devices on coldplug for storage
  and display
 
 Signed-off-by: Frederic Crozat <fcrozat@mandriva.com>

@@ -1,7 +1,7 @@
-From f7295ed2c7aba45f1e0e6371bb660c44c4ba42c0 Mon Sep 17 00:00:00 2001
+From a95d6bc550146dc489cb5d5a4795690a858d1ac5 Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Thu, 15 Mar 2012 02:12:43 +0100
-Subject: [PATCH 510/511] reinstate TIMEOUT= handling
+Subject: [PATCH 508/509] reinstate TIMEOUT= handling
 
 This reverts 43d5c5f03645c4b842659f9b5bd0ae465e885e92 and
 57c6f8ae5f52a6e8ffc66a54966346f733dded39.
@@ -77,7 +77,7 @@ index 4eb4a59..99aefeb 100644
  void udev_device_set_usec_initialized(struct udev_device *udev_device, unsigned long long usec_initialized);
  int udev_device_get_devlink_priority(struct udev_device *udev_device);
 diff --git a/src/udev/udevd.c b/src/udev/udevd.c
-index 2ac9fde..0ad6a35 100644
+index 393e2a9..9aa95c6 100644
 --- a/src/udev/udevd.c
 +++ b/src/udev/udevd.c
 @@ -387,7 +387,7 @@ out:

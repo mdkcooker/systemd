@@ -1,7 +1,7 @@
-From be2fa170101067782b34935c85d98f6746df4773 Mon Sep 17 00:00:00 2001
+From 43e0aedd52eb95c244c70f25dceace6854c77be5 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Tue, 27 Mar 2012 20:38:53 +0100
-Subject: [PATCH 506/509] mount: Add a new remote-fs* target to specifically
+Subject: [PATCH 505/509] mount: Add a new remote-fs* target to specifically
  delay logins until home dirs are available
 
 Previously, systemd-user-sessions.service started after remote-fs.target.
@@ -25,20 +25,20 @@ dependances of fstab entries not marked with nofail.
 Thus if an NFS mount is not critical for logins, it should be marked
 with nofail mount option and it will not delay the login availability.
 ---
- Makefile.am                            |    1 +
- man/systemd.special.xml                |   19 +++++++++++++++++++
- src/core/special.h                     |    1 +
- src/fstab-generator/fstab-generator.c  |   12 +++++++++++-
- units/remote-fs-login.target           |    9 +++++++++
- units/systemd-user-sessions.service.in |    2 +-
+ Makefile.am                            |  1 +
+ man/systemd.special.xml                | 19 +++++++++++++++++++
+ src/core/special.h                     |  1 +
+ src/fstab-generator/fstab-generator.c  | 12 +++++++++++-
+ units/remote-fs-login.target           |  9 +++++++++
+ units/systemd-user-sessions.service.in |  2 +-
  6 files changed, 42 insertions(+), 2 deletions(-)
  create mode 100644 units/remote-fs-login.target
 
 diff --git a/Makefile.am b/Makefile.am
-index 1486770..6ff7944 100644
+index 42b4917..e92096a 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -268,6 +268,7 @@ dist_systemunit_DATA = \
+@@ -270,6 +270,7 @@ dist_systemunit_DATA = \
  	units/local-fs.target \
  	units/local-fs-pre.target \
  	units/remote-fs.target \
@@ -47,7 +47,7 @@ index 1486770..6ff7944 100644
  	units/network.target \
  	units/nss-lookup.target \
 diff --git a/man/systemd.special.xml b/man/systemd.special.xml
-index 96befd5..66ac1ef 100644
+index 6df89d0..361744e 100644
 --- a/man/systemd.special.xml
 +++ b/man/systemd.special.xml
 @@ -78,6 +78,7 @@
@@ -84,7 +84,7 @@ index 96befd5..66ac1ef 100644
                                  <listitem>
                                          <para>A special target unit
 diff --git a/src/core/special.h b/src/core/special.h
-index bc9b330..6faf08b 100644
+index f71f076..2486238 100644
 --- a/src/core/special.h
 +++ b/src/core/special.h
 @@ -49,6 +49,7 @@
@@ -96,10 +96,10 @@ index bc9b330..6faf08b 100644
  #define SPECIAL_SWAP_TARGET "swap.target"
  #define SPECIAL_BASIC_TARGET "basic.target"
 diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
-index d9ba3e3..7fd726c 100644
+index f832730..23d087b 100644
 --- a/src/fstab-generator/fstab-generator.c
 +++ b/src/fstab-generator/fstab-generator.c
-@@ -217,7 +217,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+@@ -219,7 +219,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
          FILE *f = NULL;
          bool noauto, nofail, automount, isbind, isnetwork;
          int r;
@@ -108,7 +108,7 @@ index d9ba3e3..7fd726c 100644
  
          assert(what);
          assert(where);
-@@ -247,6 +247,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+@@ -249,6 +249,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
          if (isnetwork) {
                  post = SPECIAL_REMOTE_FS_TARGET;
                  pre = SPECIAL_REMOTE_FS_PRE_TARGET;
@@ -116,7 +116,7 @@ index d9ba3e3..7fd726c 100644
          } else {
                  post = SPECIAL_LOCAL_FS_TARGET;
                  pre = SPECIAL_LOCAL_FS_PRE_TARGET;
-@@ -293,6 +294,15 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+@@ -295,6 +296,15 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
                          "Before=%s\n",
                          post);
  
@@ -148,18 +148,18 @@ index 0000000..5e6b63c
 +[Unit]
 +Description=Remote File Systems needed for Logins
 diff --git a/units/systemd-user-sessions.service.in b/units/systemd-user-sessions.service.in
-index 363093e..e519b0f 100644
+index 0869e73..0343f19 100644
 --- a/units/systemd-user-sessions.service.in
 +++ b/units/systemd-user-sessions.service.in
-@@ -7,7 +7,7 @@
- 
+@@ -8,7 +8,7 @@
  [Unit]
  Description=Permit User Sessions
--After=local-fs.target remote-fs.target
-+After=local-fs.target remote-fs-login.target
+ Documentation=man:systemd-user-sessions.service(8)
+-After=remote-fs.target
++After=remote-fs-login.target
  
  [Service]
  Type=oneshot
 -- 
-1.7.10.3
+1.7.11
 

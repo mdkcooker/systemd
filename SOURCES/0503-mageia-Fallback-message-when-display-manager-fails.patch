@@ -1,7 +1,7 @@
-From 6aa4a3eac1a2be62da89ef3316aa53b78588b8bc Mon Sep 17 00:00:00 2001
+From 833f1288e8c6e03601290b8f37a04c64be100a28 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 8 Mar 2012 21:56:11 +0000
-Subject: [PATCH 504/507] mageia: Fallback message when display manager fails.
+Subject: [PATCH 503/509] mageia: Fallback message when display manager fails.
 
 Provide a unit for displaying a message to the user when the
 display manager fails. This can be when no dm application is
@@ -16,17 +16,17 @@ v2: Use agetty rather than mingetty + quit plymouth + don't wait for
     graphical.target
 v3: Use Type=idle now available upstream
 ---
- Makefile.am                                  |    1 +
- units/mageia/display-manager-failure.service |   30 ++++++++++++++++++++++++++
- units/mageia/prefdm.service                  |    1 +
+ Makefile.am                                  |  1 +
+ units/mageia/display-manager-failure.service | 30 ++++++++++++++++++++++++++++
+ units/mageia/prefdm.service                  |  1 +
  3 files changed, 32 insertions(+)
  create mode 100644 units/mageia/display-manager-failure.service
 
 diff --git a/Makefile.am b/Makefile.am
-index 1b61b8c..4cc20f2 100644
+index 3b7ec0b..a9c4fa4 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -419,6 +419,7 @@ endif
+@@ -420,6 +420,7 @@ endif
  if TARGET_MAGEIA
  dist_systemunit_DATA += \
  	units/mageia/prefdm.service \
@@ -83,5 +83,5 @@ index db41294..84990b4 100644
  [Service]
  ExecStart=/etc/X11/prefdm -nodaemon
 -- 
-1.7.10.3
+1.7.11
 
