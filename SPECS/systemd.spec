@@ -12,16 +12,9 @@
 %define libgudev_major 0
 
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
-%define libdaemon_devel %mklibname -d systemd-daemon
-
 %define liblogin %mklibname systemd-login %{liblogin_major}
-%define liblogin_devel %mklibname -d systemd-login
-
 %define libjournal %mklibname systemd-journal %{libjournal_major}
-%define libjournal_devel %mklibname -d systemd-journal
-
 %define libid128 %mklibname systemd-id128 %{libid128_major}
-%define libid128_devel %mklibname -d systemd-id128
 
 %define libudev %mklibname udev %{libudev_major}
 %define libudev_devel %mklibname -d udev
@@ -132,6 +125,39 @@ Requires(post): coreutils grep awk
 Basic configuration files, directories and installation tool for the systemd
 system and session manager.
 
+%package devel
+Summary:       Systemd development files
+Group:         Development/C
+Conflicts:     %{name} <= 35-4
+Requires:      %{libdaemon} = %{version}-%{release}
+Requires:      %{liblogin} = %{version}-%{release}
+Requires:      %{libjournal} = %{version}-%{release}
+Requires:      %{libid128} = %{version}-%{release}
+# (cg) Obsolete the old, versioned/split devel packages
+Provides:      libsystemd-daemon-devel = %{version}-%{release}
+Provides:      %{mklibname -d systemd-daemon 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-daemon 0} < 185
+Provides:      %{mklibname -d systemd-daemon} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-daemon} < 186
+Provides:      libsystemd-login-devel = %{version}-%{release}
+Provides:      %{mklibname -d systemd-login 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-login 0} < 185
+Provides:      %{mklibname -d systemd-login} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-login} < 186
+Provides:      libsystemd-journal-devel = %{version}-%{release}
+Provides:      %{mklibname -d systemd-journal 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-journal 0} < 185
+Provides:      %{mklibname -d systemd-journal} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-journal} < 186
+Provides:      libsystemd-id128-devel = %{version}-%{release}
+Provides:      %{mklibname -d systemd-id128 0} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-id128 0} < 185
+Provides:      %{mklibname -d systemd-id128} = %{version}-%{release}
+Obsoletes:     %{mklibname -d systemd-id128} < 186
+
+%description devel
+This package provides the development files for systemd.
+
 %package -n %{libdaemon}
 Summary:       Systemd-daemon library package
 Group:         System/Libraries
@@ -139,19 +165,6 @@ Provides:      libsystemd-daemon = %{version}-%{release}
 
 %description -n %{libdaemon}
 This package provides the systemd-daemon shared library.
-
-%package -n %{libdaemon_devel}
-Summary:       Systemd-daemon library development files
-Group:         Development/C
-Requires:      %{libdaemon} = %{version}-%{release}
-Conflicts:     %{name} <= 35-4
-Provides:      libsystemd-daemon-devel = %{version}-%{release}
-# (cg) Obsolete the old, versioned devel package
-Provides:      %{mklibname -d systemd-daemon 0} = %{version}-%{release}
-Obsoletes:     %{mklibname -d systemd-daemon 0} < 185
-
-%description -n %{libdaemon_devel}
-This package provides the development files for the systemd-daemon shared library.
 
 %package -n %{liblogin}
 Summary:       Systemd-login library package
@@ -161,18 +174,6 @@ Provides:      libsystemd-login = %{version}-%{release}
 %description -n %{liblogin}
 This package provides the systemd-login shared library.
 
-%package -n %{liblogin_devel}
-Summary:       Systemd-login library development files
-Group:         Development/C
-Requires:      %{liblogin} = %{version}-%{release}
-Provides:      libsystemd-login-devel = %{version}-%{release}
-# (cg) Obsolete the old, versioned devel package
-Provides:      %{mklibname -d systemd-login 0} = %{version}-%{release}
-Obsoletes:     %{mklibname -d systemd-login 0} < 185
-
-%description -n %{liblogin_devel}
-This package provides the development files for the systemd-login shared library.
-
 %package -n %{libjournal}
 Summary:       Systemd-journal library package
 Group:         System/Libraries
@@ -181,18 +182,6 @@ Provides:      libsystemd-journal = %{version}-%{release}
 %description -n %{libjournal}
 This package provides the systemd-journal shared library.
 
-%package -n %{libjournal_devel}
-Summary:       Systemd-journal library development files
-Group:         Development/C
-Requires:      %{libjournal} = %{version}-%{release}
-Provides:      libsystemd-journal-devel = %{version}-%{release}
-# (cg) Obsolete the old, versioned devel package
-Provides:      %{mklibname -d systemd-journal 0} = %{version}-%{release}
-Obsoletes:     %{mklibname -d systemd-journal 0} < 185
-
-%description -n %{libjournal_devel}
-This package provides the development files for the systemd-journal shared library.
-
 %package -n %{libid128}
 Summary:       Systemd-id128 library package
 Group:         System/Libraries
@@ -200,18 +189,6 @@ Provides:      libsystemd-id128 = %{version}-%{release}
 
 %description -n %{libid128}
 This package provides the systemd-id128 shared library.
-
-%package -n %{libid128_devel}
-Summary:       Systemd-id128 library development files
-Group:         Development/C
-Requires:      %{libid128} = %{version}-%{release}
-Provides:      libsystemd-id128-devel = %{version}-%{release}
-# (cg) Obsolete the old, versioned devel package
-Provides:      %{mklibname -d systemd-id128 0} = %{version}-%{release}
-Obsoletes:     %{mklibname -d systemd-id128 0} < 185
-
-%description -n %{libid128_devel}
-This package provides the development files for the systemd-id128 shared library.
 
 %package -n %{libudev}
 Summary:       udev library package
@@ -615,56 +592,29 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel4.target
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel5.target
 
+%files devel
+%defattr(-,root,root,-)
+%{_includedir}/systemd
+%{_libdir}/libsystemd-*.so
+%{_libdir}/pkgconfig/libsystemd-*.pc
+%{_datadir}/pkgconfig/systemd.pc
+%{_prefix}/lib/rpm/macros.systemd
+
 %files -n %{libdaemon}
 %defattr(-,root,root,-)
 /%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
-
-%files -n %{libdaemon_devel}
-%defattr(-,root,root,-)
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-daemon.h
-%{_libdir}/libsystemd-daemon.so
-%{_libdir}/pkgconfig/libsystemd-daemon.pc
-%{_datadir}/pkgconfig/systemd.pc
-%{_prefix}/lib/rpm/macros.systemd
-# TODO: Move in its own sub package
-%{_includedir}/systemd/sd-messages.h
-%{_includedir}/systemd/sd-readahead.h
-%{_includedir}/systemd/sd-shutdown.h
-
 
 %files -n %{liblogin}
 %defattr(-,root,root,-)
 /%{_lib}/libsystemd-login.so.%{liblogin_major}*
 
-%files -n %{liblogin_devel}
-%defattr(-,root,root,-)
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-login.h
-%{_libdir}/libsystemd-login.so
-%{_libdir}/pkgconfig/libsystemd-login.pc
-
 %files -n %{libjournal}
 %defattr(-,root,root,-)
 /%{_lib}/libsystemd-journal.so.%{libjournal_major}*
 
-%files -n %{libjournal_devel}
-%defattr(-,root,root,-)
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-journal.h
-%{_libdir}/libsystemd-journal.so
-%{_libdir}/pkgconfig/libsystemd-journal.pc
-
 %files -n %{libid128}
 %defattr(-,root,root,-)
 /%{_lib}/libsystemd-id128.so.%{libid128_major}*
-
-%files -n %{libid128_devel}
-%defattr(-,root,root,-)
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-id128.h
-%{_libdir}/libsystemd-id128.so
-%{_libdir}/pkgconfig/libsystemd-id128.pc
 
 %files -n %{libudev}
 %defattr(-,root,root,-)
