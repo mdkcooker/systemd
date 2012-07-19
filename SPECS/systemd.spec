@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	186
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -340,6 +340,9 @@ touch %{buildroot}%{_sysconfdir}/timezone
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 
+# Make sure the NTP units dir exists
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/ntp-units.d/
+
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
 install -d %{buildroot}%{_var}/lib/rpm/filetriggers
@@ -451,6 +454,7 @@ fi
 %dir /lib/systemd/system-shutdown
 %dir /lib/systemd/system-sleep
 %dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
