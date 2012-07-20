@@ -24,8 +24,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	186
-Release:	%mkrel 2
+Version:	187
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
