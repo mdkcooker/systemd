@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	187
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -76,6 +76,7 @@ BuildRequires:	pkgconfig(blkid)
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 BuildRequires:	xsltproc
 BuildRequires:	docbook-style-xsl
+Requires(pre):	filesystem >= 2.1.9-18
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	initscripts >= 9.21-3
@@ -117,6 +118,7 @@ Non essential systemd tools
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
+Requires(pre):	filesystem >= 2.1.9-18
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	initscripts < 9.25
 Requires(post): coreutils grep awk
@@ -161,6 +163,7 @@ This package provides the development files for systemd.
 %package -n %{libdaemon}
 Summary:       Systemd-daemon library package
 Group:         System/Libraries
+Requires(pre): filesystem >= 2.1.9-18
 Provides:      libsystemd-daemon = %{version}-%{release}
 
 %description -n %{libdaemon}
@@ -169,6 +172,7 @@ This package provides the systemd-daemon shared library.
 %package -n %{liblogin}
 Summary:       Systemd-login library package
 Group:         System/Libraries
+Requires(pre): filesystem >= 2.1.9-18
 Provides:      libsystemd-login = %{version}-%{release}
 
 %description -n %{liblogin}
@@ -177,6 +181,7 @@ This package provides the systemd-login shared library.
 %package -n %{libjournal}
 Summary:       Systemd-journal library package
 Group:         System/Libraries
+Requires(pre): filesystem >= 2.1.9-18
 Provides:      libsystemd-journal = %{version}-%{release}
 
 %description -n %{libjournal}
@@ -185,6 +190,7 @@ This package provides the systemd-journal shared library.
 %package -n %{libid128}
 Summary:       Systemd-id128 library package
 Group:         System/Libraries
+Requires(pre): filesystem >= 2.1.9-18
 Provides:      libsystemd-id128 = %{version}-%{release}
 
 %description -n %{libid128}
@@ -193,6 +199,7 @@ This package provides the systemd-id128 shared library.
 %package -n %{libudev}
 Summary:       udev library package
 Group:         System/Libraries
+Requires(pre): filesystem >= 2.1.9-18
 
 %description -n %{libudev}
 This package provides the udev shared library.
@@ -213,6 +220,7 @@ This package provides the development files for the udev shared library.
 %package -n %{libgudev}
 Summary:       gudev library package
 Group:         System/Libraries
+Requires(pre): filesystem >= 2.1.9-18
 Provides:      libgudev = %{version}-%{release}
 
 %description -n %{libgudev}
@@ -243,9 +251,7 @@ autoreconf
   --disable-coredump \
   --disable-static \
   --disable-selinux \
-  --with-rootprefix= \
-  --with-rootlibdir=/%{_lib} \
-  --with-firmware-path=/lib/firmware/updates:/lib/firmware \
+  --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware \
   --with-usb-ids-path=/usr/share/usb.ids \
   --with-pci-ids-path=/usr/share/pci.ids
 
@@ -257,38 +263,38 @@ rm -rf %{buildroot}
 %makeinstall_std
 find %{buildroot} \( -name '*.a' -o -name '*.la' \) -exec rm {} \;
 
-install -m 644 %SOURCE10 %{buildroot}/lib/udev/rules.d/
-install -m 644 %SOURCE11 %{buildroot}/lib/udev/rules.d/
+install -m 644 %SOURCE10 %{buildroot}%{_prefix}/lib/udev/rules.d/
+install -m 644 %SOURCE11 %{buildroot}%{_prefix}/lib/udev/rules.d/
 # udev rules for zte 3g modems and drakx-net
-install -m 0644 %SOURCE12 %{buildroot}/lib/udev/rules.d/
+install -m 0644 %SOURCE12 %{buildroot}%{_prefix}/lib/udev/rules.d/
 
 # net rules
-install -m 0644 %SOURCE20 %{buildroot}/lib/udev/rules.d/
-install -m 0755 %SOURCE21 %{buildroot}/lib/udev/net_create_ifcfg
-install -m 0755 %SOURCE22 %{buildroot}/lib/udev/net_action
+install -m 0644 %SOURCE20 %{buildroot}%{_prefix}/lib/udev/rules.d/
+install -m 0755 %SOURCE21 %{buildroot}%{_prefix}/lib/udev/net_create_ifcfg
+install -m 0755 %SOURCE22 %{buildroot}%{_prefix}/lib/udev/net_action
 install -m 0755 -d %{buildroot}%{_sysconfdir}/sysconfig
 install -m 0644 %SOURCE23 %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
 
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
-mkdir -p %{buildroot}/sbin
-ln -s ../lib/systemd/systemd %{buildroot}/bin/systemd
-ln -s ../lib/systemd/systemd %{buildroot}/sbin/init
-ln -s ../bin/systemctl %{buildroot}/sbin/reboot
-ln -s ../bin/systemctl %{buildroot}/sbin/halt
-ln -s ../bin/systemctl %{buildroot}/sbin/poweroff
-ln -s ../bin/systemctl %{buildroot}/sbin/shutdown
-ln -s ../bin/systemctl %{buildroot}/sbin/telinit
-ln -s ../bin/systemctl %{buildroot}/sbin/runlevel
+mkdir -p %{buildroot}%{_sbindir}
+ln -s ../lib/systemd/systemd %{buildroot}%{_bindir}/systemd
+ln -s ../lib/systemd/systemd %{buildroot}%{_sbindir}/init
+ln -s ../bin/systemctl %{buildroot}%{_sbindir}/reboot
+ln -s ../bin/systemctl %{buildroot}%{_sbindir}/halt
+ln -s ../bin/systemctl %{buildroot}%{_sbindir}/poweroff
+ln -s ../bin/systemctl %{buildroot}%{_sbindir}/shutdown
+ln -s ../bin/systemctl %{buildroot}%{_sbindir}/telinit
+ln -s ../bin/systemctl %{buildroot}%{_sbindir}/runlevel
 
 # Also add a symlink for udevadm for now as lots of things use an absolute path
-ln -s ..%{_bindir}/udevadm %{buildroot}/sbin/udevadm
+ln -s ../bin/udevadm %{buildroot}%{_sbindir}/udevadm
 
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
-rm -r %{buildroot}/etc/systemd/system/*.target.wants
+rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
 
 # Make sure the ghost-ing below works
 touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel2.target
@@ -297,16 +303,16 @@ touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel4.target
 touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel5.target
 
 # Make sure these directories are properly owned
-mkdir -p %{buildroot}/lib/systemd/system/basic.target.wants
-mkdir -p %{buildroot}/lib/systemd/system/default.target.wants
-mkdir -p %{buildroot}/lib/systemd/system/dbus.target.wants
-mkdir -p %{buildroot}/lib/systemd/system/syslog.target.wants
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/basic.target.wants
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/default.target.wants
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/dbus.target.wants
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/syslog.target.wants
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
 
 # (bor) make sure we own directory for bluez to install service
-mkdir -p %{buildroot}/lib/systemd/system/bluetooth.target.wants
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/bluetooth.target.wants
 
 # use consistent naming and permissions for completion scriplets
 mv %{buildroot}%{_sysconfdir}/bash_completion.d/systemd-bash-completion.sh \
@@ -322,10 +328,7 @@ chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
 # (bor) enable rpcbind.target by default so we have something to plug
 # portmapper service into
-ln -s ../rpcbind.target %{buildroot}/lib/systemd/system/multi-user.target.wants
-
-# (eugeni) install /run
-mkdir %{buildroot}/run
+ln -s ../rpcbind.target %{buildroot}%{_prefix}/lib/systemd/system/multi-user.target.wants
 
 # create modules.conf as a symlink to /etc/
 ln -s /etc/modules %{buildroot}%{_sysconfdir}/modules-load.d/modules.conf
@@ -345,16 +348,20 @@ mkdir -p %{buildroot}%{_prefix}/lib/systemd/ntp-units.d/
 
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
+# (cg) I'm not sure if the file list check works against the packaged rpm
+#      or what is installed, so I've added both the /lib and /usr/lib paths
+#      below, even thought the former is just a symlink to the latter
 install -d %{buildroot}%{_var}/lib/rpm/filetriggers
 cat > %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.filter << EOF
+^./usr/lib/systemd/system/
 ^./lib/systemd/system/
 ^./etc/systemd/system/
 EOF
 cat > %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script << EOF
 #!/bin/sh
-if /bin/mountpoint -q /sys/fs/cgroup/systemd; then
-  if [ -x /bin/systemctl ]; then
-  /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if %{_bindir}/mountpoint -q /sys/fs/cgroup/systemd; then
+  if [ -x %{_bindir}/systemctl ]; then
+  %{_bindir}/systemctl daemon-reload >/dev/null 2>&1 || :
   fi
 fi
 EOF
@@ -371,16 +378,16 @@ mv %{buildroot}%{_sysconfdir}/rpm %{buildroot}%{_prefix}/lib
 # trigger is executed on both self and target install so no need to have
 # extra own post
 if [ $1 -ge 2 -o $2 -ge 2 ] ; then
-	/bin/systemctl daemon-reexec 2>&1 || :
+	%{_bindir}/systemctl daemon-reexec 2>&1 || :
 fi
 
 %post
-/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
-#/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
+%{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
+#%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
 
 %triggerin units -- %{name}-units < 35-1
 # Enable the services we install by default.
-        /bin/systemctl --quiet enable \
+        %{_bindir}/systemctl --quiet enable \
                 hwclock-load.service \
                 getty@.service \
                 quotaon.service \
@@ -395,18 +402,18 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %post units
 if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
-        runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
+        runlevel=$(%{_bindir}/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
         if [ -z "$runlevel" ] ; then
-                target="/lib/systemd/system/multi-user.target"
+                target="%{_prefix}/lib/systemd/system/multi-user.target"
         else
-                target="/lib/systemd/system/runlevel$runlevel.target"
+                target="%{_prefix}/lib/systemd/system/runlevel$runlevel.target"
         fi
 
         # And symlink what we found to the new-style default.target
-        /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+        %{_bindir}/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
         # Enable the services we install by default.
-        /bin/systemctl --quiet enable \
+        %{_bindir}/systemctl --quiet enable \
                 getty@.service \
                 quotaon.service \
                 quotacheck.service \
@@ -429,7 +436,7 @@ fi
 
 %preun units
 if [ $1 -eq 0 ] ; then
-        /bin/systemctl --quiet disable \
+        %{_bindir}/systemctl --quiet disable \
                 getty@.service \
                 quotaon.service \
                 quotacheck.service \
@@ -438,21 +445,20 @@ if [ $1 -eq 0 ] ; then
                 systemd-readahead-collect.service \
                 2>&1 || :
 
-        /bin/rm -f %_sysconfdir/systemd/system/default.target 2>&1 || :
+        %{_bindir}/rm -f %_sysconfdir/systemd/system/default.target 2>&1 || :
 fi
 
 %postun units
 if [ $1 -ge 1 ] ; then
-        /bin/systemctl daemon-reload 2>&1 || :
+        %{_bindir}/systemctl daemon-reload 2>&1 || :
 fi
 
 %files
 # (cg) Note some of these directories are empty, but that is intended
-%dir /run
-%dir /lib/systemd
-%dir /lib/systemd/system-generators
-%dir /lib/systemd/system-shutdown
-%dir /lib/systemd/system-sleep
+%dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/systemd/system-generators
+%dir %{_prefix}/lib/systemd/system-shutdown
+%dir %{_prefix}/lib/systemd/system-sleep
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/tmpfiles.d
@@ -491,27 +497,27 @@ fi
 %{_prefix}/lib/tmpfiles.d/systemd.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
 %{_prefix}/lib/tmpfiles.d/x11.conf
-/bin/journalctl
-/bin/loginctl
-/bin/systemd
-/bin/systemd-ask-password
-/bin/systemd-inhibit
-/bin/systemd-machine-id-setup
-/bin/systemd-notify
-/bin/systemd-tmpfiles
-/bin/systemd-tty-ask-password-agent
-/sbin/init
-/sbin/reboot
-/sbin/halt
-/sbin/poweroff
-/sbin/shutdown
-/sbin/telinit
-/sbin/runlevel
-/sbin/udevadm
-/lib/systemd/systemd*
-/lib/systemd/system-generators/systemd-*
-/lib/udev
-/%{_lib}/security/pam_systemd.so
+%{_bindir}/journalctl
+%{_bindir}/loginctl
+%{_bindir}/systemd
+%{_bindir}/systemd-ask-password
+%{_bindir}/systemd-inhibit
+%{_bindir}/systemd-machine-id-setup
+%{_bindir}/systemd-notify
+%{_bindir}/systemd-tmpfiles
+%{_bindir}/systemd-tty-ask-password-agent
+%{_sbindir}/init
+%{_sbindir}/reboot
+%{_sbindir}/halt
+%{_sbindir}/poweroff
+%{_sbindir}/shutdown
+%{_sbindir}/telinit
+%{_sbindir}/runlevel
+%{_sbindir}/udevadm
+%{_prefix}/lib/systemd/systemd*
+%{_prefix}/lib/systemd/system-generators/systemd-*
+%{_prefix}/lib/udev
+%{_libdir}/security/pam_systemd.so
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgls
 %{_bindir}/systemd-cgtop
@@ -538,7 +544,6 @@ fi
 %{_mandir}/man8/poweroff.*
 %{_mandir}/man8/telinit.*
 %{_mandir}/man8/runlevel.*
-%{_prefix}/lib/systemd/user
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -584,11 +589,12 @@ fi
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/bash_completion.d
-/bin/systemctl
+%{_bindir}/systemctl
 %{_sysconfdir}/bash_completion.d/systemd
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/modules-load.d/*.conf
-/lib/systemd/system
+%{_prefix}/lib/systemd/system
+%{_prefix}/lib/systemd/user
 %{_mandir}/man1/systemctl.*
 
 %ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel2.target
@@ -606,23 +612,23 @@ fi
 
 %files -n %{libdaemon}
 %defattr(-,root,root,-)
-/%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
+%{_libdir}/libsystemd-daemon.so.%{libdaemon_major}*
 
 %files -n %{liblogin}
 %defattr(-,root,root,-)
-/%{_lib}/libsystemd-login.so.%{liblogin_major}*
+%{_libdir}/libsystemd-login.so.%{liblogin_major}*
 
 %files -n %{libjournal}
 %defattr(-,root,root,-)
-/%{_lib}/libsystemd-journal.so.%{libjournal_major}*
+%{_libdir}/libsystemd-journal.so.%{libjournal_major}*
 
 %files -n %{libid128}
 %defattr(-,root,root,-)
-/%{_lib}/libsystemd-id128.so.%{libid128_major}*
+%{_libdir}/libsystemd-id128.so.%{libid128_major}*
 
 %files -n %{libudev}
 %defattr(-,root,root,-)
-/%{_lib}/libudev.so.%{libudev_major}*
+%{_libdir}/libudev.so.%{libudev_major}*
 
 %files -n %{libudev_devel}
 %defattr(-,root,root,-)
@@ -633,7 +639,7 @@ fi
 
 %files -n %{libgudev}
 %defattr(-,root,root,-)
-/%{_lib}/libgudev-%{libgudev_api}.so.%{libgudev_major}*
+%{_libdir}/libgudev-%{libgudev_api}.so.%{libgudev_major}*
 %{_libdir}/girepository-1.0/GUdev-%{libgudev_api}.typelib
 
 %files -n %{libgudev_devel}
