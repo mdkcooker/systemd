@@ -14,18 +14,19 @@
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
 %define liblogin %mklibname systemd-login %{liblogin_major}
 %define libjournal %mklibname systemd-journal %{libjournal_major}
-%define libid128 %mklibname systemd-id128 %{libid128_major}
+%define libid128 %mklibname systemd-id 128 %{libid128_major}
 
 %define libudev %mklibname udev %{libudev_major}
 %define libudev_devel %mklibname -d udev
 
 %define libgudev %mklibname gudev %{libgudev_api} %{libgudev_major}
 %define libgudev_devel %mklibname -d gudev %{libgudev_api}
+%define libgudev_gir %mklibname gudev-gir %{libgudev_api}
 
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	187
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -192,6 +193,7 @@ Summary:       Systemd-id128 library package
 Group:         System/Libraries
 Requires(pre): filesystem >= 2.1.9-18
 Provides:      libsystemd-id128 = %{version}-%{release}
+Obsoletes:     %{_lib}systemd-id1280 < 187-5
 
 %description -n %{libid128}
 This package provides the systemd-id128 shared library.
@@ -225,6 +227,16 @@ Provides:      libgudev = %{version}-%{release}
 
 %description -n %{libgudev}
 This package provides the gudev shared library.
+
+%package -n %{libgudev_gir}
+Summary:       GObject Introspection interface description for GUdev
+Group:         System/Libraries
+Requires:      %{libgudev} = %{version}-%{release}
+Conflicts:     %{_lib}gudev1.0_1 < 187-5
+
+%description -n %{libgudev_gir}
+GObject Introspection interface description for GUdev.
+
 
 %package -n %{libgudev_devel}
 Summary:       gudev library development files
@@ -640,6 +652,8 @@ fi
 %files -n %{libgudev}
 %defattr(-,root,root,-)
 %{_libdir}/libgudev-%{libgudev_api}.so.%{libgudev_major}*
+
+%files -n %{libgudev_gir}
 %{_libdir}/girepository-1.0/GUdev-%{libgudev_api}.typelib
 
 %files -n %{libgudev_devel}
