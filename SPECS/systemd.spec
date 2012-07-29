@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	187
-Release:	%mkrel 5
+Release:	%mkrel 6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -232,7 +232,7 @@ This package provides the gudev shared library.
 Summary:       GObject Introspection interface description for GUdev
 Group:         System/Libraries
 Requires:      %{libgudev} = %{version}-%{release}
-Conflicts:     %{_lib}gudev1.0_1 < 187-5
+Conflicts:     %{_lib}gudev1.0_0 < 187-5
 
 %description -n %{libgudev_gir}
 GObject Introspection interface description for GUdev.
