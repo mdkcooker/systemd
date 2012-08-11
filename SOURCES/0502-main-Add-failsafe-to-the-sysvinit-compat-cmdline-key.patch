@@ -1,4 +1,4 @@
-From d9aa78d477738b3590954fd925c892b558f4a756 Mon Sep 17 00:00:00 2001
+From 06106c4f35cbb10b6a5cd039aac88778d116bead Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 26 Feb 2012 17:45:58 +0000
 Subject: [PATCH 502/509] main: Add 'failsafe' to the sysvinit compat cmdline
@@ -13,10 +13,10 @@ This is used in Mageia and Mandriva (mga#4702)
  1 file changed, 1 insertion(+)
 
 diff --git a/src/core/main.c b/src/core/main.c
-index 6a2dbc2..a0c4187 100644
+index cdd77c1..b90377c 100644
 --- a/src/core/main.c
 +++ b/src/core/main.c
-@@ -245,6 +245,7 @@ static int parse_proc_cmdline_word(const char *word) {
+@@ -242,6 +242,7 @@ static int parse_proc_cmdline_word(const char *word) {
          static const char * const rlmap[] = {
                  "emergency", SPECIAL_EMERGENCY_TARGET,
                  "-b",        SPECIAL_EMERGENCY_TARGET,
@@ -25,5 +25,5 @@ index 6a2dbc2..a0c4187 100644
                  "-s",        SPECIAL_RESCUE_TARGET,
                  "s",         SPECIAL_RESCUE_TARGET,
 -- 
-1.7.11
+1.7.11.4
 

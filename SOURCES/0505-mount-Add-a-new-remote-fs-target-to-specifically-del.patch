@@ -1,4 +1,4 @@
-From 43e0aedd52eb95c244c70f25dceace6854c77be5 Mon Sep 17 00:00:00 2001
+From ad8bd9461ff422315d8aa364c44a552c91021900 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Tue, 27 Mar 2012 20:38:53 +0100
 Subject: [PATCH 505/509] mount: Add a new remote-fs* target to specifically
@@ -35,10 +35,10 @@ with nofail mount option and it will not delay the login availability.
  create mode 100644 units/remote-fs-login.target
 
 diff --git a/Makefile.am b/Makefile.am
-index 42b4917..e92096a 100644
+index 11b054c..c839c60 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -270,6 +270,7 @@ dist_systemunit_DATA = \
+@@ -269,6 +269,7 @@ dist_systemunit_DATA = \
  	units/local-fs.target \
  	units/local-fs-pre.target \
  	units/remote-fs.target \
@@ -84,10 +84,10 @@ index 6df89d0..361744e 100644
                                  <listitem>
                                          <para>A special target unit
 diff --git a/src/core/special.h b/src/core/special.h
-index f71f076..2486238 100644
+index e3004a5..5b94111 100644
 --- a/src/core/special.h
 +++ b/src/core/special.h
-@@ -49,6 +49,7 @@
+@@ -48,6 +48,7 @@
  #define SPECIAL_LOCAL_FS_TARGET "local-fs.target"         /* LSB's $local_fs */
  #define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
  #define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
@@ -96,10 +96,10 @@ index f71f076..2486238 100644
  #define SPECIAL_SWAP_TARGET "swap.target"
  #define SPECIAL_BASIC_TARGET "basic.target"
 diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
-index f832730..23d087b 100644
+index 251a346..9b14207 100644
 --- a/src/fstab-generator/fstab-generator.c
 +++ b/src/fstab-generator/fstab-generator.c
-@@ -219,7 +219,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+@@ -212,7 +212,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
          FILE *f = NULL;
          bool noauto, nofail, automount, isbind, isnetwork;
          int r;
@@ -108,7 +108,7 @@ index f832730..23d087b 100644
  
          assert(what);
          assert(where);
-@@ -249,6 +249,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+@@ -242,6 +242,7 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
          if (isnetwork) {
                  post = SPECIAL_REMOTE_FS_TARGET;
                  pre = SPECIAL_REMOTE_FS_PRE_TARGET;
@@ -116,7 +116,7 @@ index f832730..23d087b 100644
          } else {
                  post = SPECIAL_LOCAL_FS_TARGET;
                  pre = SPECIAL_LOCAL_FS_PRE_TARGET;
-@@ -295,6 +296,15 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+@@ -286,6 +287,15 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
                          "Before=%s\n",
                          post);
  
@@ -161,5 +161,5 @@ index 0869e73..0343f19 100644
  [Service]
  Type=oneshot
 -- 
-1.7.11
+1.7.11.4
 

@@ -1,4 +1,4 @@
-From 0b71bf9453b8bc529ef9e03e7797f0c2472a2a30 Mon Sep 17 00:00:00 2001
+From d4b988a424cd3ff664795e3fe95a427c8cceb222 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sat, 24 Mar 2012 23:13:25 +0000
 Subject: [PATCH 504/509] mageia(not-upstream): Add mount+automount units for
@@ -20,10 +20,10 @@ https://bugs.mageia.org/show_bug.cgi?id=4500
  create mode 100644 units/mageia/proc-bus-usb.mount
 
 diff --git a/Makefile.am b/Makefile.am
-index a9c4fa4..42b4917 100644
+index 693be43..11b054c 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -421,10 +421,25 @@ if TARGET_MAGEIA
+@@ -418,10 +418,25 @@ if TARGET_MAGEIA
  dist_systemunit_DATA += \
  	units/mageia/prefdm.service \
  	units/mageia/display-manager-failure.service \
@@ -50,7 +50,7 @@ index a9c4fa4..42b4917 100644
  
  dist_doc_DATA = \
 diff --git a/src/core/mount-setup.c b/src/core/mount-setup.c
-index 07794df..c136e4a 100644
+index e86a893..f8a7954 100644
 --- a/src/core/mount-setup.c
 +++ b/src/core/mount-setup.c
 @@ -81,8 +81,6 @@ static const char ignore_paths[] =
@@ -131,5 +131,5 @@ index 0000000..084b306
 +Type=usbfs
 +Options=devmode=0664,devgid=43
 -- 
-1.7.11
+1.7.11.4
 
