@@ -25,7 +25,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	188
+Version:	189
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
