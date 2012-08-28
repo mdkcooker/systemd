@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	189
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -51,12 +51,11 @@ Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 Patch501: 0501-Some-more-tmpfiles-fixes.patch
 Patch502: 0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 Patch503: 0503-mageia-Fallback-message-when-display-manager-fails.patch
-Patch504: 0504-mageia-not-upstream-Add-mount-automount-units-for-pr.patch
-Patch505: 0505-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch506: 0506-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-Patch507: 0507-Allow-booting-from-live-cd-in-virtualbox.patch
-Patch508: 0508-reinstate-TIMEOUT-handling.patch
-Patch509: 0509-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+Patch504: 0504-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
+Patch505: 0505-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch506: 0506-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch507: 0507-reinstate-TIMEOUT-handling.patch
+Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 
 
 BuildRequires:	dbus-devel >= 1.4.0
