@@ -1,0 +1,50 @@
+From 932f2253122fd786e2b7dbe63de389d30565e7fd Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Mon, 3 Sep 2012 23:19:21 +0100
+Subject: [PATCH 101/105] logind: If all user sessions are in closing state,
+ set the overall status to closing.
+
+PulseAudio for example will keep a client connection open provided
+at least one session exists. However, if all sessions are currently
+in the process of closing, we should flag that as the overall state
+appropriately to better reflect what is happening.
+
+Although this does better reflect the status for any given user, it does
+not actually solve the overall problem of PulseAudio still finding some
+sessions active and thus not exiting and therefore actually preventing
+the session from closing. Future commits will extend sd-login to cope
+with this situation.
+---
+ src/login/logind-user.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/login/logind-user.c b/src/login/logind-user.c
+index aa9c3f1..a33978c 100644
+--- a/src/login/logind-user.c
++++ b/src/login/logind-user.c
+@@ -568,15 +568,20 @@ void user_add_to_gc_queue(User *u) {
+ 
+ UserState user_get_state(User *u) {
+         Session *i;
++        bool all_closing = true;
+ 
+         assert(u);
+ 
+-        LIST_FOREACH(sessions_by_user, i, u->sessions)
++
++        LIST_FOREACH(sessions_by_user, i, u->sessions) {
+                 if (session_is_active(i))
+                         return USER_ACTIVE;
++                if (session_get_state(i) != SESSION_CLOSING)
++                        all_closing = false;
++        }
+ 
+         if (u->sessions)
+-                return USER_ONLINE;
++                return all_closing ? USER_CLOSING : USER_ONLINE;
+ 
+         if (user_check_linger_file(u) > 0)
+                 return USER_LINGERING;
+-- 
+1.7.12
+

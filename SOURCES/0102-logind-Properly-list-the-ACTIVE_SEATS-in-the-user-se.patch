@@ -1,0 +1,30 @@
+From 4cd36678adf7a45ababee9f8c9e660df135495e4 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Mon, 3 Sep 2012 23:36:05 +0100
+Subject: [PATCH 102/105] logind: Properly list the ACTIVE_SEATS in the user
+ session tracking file.
+
+Prevsiouly the first active seat for a user would never be listed and
+any subsequent seats would be concatenated on without any spaces.
+---
+ src/login/logind-user.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/logind-user.c b/src/login/logind-user.c
+index a33978c..a6672ce 100644
+--- a/src/login/logind-user.c
++++ b/src/login/logind-user.c
+@@ -189,7 +189,9 @@ int user_save(User *u) {
+                         if (first)
+                                 first = false;
+                         else
+-                                fputs(i->seat->id, f);
++                                fputc(' ', f);
++
++                        fputs(i->seat->id, f);
+                 }
+                 fputc('\n', f);
+         }
+-- 
+1.7.12
+

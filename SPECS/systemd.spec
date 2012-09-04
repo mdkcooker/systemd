@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	189
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -44,6 +44,12 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+Patch100: 0100-pam-Add-session-class-to-the-debug-log.patch
+Patch101: 0101-logind-If-all-user-sessions-are-in-closing-state-set.patch
+Patch102: 0102-logind-Properly-list-the-ACTIVE_SEATS-in-the-user-se.patch
+Patch103: 0103-logind-Add-a-two-new-variables-to-the-user-session-t.patch
+Patch104: 0104-logind-Ensure-the-user-seat-and-session-files-are-up.patch
+Patch105: 0105-login-Avoid-unnecesary-rewrite-of-user-file-when-swi.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)

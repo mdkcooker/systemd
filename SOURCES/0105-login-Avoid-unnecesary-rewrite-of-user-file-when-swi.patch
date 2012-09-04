@@ -1,0 +1,27 @@
+From 34dad2986c4fd727ccfb0ca1ae349c35cf37912d Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Tue, 4 Sep 2012 01:29:21 +0100
+Subject: [PATCH 105/105] login: Avoid unnecesary rewrite of user file when
+ switching sessions of the same user.
+
+---
+ src/login/logind-seat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index 0457121..9c7cc1f 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -261,7 +261,8 @@ int seat_set_active(Seat *s, Session *session) {
+ 
+         if (old_active) {
+                 session_save(old_active);
+-                user_save(old_active->user);
++                if (!session || session->user != old_active->user)
++                        user_save(old_active->user);
+         }
+ 
+         return 0;
+-- 
+1.7.12
+
