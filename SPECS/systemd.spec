@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	189
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -98,6 +98,8 @@ Conflicts: systemd-sysvinit < 185
 Obsoletes: systemd-sysvinit < 185
 Provides:  sysvinit = %sysvinit_version-%sysvinit_release
 Conflicts: SysVinit
+# Due to halt/poweroff etc. in _bindir
+Conflicts: usermode-consoleonly < 1.110
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -295,12 +297,12 @@ install -m 0644 %SOURCE23 %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
-mkdir -p %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}{%{_bindir},%{_sbindir}}
 ln -s ../lib/systemd/systemd %{buildroot}%{_bindir}/systemd
 ln -s ../lib/systemd/systemd %{buildroot}%{_sbindir}/init
-ln -s ../bin/systemctl %{buildroot}%{_sbindir}/reboot
-ln -s ../bin/systemctl %{buildroot}%{_sbindir}/halt
-ln -s ../bin/systemctl %{buildroot}%{_sbindir}/poweroff
+ln -s ../bin/systemctl %{buildroot}%{_bindir}/reboot
+ln -s ../bin/systemctl %{buildroot}%{_bindir}/halt
+ln -s ../bin/systemctl %{buildroot}%{_bindir}/poweroff
 ln -s ../bin/systemctl %{buildroot}%{_sbindir}/shutdown
 ln -s ../bin/systemctl %{buildroot}%{_sbindir}/telinit
 ln -s ../bin/systemctl %{buildroot}%{_sbindir}/runlevel
@@ -523,11 +525,11 @@ fi
 %{_bindir}/systemd-notify
 %{_bindir}/systemd-tmpfiles
 %{_bindir}/systemd-tty-ask-password-agent
-%{_sbindir}/init
-%{_sbindir}/reboot
-%{_sbindir}/halt
-%{_sbindir}/poweroff
+%{_bindir}/reboot
+%{_bindir}/halt
+%{_bindir}/poweroff
 %{_sbindir}/shutdown
+%{_sbindir}/init
 %{_sbindir}/telinit
 %{_sbindir}/runlevel
 %{_sbindir}/udevadm
