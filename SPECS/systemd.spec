@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	189
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -99,7 +99,7 @@ Obsoletes: systemd-sysvinit < 185
 Provides:  sysvinit = %sysvinit_version-%sysvinit_release
 Conflicts: SysVinit
 # Due to halt/poweroff etc. in _bindir
-Conflicts: usermode-consoleonly < 1.110
+Conflicts: usermode-consoleonly < 1:1.110
 
 %description
 systemd is a system and session manager for Linux, compatible with
