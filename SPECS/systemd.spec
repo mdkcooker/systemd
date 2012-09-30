@@ -79,7 +79,8 @@ BuildRequires:	pkgconfig(blkid)
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 BuildRequires:	xsltproc
 BuildRequires:	docbook-style-xsl
-BuildRequires: python-devel
+BuildRequires:	python-devel
+BuildRequires:	pkgconfig(libmicrohttpd)
 Requires(pre):	filesystem >= 2.1.9-18
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
