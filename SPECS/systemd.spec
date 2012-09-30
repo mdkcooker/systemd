@@ -25,7 +25,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	192
+Version:	193
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -44,6 +44,9 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+Patch100: 0100-tmpfiles-restore-previous-behavior-for-F-f.patch
+Patch101: 0101-journald-close-sd_journal-context-after-flushing-to-.patch
+Patch102: 0102-journald-rework-auto-rotation-logic.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -547,7 +550,10 @@ fi
 %{_bindir}/systemd-nspawn
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/udevadm
+%dir %{_datadir}/systemd
 %{_datadir}/systemd/kbd-model-map
+%dir %{_datadir}/systemd/gatewayd
+%{_datadir}/systemd/gatewayd/browse.html
 %{_mandir}/man1/journalctl.*
 %{_mandir}/man1/loginctl.*
 %{_mandir}/man1/systemd.*
