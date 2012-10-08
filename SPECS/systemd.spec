@@ -25,8 +25,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	193
-Release:	%mkrel 2
+Version:	194
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -44,9 +44,6 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-tmpfiles-restore-previous-behavior-for-F-f.patch
-Patch101: 0101-journald-close-sd_journal-context-after-flushing-to-.patch
-Patch102: 0102-journald-rework-auto-rotation-logic.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -392,15 +389,6 @@ fi
 EOF
 chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
 
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/tmpfiles.filter << EOF
-^.%{_prefix}/lib/tmpfiles.d/.*\.conf$
-EOF
-cat > %buildroot%{_var}/lib/rpm/filetriggers/tmpfiles.script << EOF
-#!/bin/sh
-%{_bindir}/systemd-tmpfiles --create
-EOF
-chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/tmpfiles.script
-
 # This file is already in sytemd-ui rpm
 rm -fr %buildroot%_mandir/man1/systemadm.*
 
@@ -500,7 +488,6 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
 %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
-%{_var}/lib/rpm/filetriggers/tmpfiles.*
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
