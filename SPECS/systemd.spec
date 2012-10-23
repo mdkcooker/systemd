@@ -25,8 +25,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	194
-Release:	%mkrel 3
+Version:	195
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -56,8 +56,6 @@ Patch505: 0505-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch506: 0506-Allow-booting-from-live-cd-in-virtualbox.patch
 Patch507: 0507-reinstate-TIMEOUT-handling.patch
 Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
-Patch509: 0509-journal-Properly-track-the-number-of-allocated-windo.patch
-Patch510: 0510-journal-Set-the-last_unused-pointer-correctly-when-a.patch
 
 # (cjw) revert commit 97595710b77aa162ca5e20da57d0a1ed7355eaad that breaks network interface renaming
 Patch700: systemd-188-udev-network-interface-renaming.patch
@@ -485,7 +483,6 @@ fi
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/system-shutdown
 %dir %{_prefix}/lib/systemd/system-sleep
-%dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
@@ -523,15 +520,19 @@ fi
 %{_prefix}/lib/tmpfiles.d/systemd.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
 %{_prefix}/lib/tmpfiles.d/x11.conf
+%{_bindir}/hostnamectl
 %{_bindir}/journalctl
+%{_bindir}/localectl
 %{_bindir}/loginctl
 %{_bindir}/systemd
 %{_bindir}/systemd-ask-password
+%{_bindir}/systemd-coredumpctl
 %{_bindir}/systemd-inhibit
 %{_bindir}/systemd-machine-id-setup
 %{_bindir}/systemd-notify
 %{_bindir}/systemd-tmpfiles
 %{_bindir}/systemd-tty-ask-password-agent
+%{_bindir}/timedatectl
 %{_bindir}/reboot
 %{_bindir}/halt
 %{_bindir}/poweroff
@@ -556,10 +557,13 @@ fi
 %{_datadir}/systemd/kbd-model-map
 %dir %{_datadir}/systemd/gatewayd
 %{_datadir}/systemd/gatewayd/browse.html
+%{_mandir}/man1/hostnamectl.*
 %{_mandir}/man1/journalctl.*
+%{_mandir}/man1/localectl.*
 %{_mandir}/man1/loginctl.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-*
+%{_mandir}/man1/timedatectl.*
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
@@ -573,6 +577,8 @@ fi
 %{_mandir}/man8/poweroff.*
 %{_mandir}/man8/telinit.*
 %{_mandir}/man8/runlevel.*
+%{_initrddir}/README
+%{_logdir}/README
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
