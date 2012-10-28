@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -98,6 +98,7 @@ Provides:  sysvinit = %sysvinit_version-%sysvinit_release
 Conflicts: SysVinit
 # Due to halt/poweroff etc. in _bindir
 Conflicts: usermode-consoleonly < 1:1.110
+Provides:  syslog-daemon
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -370,6 +371,9 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 # Make sure the NTP units dir exists
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/ntp-units.d/
 
+# (cg) Make the journal's persistent in order to provide a real syslog implementation
+install -m 0755 -d %{buildroot}%{_logdir}/journal
+
 # automatic systemd release on rpm installs/removals
 # (see http://wiki.mandriva.com/en/Rpm_filetriggers)
 # (cg) I'm not sure if the file list check works against the packaged rpm
@@ -607,6 +611,7 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_docdir}/systemd
+%dir %{_logdir}/journal
 
 %files tools
 %defattr(-,root,root)
