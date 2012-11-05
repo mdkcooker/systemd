@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -99,6 +99,11 @@ Conflicts: SysVinit
 # Due to halt/poweroff etc. in _bindir
 Conflicts: usermode-consoleonly < 1:1.110
 Provides:  syslog-daemon
+# (blino) consolekit has been replaced by systemd-logind
+Obsoletes: consolekit
+Obsoletes: consolekit-x11
+Obsoletes: libconsolekit0
+Obsoletes: lib64consolekit0
 
 %description
 systemd is a system and session manager for Linux, compatible with
