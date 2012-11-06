@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -431,6 +431,12 @@ fi
                 2>&1 || :
 # rc-local is now enabled by default in base package
 rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
+
+# (blino) systemd 195 changed the prototype of logind's OpenSession()
+# see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
+# and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
+%triggerun -- %{name} < 195-4.mga3
+%{_bindir}/systemctl restart systemd-logind.service
 
 %post units
 if [ $1 -eq 1 ] ; then
