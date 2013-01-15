@@ -45,6 +45,7 @@ Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
 Patch100: 0100-shared-core-do-not-always-accept-numbers-in-string-l.patch
+Patch101: 0101-configure.ac-fix-FTBFS-with-new-glibc.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
