@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -328,12 +328,6 @@ ln -s ../bin/udevadm %{buildroot}%{_sbindir}/udevadm
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
 rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
-
-# Make sure the ghost-ing below works
-touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel2.target
-touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel3.target
-touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel4.target
-touch %{buildroot}%{_sysconfdir}/systemd/system/runlevel5.target
 
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/basic.target.wants
@@ -650,11 +644,6 @@ fi
 %{_prefix}/lib/systemd/system
 %{_prefix}/lib/systemd/user
 %{_mandir}/man1/systemctl.*
-
-%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel2.target
-%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel3.target
-%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel4.target
-%ghost %config(noreplace) %{_sysconfdir}/systemd/system/runlevel5.target
 
 %files -n python-%{name}
 %defattr(-,root,root)
