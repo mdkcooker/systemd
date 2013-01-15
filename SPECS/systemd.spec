@@ -278,7 +278,7 @@ This package provides the development files for the gudev shared library.
 find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
-autoreconf
+autoreconf --force --install --verbose
 %configure2_5x \
   --with-distro=mageia \
   --disable-coredump \
