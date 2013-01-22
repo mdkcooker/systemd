@@ -1,7 +1,7 @@
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
-%define sysvinit_release %mkrel 18
+%define sysvinit_release %mkrel 19
 
 %define libdaemon_major 0
 %define liblogin_major 0
@@ -26,9 +26,9 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
-Group:		System/Configuration/Boot and Init
+Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
 
@@ -122,7 +122,7 @@ work as a drop-in replacement for sysvinit.
 # (TV) basically split b/c it pulls python in basesystem
 %package tools
 Summary:	Non essential systemd tools
-Group:		System/Configuration/Boot and Init
+Group:		System/Boot and Init
 Requires:	%{name} = %{version}-%{release}
 Requires:	python-dbus
 Requires:	python-cairo
@@ -133,7 +133,7 @@ Non essential systemd tools
 
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
-Group:		System/Configuration/Boot and Init
+Group:		System/Boot and Init
 Requires(pre):	filesystem >= 2.1.9-18
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	initscripts < 9.25
