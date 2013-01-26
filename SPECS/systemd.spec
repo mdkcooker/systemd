@@ -61,7 +61,14 @@ Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch509: 0509-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 
 # (cjw) revert commit 97595710b77aa162ca5e20da57d0a1ed7355eaad that breaks network interface renaming
+# (cg) This is done for mga3, but will be removed for mga4 when we will switch
+# to a different naming scheme for network interfaces which should prevent the
+# need for a racy an confusing (from a user perspective) feature.
+# https://wiki.mageia.org/en/Feature:NetworkDeviceNameChange
 Patch700: systemd-188-udev-network-interface-renaming.patch
+Source50: 75-persistent-net-generator.rules
+Source51: rule_generator.functions
+Source52: write_net_rules
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel
@@ -403,6 +410,12 @@ rm -fr %buildroot%_mandir/man1/systemadm.*
 
 # (cg) This should be moving at some point upstream so pre-empt it
 mv %{buildroot}%{_sysconfdir}/rpm %{buildroot}%{_prefix}/lib
+
+# (cg) This restores the horrible network name generator.
+# See comment above for why this sucks and why it will be removed in mga4
+install -p -m 0644 %{SOURCE50} %{buildroot}%{_prefix}/lib/udev/rules.d/
+install -p -m 0644 %{SOURCE51} %{buildroot}%{_prefix}/lib/udev/
+install -p -m 0644 %{SOURCE52} %{buildroot}%{_prefix}/lib/udev/
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
