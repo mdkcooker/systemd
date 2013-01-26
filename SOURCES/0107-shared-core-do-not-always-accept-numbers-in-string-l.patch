@@ -1,7 +1,8 @@
-From f8b69d1dfc307562a353f6aa923b7c2b915aaddb Mon Sep 17 00:00:00 2001
+From a50ef561fcf07721c0577a6bdef55f53746f8fb4 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 30 Oct 2012 14:29:38 +0100
-Subject: [PATCH] shared, core: do not always accept numbers in string lookups
+Subject: [PATCH 107/126] shared, core: do not always accept numbers in string
+ lookups
 
 The behaviour of the common name##_from_string conversion is surprising.
 It accepts not only the strings from name##_table but also any number
@@ -24,6 +25,7 @@ released. A slightly unpleasant effect of this is that the
 name##_to_string conversion cannot return pointers to constant strings
 anymore. The strings have to be allocated on demand and freed by the
 caller.
+(cherry picked from commit f8b69d1dfc307562a353f6aa923b7c2b915aaddb)
 ---
  src/core/dbus-manager.c  | 12 ++++++++----
  src/core/execute.c       | 44 +++++++++++++++++++++++++++++++++++++-------
@@ -255,10 +257,10 @@ index 7cca2f5..04cfb83 100644
  
  bool socket_ipv6_is_supported(void);
 diff --git a/src/shared/util.c b/src/shared/util.c
-index 23832fe..402b7ca 100644
+index 8519c43..384c163 100644
 --- a/src/shared/util.c
 +++ b/src/shared/util.c
-@@ -5207,7 +5207,7 @@ static const char *const ioprio_class_table[] = {
+@@ -5208,7 +5208,7 @@ static const char *const ioprio_class_table[] = {
          [IOPRIO_CLASS_IDLE] = "idle"
  };
  
@@ -267,7 +269,7 @@ index 23832fe..402b7ca 100644
  
  static const char *const sigchld_code_table[] = {
          [CLD_EXITED] = "exited",
-@@ -5243,7 +5243,7 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
+@@ -5244,7 +5244,7 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
          [LOG_FAC(LOG_LOCAL7)] = "local7"
  };
  
@@ -276,7 +278,7 @@ index 23832fe..402b7ca 100644
  
  static const char *const log_level_table[] = {
          [LOG_EMERG] = "emerg",
-@@ -5256,7 +5256,7 @@ static const char *const log_level_table[] = {
+@@ -5257,7 +5257,7 @@ static const char *const log_level_table[] = {
          [LOG_DEBUG] = "debug"
  };
  
@@ -285,7 +287,7 @@ index 23832fe..402b7ca 100644
  
  static const char* const sched_policy_table[] = {
          [SCHED_OTHER] = "other",
-@@ -5266,7 +5266,7 @@ static const char* const sched_policy_table[] = {
+@@ -5267,7 +5267,7 @@ static const char* const sched_policy_table[] = {
          [SCHED_RR] = "rr"
  };
  
@@ -294,7 +296,7 @@ index 23832fe..402b7ca 100644
  
  static const char* const rlimit_table[] = {
          [RLIMIT_CPU] = "LimitCPU",
-@@ -5296,7 +5296,7 @@ static const char* const ip_tos_table[] = {
+@@ -5297,7 +5297,7 @@ static const char* const ip_tos_table[] = {
          [IPTOS_LOWCOST] = "low-cost",
  };
  
@@ -304,7 +306,7 @@ index 23832fe..402b7ca 100644
  static const char *const __signal_table[] = {
          [SIGHUP] = "HUP",
 diff --git a/src/shared/util.h b/src/shared/util.h
-index f726263..ca80bfe 100644
+index a9c39b8..53bd4cb 100644
 --- a/src/shared/util.h
 +++ b/src/shared/util.h
 @@ -291,6 +291,7 @@ int make_console_stdio(void);
@@ -403,5 +405,5 @@ index f726263..ca80bfe 100644
  
  const char *signal_to_string(int i);
 -- 
-1.8.0
+1.8.1
 

@@ -44,8 +44,33 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-shared-core-do-not-always-accept-numbers-in-string-l.patch
-Patch101: 0101-configure.ac-fix-FTBFS-with-new-glibc.patch
+Patch100: 0100-rules-Remove-HP-iLO-from-USB-HID-PM-rules.patch
+Patch101: 0101-job-avoid-recursion-into-transaction-code-from-job-c.patch
+Patch102: 0102-sysctl-parse-all-keys-in-a-config-file.patch
+Patch103: 0103-journal-fix-parsing-of-monotonic-kernel-timestamps.patch
+Patch104: 0104-hwclock-do-not-seal-the-kernel-s-time-warp-call-from.patch
+Patch105: 0105-units-agetty-overrides-TERM.patch
+Patch106: 0106-shared-libsystemd-daemon-check-for-empty-strings-in-.patch
+Patch107: 0107-shared-core-do-not-always-accept-numbers-in-string-l.patch
+Patch108: 0108-shared-max-in-the-string-number-conversion-is-meant-.patch
+Patch109: 0109-strv-cleanup-error-path-loops.patch
+Patch110: 0110-build-sys-store-journald-code-in-a-noinst-library.patch
+Patch111: 0111-dbus-manager-fix-a-fatal-dbus-abort-in-bus_manager_m.patch
+Patch112: 0112-shutdown-readd-explicit-sync-when-shutting-down.patch
+Patch113: 0113-switch-root-try-pivot_root-before-overmounting.patch
+Patch114: 0114-umount-always-remount-read-only-before-unmounting-in.patch
+Patch115: 0115-shared-utils-systemd-cgls-shows-n-a-when-piping-outp.patch
+Patch116: 0116-core-load-fragment-fix-potential-bad-memory-access.patch
+Patch117: 0117-journald-fix-bad-memory-access.patch
+Patch118: 0118-journal-send-always-send-SYSLOG_IDENTIFIER-if-we-hav.patch
+Patch119: 0119-localectl-fix-dbus-call-arguments-in-set_x11_keymap.patch
+Patch120: 0120-add-Belarussian-mapping-simple-by-and-by.patch
+Patch121: 0121-French-Canadian-xlayout-is-just-ca-not-ca-fr-any-mor.patch
+Patch122: 0122-add-Hebrew-Israel-simple-il-il.patch
+Patch123: 0123-add-Kazakh-keyboard-mapping-kazakh-kz.patch
+Patch124: 0124-add-Lithuanian-keyboard-mapping-lt-lt.patch
+Patch125: 0125-correct-Macedonian-keyboard-mapping-X-layout-is-mk-n.patch
+Patch126: 0126-configure.ac-fix-FTBFS-with-new-glibc.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)

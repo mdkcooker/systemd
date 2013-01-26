@@ -1,7 +1,7 @@
-From e17187091d463ad008c0b74eb04de5078b2abb96 Mon Sep 17 00:00:00 2001
+From 60ac5b7b41262113a4392e2f88016fca5a1603d3 Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Wed, 14 Nov 2012 14:44:05 +0100
-Subject: [PATCH] configure.ac: fix FTBFS with new glibc
+Subject: [PATCH 126/126] configure.ac: fix FTBFS with new glibc
 
 glibc moved clock_* functions from librt to the core libc. As a result,
 clock_gettime is no more a suitable symbol to use when finding librt.
@@ -10,15 +10,16 @@ Reference:
 http://www.sourceware.org/git/gitweb.cgi?p=glibc.git&h=6e6249d0b461b952d0f544792372663feb6d792a
 
 Fixes a FTBFS in Fedora Rawhide.
+(cherry picked from commit e17187091d463ad008c0b74eb04de5078b2abb96)
 ---
  configure.ac | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index c4638d1..71ea6ad 100644
+index 7a3ee3c..19f76a1 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -171,7 +171,7 @@ CC_CHECK_FLAGS_APPEND([with_ldflags], [LDFLAGS], [\
+@@ -172,7 +172,7 @@ CC_CHECK_FLAGS_APPEND([with_ldflags], [LDFLAGS], [\
          -Wl,-z,now])
  AC_SUBST([OUR_LDFLAGS], $with_ldflags)
  
