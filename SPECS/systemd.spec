@@ -26,7 +26,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 10
+Release:	%mkrel 11
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -78,12 +78,11 @@ Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 Patch501: 0501-Some-more-tmpfiles-fixes.patch
 Patch502: 0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 Patch503: 0503-mageia-Fallback-message-when-display-manager-fails.patch
-Patch504: 0504-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch505: 0505-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-Patch506: 0506-Allow-booting-from-live-cd-in-virtualbox.patch
-Patch507: 0507-reinstate-TIMEOUT-handling.patch
-Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
-Patch509: 0509-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
+Patch504: 0504-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch505: 0505-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch506: 0506-reinstate-TIMEOUT-handling.patch
+Patch507: 0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+Patch508: 0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 
 # (cjw) revert commit 97595710b77aa162ca5e20da57d0a1ed7355eaad that breaks network interface renaming
 # (cg) This is done for mga3, but will be removed for mga4 when we will switch
