@@ -1,0 +1,30 @@
+From 81a90b298eeface5bb16d11e9f918ea6f8efce0f Mon Sep 17 00:00:00 2001
+From: Thomas Jarosch <thomas.jarosch@intra2net.com>
+Date: Tue, 25 Dec 2012 13:46:46 +0100
+Subject: [PATCH 128/132] tmpfiles: Fix file descriptor leak on error
+
+Detected by cppcheck
+(cherry picked from commit 3785ba6966c6f42ed1109bd238f001862736ff73)
+---
+ src/tmpfiles/tmpfiles.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index 0138c63..b410f39 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -507,8 +507,10 @@ static int write_one_file(Item *i, const char *path) {
+                 _cleanup_free_ char *unescaped;
+ 
+                 unescaped = cunescape(i->argument);
+-                if (unescaped == NULL)
++                if (unescaped == NULL) {
++                        close_nointr_nofail(fd);
+                         return log_oom();
++                }
+ 
+                 l = strlen(unescaped);
+                 n = write(fd, unescaped, l);
+-- 
+1.8.1
+

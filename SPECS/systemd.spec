@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 13
+Release:	%mkrel 14
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -66,6 +66,12 @@ Patch123: 0123-add-Kazakh-keyboard-mapping-kazakh-kz.patch
 Patch124: 0124-add-Lithuanian-keyboard-mapping-lt-lt.patch
 Patch125: 0125-correct-Macedonian-keyboard-mapping-X-layout-is-mk-n.patch
 Patch126: 0126-configure.ac-fix-FTBFS-with-new-glibc.patch
+Patch127: 0127-tmpfiles-allow-Age-to-be-set-to-0.patch
+Patch128: 0128-tmpfiles-Fix-file-descriptor-leak-on-error.patch
+Patch129: 0129-tmpfiles-introduce-type-X.patch
+Patch130: 0130-tmpfiles-exclude-tmp-systemd-private-from-cleanup.patch
+Patch131: 0131-tmpfiles-exclude-var-tmp-systemd-private-too.patch
+Patch132: 0132-man-mention-that-PrivateTmp-means-var-tmp-too.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)

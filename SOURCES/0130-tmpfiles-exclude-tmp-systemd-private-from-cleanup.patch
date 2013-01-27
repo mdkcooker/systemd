@@ -1,0 +1,26 @@
+From db48b69e6c485cccd79adbc2eadd43fa6c890166 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Fri, 25 Jan 2013 17:42:59 +0100
+Subject: [PATCH 130/132] tmpfiles: exclude /tmp/systemd-private-* from cleanup
+
+See http://thread.gmane.org/gmane.comp.sysutils.systemd.devel/6874/focus=6891
+Should fix https://bugzilla.redhat.com/show_bug.cgi?id=866693
+(cherry picked from commit e4ac004c12f9f45e8f2a222879dbf59a86dfcf7d)
+---
+ tmpfiles.d/tmp.conf | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tmpfiles.d/tmp.conf b/tmpfiles.d/tmp.conf
+index 1284fc4..031770c 100644
+--- a/tmpfiles.d/tmp.conf
++++ b/tmpfiles.d/tmp.conf
+@@ -10,3 +10,6 @@
+ # Clear tmp directories separately, to make them easier to override
+ d /tmp 1777 root root 10d
+ d /var/tmp 1777 root root 30d
++
++# Exclude namespace mountpoints created with PrivateTmp=yes
++X /tmp/systemd-private-*
+-- 
+1.8.1
+
