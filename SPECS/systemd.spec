@@ -454,8 +454,6 @@ fi
         %{_bindir}/systemctl --quiet enable \
                 hwclock-load.service \
                 getty@.service \
-                quotaon.service \
-                quotacheck.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -485,8 +483,6 @@ if [ $1 -eq 1 ] ; then
         # Enable the services we install by default.
         %{_bindir}/systemctl --quiet enable \
                 getty@.service \
-                quotaon.service \
-                quotacheck.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -508,8 +504,6 @@ fi
 if [ $1 -eq 0 ] ; then
         %{_bindir}/systemctl --quiet disable \
                 getty@.service \
-                quotaon.service \
-                quotacheck.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
