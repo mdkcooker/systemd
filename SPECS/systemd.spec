@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 14
+Release:	%mkrel 15
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -441,7 +441,7 @@ mv %{buildroot}%{_sysconfdir}/rpm %{buildroot}%{_prefix}/lib
 # See comment above for why this sucks and why it will be removed in mga4
 install -p -m 0644 %{SOURCE50} %{buildroot}%{_prefix}/lib/udev/rules.d/
 install -p -m 0644 %{SOURCE51} %{buildroot}%{_prefix}/lib/udev/
-install -p -m 0644 %{SOURCE52} %{buildroot}%{_prefix}/lib/udev/
+install -p -m 0755 %{SOURCE52} %{buildroot}%{_prefix}/lib/udev/
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
