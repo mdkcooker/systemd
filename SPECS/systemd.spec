@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 15
+Release:	%mkrel 16
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -135,7 +135,7 @@ Obsoletes: sysvinit < 2.87-22
 Conflicts: SysVinit
 # Due to halt/poweroff etc. in _bindir
 Conflicts: usermode-consoleonly < 1:1.110
-Provides:  syslog-daemon
+Provides:  system-logger
 # (blino) consolekit has been replaced by systemd-logind
 Obsoletes: consolekit
 Obsoletes: consolekit-x11
