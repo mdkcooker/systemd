@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 16
+Release:	%mkrel 17
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -330,6 +330,9 @@ rm -rf %{buildroot}
 %makeinstall_std
 find %{buildroot} \( -name '*.a' -o -name '*.la' \) -exec rm {} \;
 
+# (cg) Create and ship folder to hold user rules
+install -D -m 755 %{buildroot}%{_sysconfdir}/udev/rules.d
+
 install -m 644 %SOURCE10 %{buildroot}%{_prefix}/lib/udev/rules.d/
 install -m 644 %SOURCE11 %{buildroot}%{_prefix}/lib/udev/rules.d/
 # udev rules for zte 3g modems and drakx-net
@@ -561,6 +564,7 @@ fi
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
+%dir %{_sysconfdir}/udev/rules.d
 #%{_prefix}/lib/sysctl.d/coredump.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
