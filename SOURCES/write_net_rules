@@ -38,7 +38,8 @@ if [ -n "$UDEV_LOG" ]; then
         fi
 fi
 
-RULES_FILE='/etc/udev/rules.d/70-persistent-net.rules'
+RULES_DIR="/etc/udev/rules.d"
+RULES_FILE="$RULES_DIR/70-persistent-net.rules"
 
 . /usr/lib/udev/rule_generator.functions
 
@@ -60,6 +61,7 @@ write_rule() {
         local name="$2"
         local comment="$3"
 
+        mkdir -p $RULES_DIR
         {
         if [ "$PRINT_HEADER" ]; then
                 PRINT_HEADER=

@@ -331,7 +331,7 @@ rm -rf %{buildroot}
 find %{buildroot} \( -name '*.a' -o -name '*.la' \) -exec rm {} \;
 
 # (cg) Create and ship folder to hold user rules
-install -D -m 755 %{buildroot}%{_sysconfdir}/udev/rules.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/udev/rules.d
 
 install -m 644 %SOURCE10 %{buildroot}%{_prefix}/lib/udev/rules.d/
 install -m 644 %SOURCE11 %{buildroot}%{_prefix}/lib/udev/rules.d/
