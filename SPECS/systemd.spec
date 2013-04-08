@@ -393,7 +393,6 @@ find src/ -name "*.vala" -exec touch '{}' \;
 autoreconf --force --install --verbose
 %configure2_5x \
   --with-distro=mageia \
-  --disable-coredump \
   --disable-static \
   --disable-selinux \
   --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware \
@@ -443,6 +442,12 @@ ln -s ../bin/udevadm %{buildroot}%{_sbindir}/udevadm
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
 rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
+
+# (cg) To avoid making life hard for developers, don't package the
+# kernel.core_pattern setting until systemd-coredump is a part of an actual
+# systemd release and it's made clear how to get the core dumps out of the
+# journal.
+rm -f %{buildroot}%{_prefix}/lib/sysctl.d/coredump.conf
 
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/basic.target.wants
