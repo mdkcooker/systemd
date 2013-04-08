@@ -1,0 +1,34 @@
+From 664ffcc801b32d2ab760c7cb0664857d960b403d Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 14 Jan 2013 21:40:38 +0100
+Subject: [PATCH 167/204] logind: ignore non-tty/non-x11 session when checking
+ if there are other sessions before shutting down
+
+https://bugzilla.redhat.com/show_bug.cgi?id=890827
+(cherry picked from commit 1ca04b87979b2add53ebb8a7fdf13c34fb6c2743)
+---
+ src/login/logind-dbus.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index 3a8ee5f..f1b8d38 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -971,9 +971,12 @@ static int have_multiple_sessions(
+ 
+         assert(m);
+ 
+-        /* Check for other users' sessions. Greeter sessions do not count. */
++        /* Check for other users' sessions. Greeter sessions do not
++         * count, and non-login sessions do not count either. */
+         HASHMAP_FOREACH(session, m->sessions, i)
+-                if (session->class == SESSION_USER && session->user->uid != uid)
++                if (session->class == SESSION_USER &&
++                    (session->type == SESSION_TTY || session->type == SESSION_X11) &&
++                    session->user->uid != uid)
+                         return true;
+ 
+         return false;
+-- 
+1.8.1.5
+

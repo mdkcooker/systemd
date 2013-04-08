@@ -1,0 +1,40 @@
+From a65e6a16f5c6f71cd3ac5764432ff0668ca109c7 Mon Sep 17 00:00:00 2001
+From: "Zeeshan Ali (Khattak)" <zeeshanak@gnome.org>
+Date: Sun, 17 Feb 2013 03:21:27 +0200
+Subject: [PATCH 205/205] udev: expose new ISO9660 properties from libblkid
+ (cherry picked from commit ddb5bee15a6ad71e5b596c035c1ee4dc04d5fd2e)
+
+---
+ src/udev/udev-builtin-blkid.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/src/udev/udev-builtin-blkid.c b/src/udev/udev-builtin-blkid.c
+index 39f286a..878ae95 100644
+--- a/src/udev/udev-builtin-blkid.c
++++ b/src/udev/udev-builtin-blkid.c
+@@ -78,6 +78,22 @@ static void print_property(struct udev_device *dev, bool test, const char *name,
+         } else if (startswith(name, "PART_ENTRY_")) {
+                 util_strscpyl(s, sizeof(s), "ID_", name, NULL);
+                 udev_builtin_add_property(dev, test, s, value);
++
++        } else if (streq(name, "SYSTEM_ID")) {
++                blkid_encode_string(value, s, sizeof(s));
++                udev_builtin_add_property(dev, test, "ID_FS_SYSTEM_ID", s);
++
++        } else if (streq(name, "PUBLISHER_ID")) {
++                blkid_encode_string(value, s, sizeof(s));
++                udev_builtin_add_property(dev, test, "ID_FS_PUBLISHER_ID", s);
++
++        } else if (streq(name, "APPLICATION_ID")) {
++                blkid_encode_string(value, s, sizeof(s));
++                udev_builtin_add_property(dev, test, "ID_FS_APPLICATION_ID", s);
++
++        } else if (streq(name, "BOOT_SYSTEM_ID")) {
++                blkid_encode_string(value, s, sizeof(s));
++                udev_builtin_add_property(dev, test, "ID_FS_BOOT_SYSTEM_ID", s);
+         }
+ }
+ 
+-- 
+1.8.1.5
+

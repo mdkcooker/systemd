@@ -1,0 +1,54 @@
+From 877d91d0c334c1cad8d212e89eeaf2f23ba5d7e5 Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martinpitt@gnome.org>
+Date: Fri, 26 Oct 2012 06:31:14 +0200
+Subject: [PATCH 198/205] keymap: Add HP EliteBook 8440p
+
+Thanks to Glen Ditchfield <gjditchfield@acm.org>!
+
+https://launchpad.net/bugs/1071579
+(cherry picked from commit 221a6c2a26d8e4de207adf216f2f30e43b4aa492)
+---
+ Makefile.am                             | 1 +
+ keymaps/hewlett-packard_elitebook-8440p | 5 +++++
+ src/udev/keymap/95-keymap.rules         | 1 +
+ 3 files changed, 7 insertions(+)
+ create mode 100644 keymaps/hewlett-packard_elitebook-8440p
+
+diff --git a/Makefile.am b/Makefile.am
+index c7e89ec..1878137 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -2262,6 +2262,7 @@ dist_udevkeymap_DATA = \
+ 	keymaps/hewlett-packard-presario-2100 \
+ 	keymaps/hewlett-packard-tablet \
+ 	keymaps/hewlett-packard-tx2 \
++	keymaps/hewlett-packard_elitebook-8440p \
+ 	keymaps/ibm-thinkpad-usb-keyboard-trackpoint \
+ 	keymaps/inventec-symphony_6.0_7.0 \
+ 	keymaps/lenovo-3000 \
+diff --git a/keymaps/hewlett-packard_elitebook-8440p b/keymaps/hewlett-packard_elitebook-8440p
+new file mode 100644
+index 0000000..e0c2a1a
+--- /dev/null
++++ b/keymaps/hewlett-packard_elitebook-8440p
+@@ -0,0 +1,5 @@
++0x88 www
++0xA0 mute
++0xAE volumedown
++0xB0 volumeup
++0xEC mail
+diff --git a/src/udev/keymap/95-keymap.rules b/src/udev/keymap/95-keymap.rules
+index 8c3d317..347b5a1 100644
+--- a/src/udev/keymap/95-keymap.rules
++++ b/src/udev/keymap/95-keymap.rules
+@@ -97,6 +97,7 @@ ENV{DMI_VENDOR}=="Hewlett-Packard*", ATTR{[dmi/id]product_name}=="*[tT][xX]2*",
+ ENV{DMI_VENDOR}=="Hewlett-Packard", ATTR{[dmi/id]product_name}=="Presario 2100*", RUN+="keymap $name hewlett-packard-presario-2100"
+ ENV{DMI_VENDOR}=="Hewlett-Packard", ATTR{[dmi/id]product_name}=="HP G62 Notebook PC", RUN+="keymap $name 0xB2 www"
+ ENV{DMI_VENDOR}=="Hewlett-Packard", ATTR{[dmi/id]product_name}=="HP ProBook*", RUN+="keymap $name 0xF8 rfkill"
++ENV{DMI_VENDOR}=="Hewlett-Packard", ATTR{[dmi/id]product_name}=="HP EliteBook 8440p", RUN+="keymap $name hewlett-packard_elitebook-8440p"
+ # HP Pavillion dv6315ea has empty DMI_VENDOR
+ ATTR{[dmi/id]board_vendor}=="Quanta", ATTR{[dmi/id]board_name}=="30B7", ATTR{[dmi/id]board_version}=="65.2B", RUN+="keymap $name 0x88 media" # "quick play
+ 
+-- 
+1.8.1.5
+

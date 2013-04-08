@@ -1,0 +1,28 @@
+From cebb7ae8351223f224988e603795b18811fa72de Mon Sep 17 00:00:00 2001
+From: Thomas Hindoe Paaboel Andersen <phomes@gmail.com>
+Date: Wed, 14 Nov 2012 00:18:02 +0100
+Subject: [PATCH 149/204] delta.c: fix option '-t'
+
+Both the help and man page claims that it accepts -t with an argument
+so let's do that.
+(cherry picked from commit 377ec8bf1907a1a227d195cc3721c4acbad19213)
+---
+ src/delta/delta.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/delta/delta.c b/src/delta/delta.c
+index 803d2a7..6c7a19b 100644
+--- a/src/delta/delta.c
++++ b/src/delta/delta.c
+@@ -375,7 +375,7 @@ static int parse_argv(int argc, char *argv[]) {
+         assert(argc >= 1);
+         assert(argv);
+ 
+-        while ((c = getopt_long(argc, argv, "h", options, NULL)) >= 0) {
++        while ((c = getopt_long(argc, argv, "ht:", options, NULL)) >= 0) {
+ 
+                 switch (c) {
+ 
+-- 
+1.8.1.5
+

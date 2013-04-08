@@ -1,0 +1,29 @@
+From 72c54a408439712b04d0cd6e9c3304c438a90e1e Mon Sep 17 00:00:00 2001
+From: Dave Reisner <dreisner@archlinux.org>
+Date: Sun, 28 Oct 2012 12:27:27 -0400
+Subject: [PATCH 186/204] bash-completion: avoid usage of ls for listing
+ devices (cherry picked from commit 35cdd0437d0650f7640264529417fa2f4abcce5e)
+
+---
+ bash-completion/systemd-bash-completion.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/bash-completion/systemd-bash-completion.sh b/bash-completion/systemd-bash-completion.sh
+index ea66755..b510672 100644
+--- a/bash-completion/systemd-bash-completion.sh
++++ b/bash-completion/systemd-bash-completion.sh
+@@ -477,7 +477,10 @@ _hostnamectl() {
+ }
+ complete -F _hostnamectl hostnamectl
+ 
+-__get_all_sysdevs() { ls -1 -d /sys/bus/*/devices/* /sys/class/*/*; }
++__get_all_sysdevs() {
++        local -a devs=(/sys/bus/*/devices/*/ /sys/class/*/*/)
++        printf '%s\n' "${devs[@]%/}"
++}
+ 
+ _udevadm() {
+         local i verb comps
+-- 
+1.8.1.5
+

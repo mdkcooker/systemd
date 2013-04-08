@@ -1,0 +1,46 @@
+From b898182b80e003a48117c3076dee676712d4aff2 Mon Sep 17 00:00:00 2001
+From: Michal Sekletar <msekleta@redhat.com>
+Date: Fri, 18 Jan 2013 16:13:08 +0100
+Subject: [PATCH 177/204] tmpfiles: introduce type X
+
+Type X will exclude path itself from clean-up. However, if the path is a
+directory systemd-tmpfiles will clean-up its content.
+
+In contrast to type x, where path is ignored completely, type X needs some
+Age parameter. In order to determine Age parameter, we will look for config
+entries of type d or D and pick the best match.  Best match is either
+exact match or longest prefix match.
+(cherry picked from commit 78a92a5a2306709e4587e332728a76901323ade9)
+---
+ man/tmpfiles.d.xml | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/man/tmpfiles.d.xml b/man/tmpfiles.d.xml
+index 0766a3a..17cd2af 100644
+--- a/man/tmpfiles.d.xml
++++ b/man/tmpfiles.d.xml
+@@ -181,6 +181,21 @@ L    /tmp/foobar -    -    -    -   /dev/null</programlisting>
+                                 </varlistentry>
+ 
+                                 <varlistentry>
++                                        <term><varname>X</varname></term>
++                                        <listitem><para>Ignore a path
++                                        during cleanup. Use this type
++                                        to prevent path removal as
++                                        controlled with the Age parameter.
++                                        Note that if path is a directory,
++                                        content of a directory is not
++                                        excluded from clean-up, only
++                                        directory itself. Lines of this
++                                        type accept shell-style globs
++                                        in place of normal path
++                                        names.</para></listitem>
++                                </varlistentry>
++
++                                <varlistentry>
+                                         <term><varname>r</varname></term>
+                                         <listitem><para>Remove a file
+                                         or directory if it
+-- 
+1.8.1.5
+

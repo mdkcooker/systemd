@@ -1,0 +1,33 @@
+From cef060dee0da773f6b633e65dec1c36cd9c8118b Mon Sep 17 00:00:00 2001
+From: Olivier Brunel <i.am.jack.mail@gmail.com>
+Date: Mon, 5 Nov 2012 00:28:45 +0100
+Subject: [PATCH 150/204] systemd: highlight ordering cycle deletions
+
+Having unit(s) removed/not started, even if it solved the issue and allowed
+to boot successfully, should still be considered an error, as something
+clearly isn't right.
+
+This patch elevates the log message from warning to error, and adds a status
+message to make things more obvious.
+(cherry picked from commit f09a7d25545b5e3a2dd3dfc1ff7ebc8560a3354c)
+---
+ src/core/transaction.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/transaction.c b/src/core/transaction.c
+index 4bce942..ee6992a 100644
+--- a/src/core/transaction.c
++++ b/src/core/transaction.c
+@@ -374,7 +374,8 @@ static int transaction_verify_order_one(Transaction *tr, Job *j, Job *from, unsi
+ 
+ 
+                 if (delete) {
+-                        log_warning("Breaking ordering cycle by deleting job %s/%s", delete->unit->id, job_type_to_string(delete->type));
++                        log_error("Breaking ordering cycle by deleting job %s/%s", delete->unit->id, job_type_to_string(delete->type));
++                        status_printf(ANSI_HIGHLIGHT_RED_ON " SKIP " ANSI_HIGHLIGHT_OFF, true, "Ordering cycle found, skip %s", unit_description(delete->unit));
+                         transaction_delete_unit(tr, delete->unit);
+                         return -EAGAIN;
+                 }
+-- 
+1.8.1.5
+

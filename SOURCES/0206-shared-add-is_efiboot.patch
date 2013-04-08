@@ -1,0 +1,42 @@
+From 5bc7f5dec114eb71fd2d5df6a93b816f9184c3ff Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Sun, 4 Nov 2012 16:06:27 +0100
+Subject: [PATCH 206/209] shared: add is_efiboot() (cherry picked from commit
+ c1e5704657315b436c0409e8172c1fcb76adccad)
+
+---
+ src/shared/util.c | 4 ++++
+ src/shared/util.h | 2 ++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 5cc1eb0..4e75c98 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -75,6 +75,10 @@ char **saved_argv = NULL;
+ static volatile unsigned cached_columns = 0;
+ static volatile unsigned cached_lines = 0;
+ 
++bool is_efiboot(void) {
++        return access("/sys/firmware/efi", F_OK) >= 0;
++}
++
+ size_t page_size(void) {
+         static __thread size_t pgsz = 0;
+         long r;
+diff --git a/src/shared/util.h b/src/shared/util.h
+index 9a574f8..d65f725 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -90,6 +90,8 @@ union dirent_storage {
+ #define ANSI_HIGHLIGHT_YELLOW_ON "\x1B[1;33m"
+ #define ANSI_HIGHLIGHT_OFF "\x1B[0m"
+ 
++bool is_efiboot(void);
++
+ usec_t now(clockid_t clock);
+ 
+ dual_timestamp* dual_timestamp_get(dual_timestamp *ts);
+-- 
+1.8.1.5
+

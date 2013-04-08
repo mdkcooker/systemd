@@ -1,0 +1,60 @@
+From fff15cf1fa5d66aaeb905faf55227843f0dff378 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Tue, 20 Nov 2012 18:07:14 +0100
+Subject: [PATCH 195/205] udev: fix whitespace (cherry picked from commit
+ 3fd0c4c66df45ee457cfb5e4ca8e285914ebc32f)
+
+---
+ src/udev/udev-event.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/src/udev/udev-event.c b/src/udev/udev-event.c
+index 2b9fdf6..68745ea 100644
+--- a/src/udev/udev-event.c
++++ b/src/udev/udev-event.c
+@@ -90,24 +90,24 @@ size_t udev_event_apply_format(struct udev_event *event, const char *src, char *
+                 const char fmt;
+                 enum subst_type type;
+         } map[] = {
+-                { .name = "devnode",        .fmt = 'N',        .type = SUBST_DEVNODE },
+-                { .name = "tempnode",        .fmt = 'N',        .type = SUBST_DEVNODE },
+-                { .name = "attr",        .fmt = 's',        .type = SUBST_ATTR },
+-                { .name = "sysfs",        .fmt = 's',        .type = SUBST_ATTR },
+-                { .name = "env",        .fmt = 'E',        .type = SUBST_ENV },
+-                { .name = "kernel",        .fmt = 'k',        .type = SUBST_KERNEL },
+-                { .name = "number",        .fmt = 'n',        .type = SUBST_KERNEL_NUMBER },
+-                { .name = "driver",        .fmt = 'd',        .type = SUBST_DRIVER },
+-                { .name = "devpath",        .fmt = 'p',        .type = SUBST_DEVPATH },
+-                { .name = "id",                .fmt = 'b',        .type = SUBST_ID },
+-                { .name = "major",        .fmt = 'M',        .type = SUBST_MAJOR },
+-                { .name = "minor",        .fmt = 'm',        .type = SUBST_MINOR },
+-                { .name = "result",        .fmt = 'c',        .type = SUBST_RESULT },
+-                { .name = "parent",        .fmt = 'P',        .type = SUBST_PARENT },
+-                { .name = "name",        .fmt = 'D',        .type = SUBST_NAME },
+-                { .name = "links",        .fmt = 'L',        .type = SUBST_LINKS },
+-                { .name = "root",        .fmt = 'r',        .type = SUBST_ROOT },
+-                { .name = "sys",        .fmt = 'S',        .type = SUBST_SYS },
++                { .name = "devnode",  .fmt = 'N', .type = SUBST_DEVNODE },
++                { .name = "tempnode", .fmt = 'N', .type = SUBST_DEVNODE },
++                { .name = "attr",     .fmt = 's', .type = SUBST_ATTR },
++                { .name = "sysfs",    .fmt = 's', .type = SUBST_ATTR },
++                { .name = "env",      .fmt = 'E', .type = SUBST_ENV },
++                { .name = "kernel",   .fmt = 'k', .type = SUBST_KERNEL },
++                { .name = "number",   .fmt = 'n', .type = SUBST_KERNEL_NUMBER },
++                { .name = "driver",   .fmt = 'd', .type = SUBST_DRIVER },
++                { .name = "devpath",  .fmt = 'p', .type = SUBST_DEVPATH },
++                { .name = "id",       .fmt = 'b', .type = SUBST_ID },
++                { .name = "major",    .fmt = 'M', .type = SUBST_MAJOR },
++                { .name = "minor",    .fmt = 'm', .type = SUBST_MINOR },
++                { .name = "result",   .fmt = 'c', .type = SUBST_RESULT },
++                { .name = "parent",   .fmt = 'P', .type = SUBST_PARENT },
++                { .name = "name",     .fmt = 'D', .type = SUBST_NAME },
++                { .name = "links",    .fmt = 'L', .type = SUBST_LINKS },
++                { .name = "root",     .fmt = 'r', .type = SUBST_ROOT },
++                { .name = "sys",      .fmt = 'S', .type = SUBST_SYS },
+         };
+         const char *from;
+         char *s;
+-- 
+1.8.1.5
+

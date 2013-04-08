@@ -1,0 +1,51 @@
+From 1b910ca501a6d75622eacfeb82bb8ca92c4ed41b Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Tue, 27 Nov 2012 01:09:28 +0100
+Subject: [PATCH 157/204] fstab-generator: make error more helpful in case of
+ duplicates in fstab
+
+Traditional sysvinit systems would not complain about duplicates in
+fstab. Rather it (through monut -a) would mount one fs on top of another,
+in effect the last entry taking precedent.
+
+In systemd, the first entry takes precedent, all subsequent ones are
+ignored and an error is printed.
+
+The change of behavior and the source of this error message was causing
+some confusion, so give a hint what migt be wrong.
+(cherry picked from commit 67ab5f761f9b854d8ce85f9ee47b298e497f8bd9)
+---
+ src/fstab-generator/fstab-generator.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 62053b7..be7eabe 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -111,7 +111,10 @@ static int add_swap(const char *what, struct mntent *me) {
+         f = fopen(unit, "wxe");
+         if (!f) {
+                 r = -errno;
+-                log_error("Failed to create unit file %s: %m", unit);
++                if (errno == EEXIST)
++                        log_error("Failed to create swap unit file %s, as it already exists. Duplicate entry in /etc/fstab?", unit);
++                else
++                        log_error("Failed to create unit file %s: %m", unit);
+                 goto finish;
+         }
+ 
+@@ -262,7 +265,10 @@ static int add_mount(const char *what, const char *where, struct mntent *me) {
+         f = fopen(unit, "wxe");
+         if (!f) {
+                 r = -errno;
+-                log_error("Failed to create unit file %s: %m", unit);
++                if (errno == EEXIST)
++                        log_error("Failed to create mount unit file %s, as it already exists. Duplicate entry in /etc/fstab?", unit);
++                else
++                        log_error("Failed to create unit file %s: %m", unit);
+                 goto finish;
+         }
+ 
+-- 
+1.8.1.5
+

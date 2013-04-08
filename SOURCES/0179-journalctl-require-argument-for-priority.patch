@@ -1,0 +1,28 @@
+From b046293609ecf029cb51b9e44bcf21fdcad11b09 Mon Sep 17 00:00:00 2001
+From: Lekensteyn <lekensteyn@gmail.com>
+Date: Thu, 15 Nov 2012 12:17:03 +0100
+Subject: [PATCH 179/204] journalctl: require argument for --priority
+
+This fixes a segfault due to a missing value for --priority. -p is
+unaffected because it is specified in the getopt_long parameter list.
+(cherry picked from commit 71c015969233c21ea38b1e63993d02fe171df672)
+---
+ src/journal/journalctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index f458f51..1161a0a 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -158,7 +158,7 @@ static int parse_argv(int argc, char *argv[]) {
+                 { "this-boot",    no_argument,       NULL, 'b'              },
+                 { "directory",    required_argument, NULL, 'D'              },
+                 { "header",       no_argument,       NULL, ARG_HEADER       },
+-                { "priority",     no_argument,       NULL, 'p'              },
++                { "priority",     required_argument, NULL, 'p'              },
+                 { "setup-keys",   no_argument,       NULL, ARG_SETUP_KEYS   },
+                 { "interval",     required_argument, NULL, ARG_INTERVAL     },
+                 { "verify",       no_argument,       NULL, ARG_VERIFY       },
+-- 
+1.8.1.5
+

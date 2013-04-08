@@ -1,0 +1,125 @@
+From bb7553c37783b5dff7b8004e43c48df60115a4f6 Mon Sep 17 00:00:00 2001
+From: Alessandro Crismani <alessandro.crismani@gmail.com>
+Date: Wed, 8 Aug 2012 14:19:32 +0200
+Subject: [PATCH 190/205] keymap: Update the list of Samsung Series 9 models
+
+Currently, keymaps are provided only for the NP90X3A laptop. Samsung
+introduced updated models, codenamed 900X3B, 900X3C, 900X4B, 900X4C,
+which are currently not matched by udev rules. This patch includes the
+newer modules in udev rules and move the samsung-n90x3a file defining
+keys to a more generic samsung-series-9 file.
+
+The patch was tested on a 900X4C laptop, and other people reported
+that the rules also work for 900X3B and 900X3C ones.
+(cherry picked from commit 68c77c2f6168dca0ce7b5edb81612cd6be39e63d)
+---
+ Makefile.am                                     | 4 ++--
+ keymaps-force-release/samsung-90x3a             | 6 ------
+ keymaps-force-release/samsung-series-9          | 6 ++++++
+ keymaps/samsung-90x3a                           | 5 -----
+ keymaps/samsung-series-9                        | 5 +++++
+ src/udev/keymap/95-keyboard-force-release.rules | 2 +-
+ src/udev/keymap/95-keymap.rules                 | 2 +-
+ 7 files changed, 15 insertions(+), 15 deletions(-)
+ delete mode 100644 keymaps-force-release/samsung-90x3a
+ create mode 100644 keymaps-force-release/samsung-series-9
+ delete mode 100644 keymaps/samsung-90x3a
+ create mode 100644 keymaps/samsung-series-9
+
+diff --git a/Makefile.am b/Makefile.am
+index ace8f2e..c7e89ec 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -2288,7 +2288,7 @@ dist_udevkeymap_DATA = \
+ 	keymaps/onkyo \
+ 	keymaps/oqo-model2 \
+ 	keymaps/samsung-other \
+-	keymaps/samsung-90x3a \
++	keymaps/samsung-series-9 \
+ 	keymaps/samsung-sq1us \
+ 	keymaps/samsung-sx20s \
+ 	keymaps/toshiba-satellite_a100 \
+@@ -2302,7 +2302,7 @@ dist_udevkeymapforcerel_DATA = \
+ 	keymaps-force-release/dell-xps \
+ 	keymaps-force-release/hp-other \
+ 	keymaps-force-release/samsung-other \
+-	keymaps-force-release/samsung-90x3a \
++	keymaps-force-release/samsung-series-9 \
+ 	keymaps-force-release/common-volume-keys
+ 
+ src/udev/keymap/keys.txt: Makefile
+diff --git a/keymaps-force-release/samsung-90x3a b/keymaps-force-release/samsung-90x3a
+deleted file mode 100644
+index 65707ef..0000000
+--- a/keymaps-force-release/samsung-90x3a
++++ /dev/null
+@@ -1,6 +0,0 @@
+-# list of scancodes (hex or decimal), optional comment
+-0xCE # Fn+F8 keyboard backlit up
+-0x8D # Fn+F7 keyboard backlit down
+-0x97 # Fn+F12 wifi on/off
+-0x96 # Fn+F1 performance mode (?)
+-0xD5 # Fn+F6 battery life extender
+diff --git a/keymaps-force-release/samsung-series-9 b/keymaps-force-release/samsung-series-9
+new file mode 100644
+index 0000000..65707ef
+--- /dev/null
++++ b/keymaps-force-release/samsung-series-9
+@@ -0,0 +1,6 @@
++# list of scancodes (hex or decimal), optional comment
++0xCE # Fn+F8 keyboard backlit up
++0x8D # Fn+F7 keyboard backlit down
++0x97 # Fn+F12 wifi on/off
++0x96 # Fn+F1 performance mode (?)
++0xD5 # Fn+F6 battery life extender
+diff --git a/keymaps/samsung-90x3a b/keymaps/samsung-90x3a
+deleted file mode 100644
+index 3b65735..0000000
+--- a/keymaps/samsung-90x3a
++++ /dev/null
+@@ -1,5 +0,0 @@
+-0x96 kbdillumup         # Fn+F8 keyboard backlit up
+-0x97 kbdillumdown       # Fn+F7 keyboard backlit down
+-0xD5 wlan               # Fn+F12 wifi on/off
+-0xCE prog1              # Fn+F1 performance mode
+-0x8D prog2              # Fn+F6 battery life extender
+diff --git a/keymaps/samsung-series-9 b/keymaps/samsung-series-9
+new file mode 100644
+index 0000000..3b65735
+--- /dev/null
++++ b/keymaps/samsung-series-9
+@@ -0,0 +1,5 @@
++0x96 kbdillumup         # Fn+F8 keyboard backlit up
++0x97 kbdillumdown       # Fn+F7 keyboard backlit down
++0xD5 wlan               # Fn+F12 wifi on/off
++0xCE prog1              # Fn+F1 performance mode
++0x8D prog2              # Fn+F6 battery life extender
+diff --git a/src/udev/keymap/95-keyboard-force-release.rules b/src/udev/keymap/95-keyboard-force-release.rules
+index 39f01a4..f97a022 100644
+--- a/src/udev/keymap/95-keyboard-force-release.rules
++++ b/src/udev/keymap/95-keyboard-force-release.rules
+@@ -19,7 +19,7 @@ DRIVER!="atkbd", GOTO="force_release_end"
+ ENV{DMI_VENDOR}="$attr{[dmi/id]sys_vendor}"
+ 
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", RUN+="keyboard-force-release.sh $devpath samsung-other"
+-ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*90X3A*", RUN+="keyboard-force-release.sh $devpath samsung-90x3a"
++ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*90X3A*|*900X3*|*900X4*", RUN+="keyboard-force-release.sh $devpath samsung-series-9"
+ 
+ ENV{DMI_VENDOR}=="Dell Inc.", ATTR{[dmi/id]product_name}=="Studio 1557|Studio 1558", RUN+="keyboard-force-release.sh $devpath common-volume-keys"
+ ENV{DMI_VENDOR}=="Dell Inc.", ATTR{[dmi/id]product_name}=="Latitude E*|Latitude *U|Precision M*", RUN+="keyboard-force-release.sh $devpath dell-touchpad"
+diff --git a/src/udev/keymap/95-keymap.rules b/src/udev/keymap/95-keymap.rules
+index 144559c..e9522f8 100644
+--- a/src/udev/keymap/95-keymap.rules
++++ b/src/udev/keymap/95-keymap.rules
+@@ -147,7 +147,7 @@ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", RUN+="keymap $name samsung-oth
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*SX20S*", RUN+="keymap $name samsung-sx20s"
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="SQ1US", RUN+="keymap $name samsung-sq1us"
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*700Z*", RUN+="keymap $name 0xBA ejectcd 0x96 keyboardbrightnessup 0x97 keyboardbrightnessdown"
+-ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*90X3A*", RUN+="keymap $name samsung-90x3a"
++ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*90X3A*|*900X3*|*900X4*", RUN+="keymap $name samsung-series-9"
+ 
+ ENV{DMI_VENDOR}=="TOSHIBA", ATTR{[dmi/id]product_name}=="SATELLITE A100", RUN+="keymap $name toshiba-satellite_a100"
+ ENV{DMI_VENDOR}=="TOSHIBA", ATTR{[dmi/id]product_name}=="Satellite A110", RUN+="keymap $name toshiba-satellite_a110"
+-- 
+1.8.1.5
+

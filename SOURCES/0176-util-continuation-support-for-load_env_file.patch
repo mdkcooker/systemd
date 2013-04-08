@@ -1,0 +1,125 @@
+From 3ccc5a68bb273de3fb17543042c44f021b4ddd8f Mon Sep 17 00:00:00 2001
+From: Michal Vyskocil <mvyskocil@suse.cz>
+Date: Fri, 18 Jan 2013 10:05:10 +0100
+Subject: [PATCH 176/204] util: continuation support for load_env_file
+
+Variable definitions can be written on more than one line - if each ends
+with a backslash, then is concatenated with a previous one. Only
+backslash and unix end of line (\n) are treated as a continuation.
+
+Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=58083
+
+[zj: squashed two patches together; cleaned up grammar; removed
+     comment about ignoring trailing backslash -- it is not ignored.]
+
+Document continuation support in systemd.exec
+(cherry picked from commit 565d91fdf198b88f7c2d72c67cfc6c30341a3596)
+---
+ man/systemd.exec.xml |  8 +++++---
+ src/shared/util.c    | 43 ++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 43 insertions(+), 8 deletions(-)
+
+diff --git a/man/systemd.exec.xml b/man/systemd.exec.xml
+index 4ae73e8..a9bb570 100644
+--- a/man/systemd.exec.xml
++++ b/man/systemd.exec.xml
+@@ -282,9 +282,11 @@
+                                 contain new-line separated variable
+                                 assignments. Empty lines and lines
+                                 starting with ; or # will be ignored,
+-                                which may be used for commenting. The
+-                                parser strips leading and
+-                                trailing whitespace from the values
++                                which may be used for commenting. A line
++                                ending with a backslash will be concatenated
++                                with the following one, allowing multiline variable
++                                definitions. The parser strips leading
++                                and trailing whitespace from the values
+                                 of assignments, unless you use
+                                 double quotes (").
+                                 The
+diff --git a/src/shared/util.c b/src/shared/util.c
+index afaac0f..4854b86 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -877,6 +877,8 @@ int load_env_file(
+                 char ***rl) {
+ 
+         FILE *f;
++        char *b;
++        char *c = NULL;
+         char **m = NULL;
+         int r;
+ 
+@@ -887,18 +889,45 @@ int load_env_file(
+                 return -errno;
+ 
+         while (!feof(f)) {
+-                char l[LINE_MAX], *p, *u;
++                char l[LINE_MAX], *p, *u, *cs;
+                 char **t;
+ 
+                 if (!fgets(l, sizeof(l), f)) {
+-                        if (feof(f))
++                        if(!feof(f)) {
++                                r = -errno;
++                                goto finish;
++                        }
++                        else if (!c)
+                                 break;
+ 
+-                        r = -errno;
+-                        goto finish;
+                 }
+ 
+-                p = strstrip(l);
++                cs = endswith(l, "\\\n");
++                if (cs) {
++
++                        *cs = '\0';
++                        b = strappend(c, l);
++                        if (!b) {
++                               r = log_oom();
++                                goto finish;
++                        }
++                        free(c);
++                        c = b;
++                        *l = '\0';
++                        continue;
++                }
++
++                if (c) {
++                        b = strappend(c, l);
++                        if (!b) {
++                                r = log_oom();
++                                goto finish;
++                        }
++                        free(c);
++                        c = b;
++                }
++
++                p = strstrip(c ? c : l);
+ 
+                 if (!*p)
+                         continue;
+@@ -910,6 +939,8 @@ int load_env_file(
+                         r = log_oom();
+                         goto finish;
+                 }
++                free(c);
++                c = NULL;
+ 
+                 t = strv_append(m, u);
+                 free(u);
+@@ -932,6 +963,8 @@ finish:
+         if (f)
+                 fclose(f);
+ 
++        free(c);
++
+         strv_free(m);
+ 
+         return r;
+-- 
+1.8.1.5
+

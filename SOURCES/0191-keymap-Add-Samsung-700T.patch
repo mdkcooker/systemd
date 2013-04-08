@@ -1,0 +1,26 @@
+From 4a2c43fb43b800b26ec7b873256cbc62bed3a139 Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martinpitt@gnome.org>
+Date: Wed, 28 Nov 2012 21:33:26 +0100
+Subject: [PATCH 191/205] keymap: Add Samsung 700T
+
+https://bugzilla.redhat.com/show_bug.cgi?id=879691
+(cherry picked from commit a5dea3d43b3866b48c66d6bef9663cf8372fd96c)
+---
+ src/udev/keymap/95-keymap.rules | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/udev/keymap/95-keymap.rules b/src/udev/keymap/95-keymap.rules
+index e9522f8..8c3d317 100644
+--- a/src/udev/keymap/95-keymap.rules
++++ b/src/udev/keymap/95-keymap.rules
+@@ -147,6 +147,7 @@ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", RUN+="keymap $name samsung-oth
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*SX20S*", RUN+="keymap $name samsung-sx20s"
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="SQ1US", RUN+="keymap $name samsung-sq1us"
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*700Z*", RUN+="keymap $name 0xBA ejectcd 0x96 keyboardbrightnessup 0x97 keyboardbrightnessdown"
++ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*700T*", RUN+="keymap $name 0xAD leftmeta"
+ ENV{DMI_VENDOR}=="[sS][aA][mM][sS][uU][nN][gG]*", ATTR{[dmi/id]product_name}=="*90X3A*|*900X3*|*900X4*", RUN+="keymap $name samsung-series-9"
+ 
+ ENV{DMI_VENDOR}=="TOSHIBA", ATTR{[dmi/id]product_name}=="SATELLITE A100", RUN+="keymap $name toshiba-satellite_a100"
+-- 
+1.8.1.5
+

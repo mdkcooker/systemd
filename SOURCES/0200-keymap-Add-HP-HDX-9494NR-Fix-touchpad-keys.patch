@@ -1,0 +1,26 @@
+From 0105be4c1e688b16f19a78d204b7791975b3fb62 Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martinpitt@gnome.org>
+Date: Mon, 28 Jan 2013 16:21:51 +0100
+Subject: [PATCH 200/205] keymap: Add HP HDX 9494NR: Fix touchpad keys
+
+Previous commit had them the wrong way around.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=757928
+(cherry picked from commit 5b56ba707fcd0242d79264c7064563cc8ad81977)
+---
+ keymaps/hewlett-packard-hdx9494nr | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/keymaps/hewlett-packard-hdx9494nr b/keymaps/hewlett-packard-hdx9494nr
+index f3484e1..9221787 100644
+--- a/keymaps/hewlett-packard-hdx9494nr
++++ b/keymaps/hewlett-packard-hdx9494nr
+@@ -1,3 +1,3 @@
+ 0xB2 www # FnF3
+-0xD8 f22 # touchpad off
+-0xD9 f23 # touchpad on
++0xD8 f23 # touchpad off
++0xD9 f22 # touchpad on
+-- 
+1.8.1.5
+

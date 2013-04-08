@@ -1,0 +1,33 @@
+From 46f1093216f0e04edaa729ce1d4340828d751b8e Mon Sep 17 00:00:00 2001
+From: Oleksii Shevchuk <alxchk@gmail.com>
+Date: Sat, 3 Nov 2012 21:52:02 +0200
+Subject: [PATCH 151/204] core: interpret \; token in ExecStart as escaped ;
+
+Some commands (like 'find') take a semicolon as separate arg. With
+current parser implementation there is no way to pass one.
+
+Patch adds token \;
+(cherry picked from commit 7e1a84f55244ca78093b1dabc58683bc0e7f4304)
+
+Conflicts:
+	src/test/test-unit-file.c
+---
+ src/core/load-fragment.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index 3c12523..950c650 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -483,6 +483,8 @@ int config_parse_exec(
+                 FOREACH_WORD_QUOTED(w, l, rvalue, state) {
+                         if (strncmp(w, ";", MAX(l, 1U)) == 0)
+                                 break;
++                        else if (strncmp(w, "\\;", MAX(l, 1U)) == 0)
++                                w ++;
+ 
+                         if (honour_argv0 && w == rvalue) {
+                                 assert(!path);
+-- 
+1.8.1.5
+

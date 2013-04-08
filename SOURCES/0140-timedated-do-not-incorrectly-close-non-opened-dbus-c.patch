@@ -1,0 +1,43 @@
+From 3c5bd379aafabcd50d018d5183a250113ccaf286 Mon Sep 17 00:00:00 2001
+From: Shawn Landden <shawnlandden@gmail.com>
+Date: Mon, 3 Dec 2012 00:50:55 +0000
+Subject: [PATCH 140/204] timedated: do not incorrectly close non-opened dbus
+ connection
+
+Fix the fallowing error when no system dbus available:
+
+Failed to get system D-Bus connection: Failed to connect to socket /var/run/dbus/system_bus_socket: No such file or directory
+process 14920: arguments to dbus_connection_close() were incorrect, assertion "connection != NULL" failed in file ../../dbus/dbus-connection.c line 2889.
+This is normally a bug in some application using the D-Bus library.
+process 14920: arguments to dbus_connection_unref() were incorrect, assertion "connection != NULL" failed in file ../../dbus/dbus-connection.c line 2776.
+This is normally a bug in some application using the D-Bus library.
+(cherry picked from commit b779821b8fdcb3f2bdd0c362bceaae3c76ed9678)
+---
+ src/timedate/timedated.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/timedate/timedated.c b/src/timedate/timedated.c
+index 40ba255..784dadc 100644
+--- a/src/timedate/timedated.c
++++ b/src/timedate/timedated.c
+@@ -936,7 +936,7 @@ static int connect_bus(DBusConnection **_bus) {
+         if (!bus) {
+                 log_error("Failed to get system D-Bus connection: %s", bus_error_message(&error));
+                 r = -ECONNREFUSED;
+-                goto fail;
++                goto fail2;
+         }
+ 
+         dbus_connection_set_exit_on_disconnect(bus, FALSE);
+@@ -968,7 +968,7 @@ static int connect_bus(DBusConnection **_bus) {
+ fail:
+         dbus_connection_close(bus);
+         dbus_connection_unref(bus);
+-
++fail2:
+         dbus_error_free(&error);
+ 
+         return r;
+-- 
+1.8.1.5
+

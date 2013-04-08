@@ -1,0 +1,30 @@
+From fd451f307b70a335b3fe2eaf9a3b95e2d0d3c2e9 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sun, 28 Oct 2012 17:37:16 +0100
+Subject: [PATCH 136/204] logind: it's OK if a process on an pty requests a
+ session for seat0
+
+After all, if a sudo/su inside an X terminal should get added to the
+same session as the X session itself.
+(cherry picked from commit 978cf3c75fbd94fd0e046206ada6169b35edd919)
+---
+ src/login/logind-dbus.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index a7647e3..3a8ee5f 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -409,8 +409,7 @@ static int bus_manager_create_session(Manager *m, DBusMessage *message, DBusMess
+                 if (vtnr != 0)
+                         return -EINVAL;
+ 
+-        } else if (!isempty(tty) && s && seat_is_vtconsole(s))
+-                return -EINVAL;
++        }
+ 
+         if (s) {
+                 if (seat_can_multi_session(s)) {
+-- 
+1.8.1.5
+

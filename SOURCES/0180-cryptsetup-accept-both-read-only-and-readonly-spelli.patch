@@ -1,0 +1,49 @@
+From 16b2643bff8936f1de8e2c1cac5f799925944b97 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Thu, 31 Jan 2013 11:03:09 +0100
+Subject: [PATCH 180/204] cryptsetup: accept both "read-only" and "readonly"
+ spellings
+
+Mukund Sivaraman pointed out that cryptsetup(5) mentions the "read-only"
+option, while the code understands "readonly".
+
+We could just fix the manpage, but for consistency in naming of
+multi-word options it would be prettier to have "read-only". So let's
+accept both spellings.
+
+BZ: https://bugzilla.redhat.com/show_bug.cgi?id=903463
+(cherry picked from commit 18cf1a1be5ae6985f211ec6f02504506da36b223)
+---
+ man/crypttab.xml            | 2 +-
+ src/cryptsetup/cryptsetup.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/man/crypttab.xml b/man/crypttab.xml
+index 2a83994..b80757b 100644
+--- a/man/crypttab.xml
++++ b/man/crypttab.xml
+@@ -182,7 +182,7 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
+-                                <term><varname>read-only</varname></term>
++                                <term><varname>read-only</varname></term><term><varname>readonly</varname></term>
+ 
+                                 <listitem><para>Set up the encrypted
+                                 block device in read-only
+diff --git a/src/cryptsetup/cryptsetup.c b/src/cryptsetup/cryptsetup.c
+index c909da4..82c46cf 100644
+--- a/src/cryptsetup/cryptsetup.c
++++ b/src/cryptsetup/cryptsetup.c
+@@ -111,7 +111,7 @@ static int parse_one_option(const char *option) {
+                         return 0;
+                 }
+ 
+-        } else if (streq(option, "readonly"))
++        } else if (streq(option, "readonly") || streq(option, "read-only"))
+                 opt_readonly = true;
+         else if (streq(option, "verify"))
+                 opt_verify = true;
+-- 
+1.8.1.5
+

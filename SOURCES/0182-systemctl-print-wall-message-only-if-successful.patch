@@ -1,0 +1,29 @@
+From f8085503c1d87211c356681fcd28134db8e532f1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 14 Feb 2013 14:08:09 -0500
+Subject: [PATCH 182/204] systemctl: print wall message only if successful
+
+systemctl would write to the wall even if unsuccessful.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=60393
+(cherry picked from commit f6bb13ab8db51aaedc825fec2f0458b60309b27a)
+---
+ src/systemctl/systemctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 7b1a21a..ad5e076 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -1822,7 +1822,7 @@ static int start_special(DBusConnection *bus, char **args) {
+         }
+ 
+         r = start_unit(bus, args);
+-        if (r >= 0)
++        if (r == EXIT_SUCCESS)
+                 warn_wall(a);
+ 
+         return r;
+-- 
+1.8.1.5
+

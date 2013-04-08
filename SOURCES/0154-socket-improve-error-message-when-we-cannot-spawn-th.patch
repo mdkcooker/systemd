@@ -1,0 +1,27 @@
+From 42ab2b9bdff53f5f8f642d1d877435db4d32a06b Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 20 Nov 2012 00:19:00 +0100
+Subject: [PATCH 154/204] socket: improve error message when we cannot spawn
+ the socket's service unit (cherry picked from commit
+ 10f70492aea211981e4bdbe58dd7ea110e05cd16)
+
+---
+ src/core/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 71cdf2d..54377d6 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -1510,7 +1510,7 @@ static void socket_enter_running(Socket *s, int cfd) {
+         return;
+ 
+ fail:
+-        log_warning("%s failed to queue socket startup job: %s", UNIT(s)->id, bus_error(&error, r));
++        log_warning("%s failed to queue service startup job (Maybe the service file is missing or not a %s unit?): %s", UNIT(s)->id, cfd >= 0 ? "template" : "non-template", bus_error(&error, r));
+         socket_enter_stop_pre(s, SOCKET_FAILURE_RESOURCES);
+ 
+         if (cfd >= 0)
+-- 
+1.8.1.5
+

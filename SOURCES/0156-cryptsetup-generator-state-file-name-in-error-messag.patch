@@ -1,0 +1,35 @@
+From 58e12a2e3809196e00ad910749eb1b5209881a15 Mon Sep 17 00:00:00 2001
+From: Michal Schmidt <mschmidt@redhat.com>
+Date: Fri, 23 Nov 2012 14:16:39 +0100
+Subject: [PATCH 156/204] cryptsetup-generator: state file name in error
+ messages (cherry picked from commit 1cda32b8a29750720872d3525084ac67b88e066f)
+
+---
+ src/cryptsetup/cryptsetup-generator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/cryptsetup/cryptsetup-generator.c b/src/cryptsetup/cryptsetup-generator.c
+index 386714b..90a7602 100644
+--- a/src/cryptsetup/cryptsetup-generator.c
++++ b/src/cryptsetup/cryptsetup-generator.c
+@@ -112,7 +112,7 @@ static int create_disk(
+         f = fopen(p, "wxe");
+         if (!f) {
+                 r = -errno;
+-                log_error("Failed to create unit file: %m");
++                log_error("Failed to create unit file %s: %m", p);
+                 goto fail;
+         }
+ 
+@@ -164,7 +164,7 @@ static int create_disk(
+ 
+         if (ferror(f)) {
+                 r = -errno;
+-                log_error("Failed to write file: %m");
++                log_error("Failed to write file %s: %m", p);
+                 goto fail;
+         }
+ 
+-- 
+1.8.1.5
+

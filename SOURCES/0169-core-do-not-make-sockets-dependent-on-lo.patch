@@ -1,0 +1,28 @@
+From adb7b78e9378018f1ad4a9a94fdf25938522c508 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Bartoszkiewicz?= <mbartoszkiewicz@gmail.com>
+Date: Sat, 12 Jan 2013 23:05:52 +0100
+Subject: [PATCH 169/204] core: do not make sockets dependent on lo
+
+/sys/subsystem/net/devices/lo is never considered active, so sockets
+with BindToDevice=lo would never be activated.
+(cherry picked from commit 7d0c710d72f8a6e5c6909c65700aa088c53aebc6)
+---
+ src/core/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 5acf653..fcfbf7b 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -293,7 +293,7 @@ static int socket_add_device_link(Socket *s) {
+ 
+         assert(s);
+ 
+-        if (!s->bind_to_device)
++        if (!s->bind_to_device || streq(s->bind_to_device, "lo"))
+                 return 0;
+ 
+         if (asprintf(&t, "/sys/subsystem/net/devices/%s", s->bind_to_device) < 0)
+-- 
+1.8.1.5
+

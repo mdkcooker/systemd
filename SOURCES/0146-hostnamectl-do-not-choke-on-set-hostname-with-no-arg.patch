@@ -1,0 +1,28 @@
+From 8df17985bb0179519f24d998cbc8d20f6767efe5 Mon Sep 17 00:00:00 2001
+From: Kay Sievers <kay@vrfy.org>
+Date: Mon, 29 Oct 2012 20:54:26 +0100
+Subject: [PATCH 146/204] hostnamectl: do not choke on set-hostname with no
+ argument
+
+https://bugzilla.redhat.com/show_bug.cgi?id=871172
+(cherry picked from commit f36d7992ef9588e24feaae5bb3d103ca63af71bd)
+---
+ src/hostname/hostnamectl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/hostname/hostnamectl.c b/src/hostname/hostnamectl.c
+index 1d448bd..e7b2b49 100644
+--- a/src/hostname/hostnamectl.c
++++ b/src/hostname/hostnamectl.c
+@@ -430,7 +430,7 @@ static int hostnamectl_main(DBusConnection *bus, int argc, char *argv[], DBusErr
+                 int (* const dispatch)(DBusConnection *bus, char **args, unsigned n);
+         } verbs[] = {
+                 { "status",              LESS,   1, show_status         },
+-                { "set-hostname",        LESS,   2, set_hostname        },
++                { "set-hostname",        EQUAL,  2, set_hostname        },
+                 { "set-icon-name",       EQUAL,  2, set_icon_name       },
+         };
+ 
+-- 
+1.8.1.5
+

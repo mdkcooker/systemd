@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 18
+Release:	%mkrel 19
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -72,6 +72,83 @@ Patch129: 0129-tmpfiles-introduce-type-X.patch
 Patch130: 0130-tmpfiles-exclude-tmp-systemd-private-from-cleanup.patch
 Patch131: 0131-tmpfiles-exclude-var-tmp-systemd-private-too.patch
 Patch132: 0132-man-mention-that-PrivateTmp-means-var-tmp-too.patch
+Patch133: 0133-service-properly-signal-permanent-failure-of-a-servi.patch
+Patch134: 0134-pam-properly-handle-SSH-logins-lacking-the-PAM-tty-f.patch
+Patch135: 0135-pam_systemd-new-option-for-the-session-class.patch
+Patch136: 0136-logind-it-s-OK-if-a-process-on-an-pty-requests-a-ses.patch
+Patch137: 0137-systemd-mount-the-EFI-variable-filesystem.patch
+Patch138: 0138-shutdown-don-t-consider-umounting-of-and-usr-failed.patch
+Patch139: 0139-readahead-properly-detect-btrfs-on-SSD.patch
+Patch140: 0140-timedated-do-not-incorrectly-close-non-opened-dbus-c.patch
+Patch141: 0141-journalctl-remove-left-over-log-message.patch
+Patch142: 0142-journal-properly-determine-cutoff-max-date.patch
+Patch143: 0143-units-reword-rescue-mode-hints.patch
+Patch144: 0144-util-fix-possible-integer-overflows.patch
+Patch145: 0145-swap-fix-swap-behaviour-with-symlinks.patch
+Patch146: 0146-hostnamectl-do-not-choke-on-set-hostname-with-no-arg.patch
+Patch147: 0147-cryptsetup-hash-plain-means-don-t-use-a-hash.patch
+Patch148: 0148-fstab-generator-more-specific-error-messages.patch
+Patch149: 0149-delta.c-fix-option-t.patch
+Patch150: 0150-systemd-highlight-ordering-cycle-deletions.patch
+Patch151: 0151-core-interpret-token-in-ExecStart-as-escaped.patch
+Patch152: 0152-hostnamectl-fix-parsing-of-no-ask-password.patch
+Patch153: 0153-core-load-fragment-be-more-precise-in-error-messages.patch
+Patch154: 0154-socket-improve-error-message-when-we-cannot-spawn-th.patch
+Patch155: 0155-cryptsetup-fix-nofail-support.patch
+Patch156: 0156-cryptsetup-generator-state-file-name-in-error-messag.patch
+Patch157: 0157-fstab-generator-make-error-more-helpful-in-case-of-d.patch
+Patch158: 0158-systemctl-verbose-message-on-missing-Install.patch
+Patch159: 0159-shutdown-downgrade-a-warning.patch
+Patch160: 0160-path-util-set-pointer-to-null-after-calling-free.patch
+Patch161: 0161-coredumpctl-check-return-of-strndup.patch
+Patch162: 0162-socket-Too-many-incoming-connections.patch
+Patch163: 0163-fstab-generator-properly-detect-bind-mounts.patch
+Patch164: 0164-localectl-support-systems-without-locale-archive.patch
+Patch165: 0165-logind-Capability-of-making-seats-without-framebuffe.patch
+Patch166: 0166-service-for-Type-forking-services-ignore-exit-status.patch
+Patch167: 0167-logind-ignore-non-tty-non-x11-session-when-checking-.patch
+Patch168: 0168-journalctl-quit-on-I-O-error.patch
+Patch169: 0169-core-do-not-make-sockets-dependent-on-lo.patch
+Patch170: 0170-umount-fix-check-for-DM-changed.patch
+Patch171: 0171-shutdown-umount-logging-improvements.patch
+Patch172: 0172-shutdown-umount-use-verbs-consistently.patch
+Patch173: 0173-shutdown-in-the-final-umount-loop-don-t-use-MNT_FORC.patch
+Patch174: 0174-shutdown-ignore-loop-devices-without-a-backing-file.patch
+Patch175: 0175-util-fix-bad-memory-access.patch
+Patch176: 0176-util-continuation-support-for-load_env_file.patch
+Patch177: 0177-tmpfiles-introduce-type-X.patch
+Patch178: 0178-job-fix-merging-with-ignore-dependencies.patch
+Patch179: 0179-journalctl-require-argument-for-priority.patch
+Patch180: 0180-cryptsetup-accept-both-read-only-and-readonly-spelli.patch
+Patch181: 0181-shutdown-issue-a-sync-as-soon-as-shutdown.target-is-.patch
+Patch182: 0182-systemctl-print-wall-message-only-if-successful.patch
+Patch183: 0183-journal-introduce-entry-array-chain-cache.patch
+Patch184: 0184-completion-fix-typo-in-accessing-array-index.patch
+Patch185: 0185-bash-completion-add-minimal-udevadm-support.patch
+Patch186: 0186-bash-completion-avoid-usage-of-ls-for-listing-device.patch
+Patch187: 0187-logind-support-for-hybrid-sleep-i.e.-suspend-hiberna.patch
+Patch188: 0188-fstab-mount-detect-rbind-as-bind-mount.patch
+Patch189: 0189-udev-path_id-handle-Hyper-V-devices.patch
+Patch190: 0190-keymap-Update-the-list-of-Samsung-Series-9-models.patch
+Patch191: 0191-keymap-Add-Samsung-700T.patch
+Patch192: 0192-libudev-avoid-leak-during-realloc-failure.patch
+Patch193: 0193-libudev-do-not-resolve-attr-device-symlinks.patch
+Patch194: 0194-libudev-validate-udev-argument-to-udev_enumerate_new.patch
+Patch195: 0195-udev-fix-whitespace.patch
+Patch196: 0196-udev-use-usec_t-and-now.patch
+Patch197: 0197-udev-properly-handle-symlink-removal-by-change-event.patch
+Patch198: 0198-keymap-Add-HP-EliteBook-8440p.patch
+Patch199: 0199-keymap-Add-HP-HDX-9494NR.patch
+Patch200: 0200-keymap-Add-HP-HDX-9494NR-Fix-touchpad-keys.patch
+Patch201: 0201-udev-Fix-device-matching-in-the-accelerometer.patch
+Patch202: 0202-udev-usb_id-ignore-non-ASCII-serial-numbers.patch
+Patch203: 0203-udev-usb_id-parse-only-size-bytes-of-the-descriptors.patch
+Patch204: 0204-cdrom_id-add-data-track-count-for-bad-virtual-drive-.patch
+Patch205: 0205-udev-expose-new-ISO9660-properties-from-libblkid.patch
+Patch206: 0206-shared-add-is_efiboot.patch
+Patch207: 0207-kmod-setup-add-conditional-module-loading-callback.patch
+Patch208: 0208-kmod-setup-mounting-efivarfs-after-we-tried-to-mount.patch
+Patch209: 0209-mount-setup-try-mounting-efivarfs-only-if-the-system.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -84,6 +161,7 @@ Patch505: 0505-Allow-booting-from-live-cd-in-virtualbox.patch
 Patch506: 0506-reinstate-TIMEOUT-handling.patch
 Patch507: 0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch508: 0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
+Patch509: 0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
 
 # (cjw) revert commit 97595710b77aa162ca5e20da57d0a1ed7355eaad that breaks network interface renaming
 # (cg) This is done for mga3, but will be removed for mga4 when we will switch

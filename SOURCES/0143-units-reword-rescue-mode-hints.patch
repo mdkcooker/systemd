@@ -1,0 +1,31 @@
+From 456156d6cedc76c3cbc819bbaa7addc3cfeb49f1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 23 Oct 2012 16:32:12 +0200
+Subject: [PATCH 143/204] units: reword rescue mode hints
+
+Do not suggest to the user that commands can be issued before
+logging in.
+
+sulogin prints it own message, which mentions ^D, so there's no need
+to repeat it here.
+(cherry picked from commit aa6eba407be2c23882bf41a1beafbbd1352f7ab3)
+---
+ units/emergency.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/units/emergency.service.in b/units/emergency.service.in
+index 1815f9d..129a831 100644
+--- a/units/emergency.service.in
++++ b/units/emergency.service.in
+@@ -16,7 +16,7 @@ Before=shutdown.target
+ Environment=HOME=/root
+ WorkingDirectory=/root
+ ExecStartPre=-/bin/plymouth quit
+-ExecStartPre=-/bin/echo -e 'Welcome to emergency mode! Type "systemctl default" or ^D to enter default mode.\\nType "journalctl -b" to view system logs. Type "systemctl reboot" to reboot.'
++ExecStartPre=-/bin/echo -e 'Welcome to emergency mode! After logging in, type "journalctl -b" to view\\nsystem logs, "systemctl reboot" to reboot, "systemctl default" to try again\\nto boot into default mode.'
+ ExecStart=-/sbin/sulogin
+ ExecStopPost=@SYSTEMCTL@ --fail --no-block default
+ Type=idle
+-- 
+1.8.1.5
+
