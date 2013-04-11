@@ -151,6 +151,11 @@ Patch206: 0206-shared-add-is_efiboot.patch
 Patch207: 0207-kmod-setup-add-conditional-module-loading-callback.patch
 Patch208: 0208-kmod-setup-mounting-efivarfs-after-we-tried-to-mount.patch
 Patch209: 0209-mount-setup-try-mounting-efivarfs-only-if-the-system.patch
+Patch210: 0210-udevd-add-missing-to-getopt_long-e.patch
+Patch211: 0211-udev-builtin-do-not-fail-builtin-initialization-if-o.patch
+Patch212: 0212-udev-use-unique-names-for-temporary-files-created-in.patch
+Patch213: 0213-cryptsetup-fix-inverted-comparison-in-pass_volume_ke.patch
+Patch214: 0214-journal-special-case-the-trivial-cache-chain-cache-e.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)

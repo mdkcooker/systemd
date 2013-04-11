@@ -1,0 +1,28 @@
+From e6f5697834951602c1ad04d8b92554c7c0943673 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Wed, 19 Dec 2012 13:12:26 +0100
+Subject: [PATCH 210/214] udevd: add missing ':' to getopt_long 'e'
+
+Parameter -e is set without additional argument in getopt
+and this leads to segfault when calling 'systemd-udevd -e'.
+(cherry picked from commit 5bbbe461fd4d133eac49f41210e2fd4846f577d8)
+---
+ src/udev/udevd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/udev/udevd.c b/src/udev/udevd.c
+index b69f3f8..e67dada 100644
+--- a/src/udev/udevd.c
++++ b/src/udev/udevd.c
+@@ -1097,7 +1097,7 @@ int main(int argc, char *argv[])
+         for (;;) {
+                 int option;
+ 
+-                option = getopt_long(argc, argv, "c:deDtN:hV", options, NULL);
++                option = getopt_long(argc, argv, "c:de:DtN:hV", options, NULL);
+                 if (option == -1)
+                         break;
+ 
+-- 
+1.8.1.5
+
