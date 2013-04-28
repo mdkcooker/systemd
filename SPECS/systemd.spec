@@ -459,7 +459,6 @@ rm -f %{buildroot}%{_prefix}/lib/sysctl.d/coredump.conf
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/basic.target.wants
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/default.target.wants
-mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/dbus.target.wants
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/system/syslog.target.wants
 
 # And the default symlink we generate automatically based on inittab
