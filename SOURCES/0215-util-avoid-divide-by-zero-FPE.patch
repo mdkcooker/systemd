@@ -1,0 +1,31 @@
+From 5e55c997a9527ec30b16a3fa472b73cdcd52a704 Mon Sep 17 00:00:00 2001
+From: Dave Reisner <dreisner@archlinux.org>
+Date: Mon, 29 Oct 2012 15:49:34 -0400
+Subject: [PATCH 215/216] util: avoid divide by zero FPE
+
+In early userspace, if kernel initialization happens extremely quickly,
+a call to systemd-timestamp can potentially result in division by zero.
+Ensure that the check in timespec_load, which only makes sense if tv_sec
+is greater than zero, is guarded by this condition.
+(cherry picked from commit 49371bb50e0fe6e9e90309a20006bcfd9e2fa8f4)
+---
+ src/shared/util.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 4e75c98..d813834 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -152,7 +152,8 @@ usec_t timespec_load(const struct timespec *ts) {
+             ts->tv_nsec == (long) -1)
+                 return (usec_t) -1;
+ 
+-        if (USEC_PER_SEC > ((UINT64_MAX - (ts->tv_nsec / NSEC_PER_USEC)) / (usec_t) ts->tv_sec))
++        if (ts->tv_sec > 0 &&
++            USEC_PER_SEC > ((UINT64_MAX - (ts->tv_nsec / NSEC_PER_USEC)) / (usec_t) ts->tv_sec))
+                 return (usec_t) -1;
+ 
+         return
+-- 
+1.8.1.5
+
