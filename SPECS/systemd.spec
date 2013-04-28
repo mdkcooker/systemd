@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 20
+Release:	%mkrel 21
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -135,10 +135,8 @@ Patch192: 0192-libudev-avoid-leak-during-realloc-failure.patch
 Patch193: 0193-libudev-do-not-resolve-attr-device-symlinks.patch
 Patch194: 0194-libudev-validate-udev-argument-to-udev_enumerate_new.patch
 Patch195: 0195-udev-fix-whitespace.patch
-# (cg) The following patch causes Floating point exceptions... (mga#9689)
-#Patch196: 0196-udev-use-usec_t-and-now.patch
-# (cg) And this patch depends on the above...
-#Patch197: 0197-udev-properly-handle-symlink-removal-by-change-event.patch
+Patch196: 0196-udev-use-usec_t-and-now.patch
+Patch197: 0197-udev-properly-handle-symlink-removal-by-change-event.patch
 Patch198: 0198-keymap-Add-HP-EliteBook-8440p.patch
 Patch199: 0199-keymap-Add-HP-HDX-9494NR.patch
 Patch200: 0200-keymap-Add-HP-HDX-9494NR-Fix-touchpad-keys.patch
@@ -156,6 +154,8 @@ Patch211: 0211-udev-builtin-do-not-fail-builtin-initialization-if-o.patch
 Patch212: 0212-udev-use-unique-names-for-temporary-files-created-in.patch
 Patch213: 0213-cryptsetup-fix-inverted-comparison-in-pass_volume_ke.patch
 Patch214: 0214-journal-special-case-the-trivial-cache-chain-cache-e.patch
+Patch215: 0215-util-avoid-divide-by-zero-FPE.patch
+Patch216: 0216-util-improve-overflow-checks.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
