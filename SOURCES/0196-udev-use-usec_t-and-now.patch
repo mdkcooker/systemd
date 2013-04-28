@@ -1,7 +1,7 @@
-From 184e75e5862a29139a61a28a4eef1023056cce41 Mon Sep 17 00:00:00 2001
+From b448eb980dcb14de9547534488bd409a3b76683b Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Sun, 11 Nov 2012 20:45:05 +0100
-Subject: [PATCH 196/214] udev: use usec_t and now() (cherry picked from commit
+Subject: [PATCH 196/205] udev: use usec_t and now() (cherry picked from commit
  40fe8b11be9c1a1b38b91db097a5d6ebfa99304c)
 
 Conflicts:
@@ -11,14 +11,14 @@ Conflicts:
  TODO                                 |  1 -
  src/libudev/libudev-device-private.c |  2 +-
  src/libudev/libudev-device.c         | 14 +++++++-------
- src/libudev/libudev-private.h        |  7 +++----
+ src/libudev/libudev-private.h        |  7 ++++---
  src/libudev/libudev-util.c           | 17 -----------------
  src/udev/udev-event.c                | 12 ++++++------
  src/udev/udev-rules.c                |  6 +++---
  src/udev/udev.h                      |  4 ++--
  src/udev/udevadm-settle.c            | 12 ++++++------
  src/udev/udevd.c                     | 16 ++++++++--------
- 10 files changed, 36 insertions(+), 55 deletions(-)
+ 10 files changed, 37 insertions(+), 54 deletions(-)
 
 diff --git a/TODO b/TODO
 index bdd2d43..3d202e7 100644
@@ -105,10 +105,18 @@ index 8ae5297..6d2762d 100644
  }
  
 diff --git a/src/libudev/libudev-private.h b/src/libudev/libudev-private.h
-index 2add8b3..7ecc95a 100644
+index 2add8b3..2e6069b 100644
 --- a/src/libudev/libudev-private.h
 +++ b/src/libudev/libudev-private.h
-@@ -48,6 +48,7 @@ struct udev_list_entry *udev_get_properties_list_entry(struct udev *udev);
+@@ -41,13 +41,14 @@ void udev_log(struct udev *udev,
+               int priority, const char *file, int line, const char *fn,
+               const char *format, ...)
+               __attribute__((format(printf, 6, 7)));
+-int udev_get_rules_path(struct udev *udev, char **path[], unsigned long long *ts_usec[]);
++int udev_get_rules_path(struct udev *udev, char **path[], usec_t *ts_usec[]);
+ struct udev_list_entry *udev_add_property(struct udev *udev, const char *key, const char *value);
+ struct udev_list_entry *udev_get_properties_list_entry(struct udev *udev);
+ 
  /* libudev-device.c */
  struct udev_device *udev_device_new(struct udev *udev);
  mode_t udev_device_get_devnode_mode(struct udev_device *udev_device);
@@ -127,14 +135,6 @@ index 2add8b3..7ecc95a 100644
  int udev_device_get_devlink_priority(struct udev_device *udev_device);
  int udev_device_set_devlink_priority(struct udev_device *udev_device, int prio);
  int udev_device_get_watch_handle(struct udev_device *udev_device);
-@@ -165,7 +166,5 @@ uid_t util_lookup_user(struct udev *udev, const char *user);
- gid_t util_lookup_group(struct udev *udev, const char *group);
- int util_resolve_subsys_kernel(struct udev *udev, const char *string,
-                                       char *result, size_t maxsize, int read_value);
--unsigned long long ts_usec(const struct timespec *ts);
--unsigned long long now_usec(void);
- ssize_t print_kmsg(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
- #endif
 diff --git a/src/libudev/libudev-util.c b/src/libudev/libudev-util.c
 index b1c1130..b609857 100644
 --- a/src/libudev/libudev-util.c
