@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	195
-Release:	%mkrel 21
+Release:	%mkrel 22
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -156,6 +156,7 @@ Patch213: 0213-cryptsetup-fix-inverted-comparison-in-pass_volume_ke.patch
 Patch214: 0214-journal-special-case-the-trivial-cache-chain-cache-e.patch
 Patch215: 0215-util-avoid-divide-by-zero-FPE.patch
 Patch216: 0216-util-improve-overflow-checks.patch
+Patch217: 0217-journal-Set-the-default-keep-free-value-to-15-up-fro.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
