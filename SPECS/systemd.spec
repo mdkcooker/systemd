@@ -408,7 +408,7 @@ install -p -m 0755 %{SOURCE52} %{buildroot}%{_prefix}/lib/udev/
 
 # (cg) Just because I'm lazy while testing this....
 # TODO deprecate nss-myhostname package
-rm -f %{buildroot}/usr/lib64/libnss_myhostname.so.2 %{buildroot}/usr/share/man/man8/nss-myhostname.*
+rm -f %{buildroot}%{_libdir}/libnss_myhostname.so.2 %{buildroot}/usr/share/man/man8/nss-myhostname.*
 # (cg) We've not decided on this yet, but it'll likely be enabled "soon"
 rm -f %{buildroot}%{_prefix}/lib/udev/rules.d/80-net-name-slot.rules
 
