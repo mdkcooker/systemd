@@ -1,6 +1,8 @@
---- systemd-188/src/udev/udev-event.c.network-interface-renaming	2012-08-01 19:53:23.683028861 +0200
-+++ systemd-188/src/udev/udev-event.c	2012-08-22 22:58:26.384241741 +0200
-@@ -745,11 +745,17 @@
+diff --git a/src/udev/udev-event.c b/src/udev/udev-event.c
+index efd9b6d..36d63d7 100644
+--- a/src/udev/udev-event.c
++++ b/src/udev/udev-event.c
+@@ -745,11 +745,17 @@ out:
          return err;
  }
  
@@ -18,9 +20,9 @@
          int err;
  
          log_debug("changing net interface name from '%s' to '%s'\n",
-@@ -766,12 +772,48 @@
-         util_strscpy(ifr.ifr_name, IFNAMSIZ, udev_device_get_sysname(dev));
-         util_strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
+@@ -766,12 +772,48 @@ static int rename_netif(struct udev_event *event)
+         strscpy(ifr.ifr_name, IFNAMSIZ, udev_device_get_sysname(dev));
+         strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
          err = ioctl(sk, SIOCSIFNAME, &ifr);
 -        if (err >= 0) {
 -                print_kmsg("renamed network interface %s to %s\n", ifr.ifr_name, ifr.ifr_newname);
@@ -50,8 +52,8 @@
 +	rename_netif_kernel_log(ifr);
 +
 +	/* wait a maximum of 90 seconds for our target to become available */
-+	util_strscpy(ifr.ifr_name, IFNAMSIZ, ifr.ifr_newname);
-+	util_strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
++	strscpy(ifr.ifr_name, IFNAMSIZ, ifr.ifr_newname);
++	strscpy(ifr.ifr_newname, IFNAMSIZ, event->name);
 +	loop = 90 * 20;
 +	while (loop--) {
 +		const struct timespec duration = { 0, 1000 * 1000 * 1000 / 20 };

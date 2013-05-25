@@ -1,7 +1,7 @@
-From 772e877ca326a2d9c28f892d88835ff7b5e222b9 Mon Sep 17 00:00:00 2001
+From c7fe4ce9655990776590f96affbb5a4e15a47919 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 8 Mar 2012 21:56:11 +0000
-Subject: [PATCH 503/509] mageia: Fallback message when display manager fails.
+Subject: [PATCH 503/508] mageia: Fallback message when display manager fails.
 
 Provide a unit for displaying a message to the user when the
 display manager fails. This can be when no dm application is
@@ -17,37 +17,29 @@ v2: Use agetty rather than mingetty + quit plymouth + don't wait for
 v3: Use Type=idle now available upstream
 v4: Add back the prefdm.service script removed in v188
 ---
- Makefile.am                                  |  6 +++++-
+ Makefile.am                                  |  5 +++++
  units/mageia/display-manager-failure.service | 30 ++++++++++++++++++++++++++++
  units/mageia/prefdm.service                  | 16 +++++++++++++++
- 3 files changed, 51 insertions(+), 1 deletion(-)
+ 3 files changed, 51 insertions(+)
  create mode 100644 units/mageia/display-manager-failure.service
  create mode 100644 units/mageia/prefdm.service
 
 diff --git a/Makefile.am b/Makefile.am
-index da0b6f5..310e79b 100644
+index 3a196a6..f04aa6b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -416,6 +416,8 @@ endif
+@@ -513,6 +513,11 @@ EXTRA_DIST += \
+ 	units/rc-local.service.in \
+ 	units/halt-local.service.in
  
- if TARGET_MAGEIA
- dist_systemunit_DATA += \
++# Just for Mageia for now until we switch to new methods of starting the appropriate DM
++dist_systemunit_DATA += \
 +	units/mageia/prefdm.service \
-+	units/mageia/display-manager-failure.service \
- 	units/fedora/rc-local.service \
- 	units/fedora/halt-local.service
- systemgenerator_PROGRAMS += \
-@@ -3615,7 +3617,9 @@ endif
- 
- if TARGET_MAGEIA
- 	( cd $(DESTDIR)$(systemunitdir) && \
--		rm -f display-manager.service )
-+		rm -f display-manager.service && \
-+		$(LN_S) prefdm.service display-manager.service && \
-+		$(LN_S) prefdm.service dm.service )
- endif
- 
- install-exec-hook: $(INSTALL_EXEC_HOOKS)
++	units/mageia/display-manager-failure.service
++
+ dist_doc_DATA = \
+ 	README \
+ 	NEWS \
 diff --git a/units/mageia/display-manager-failure.service b/units/mageia/display-manager-failure.service
 new file mode 100644
 index 0000000..3a79ba5
@@ -107,5 +99,5 @@ index 0000000..a2545e4
 +RestartSec=0
 +IgnoreSIGPIPE=no
 -- 
-1.7.11.4
+1.8.1.5
 
