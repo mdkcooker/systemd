@@ -1,0 +1,90 @@
+From 8a8f92a1600ea5a5c1702de91e25ae0e9aefa0fa Mon Sep 17 00:00:00 2001
+From: Zachary Cook <zachcook1991@gmail.com>
+Date: Mon, 13 May 2013 18:00:37 -0400
+Subject: [PATCH 120/160] systemd: record efi timestamps after /sys is mounted
+
+This partially reverts commit c3a170f3, which moved
+efi_get_boot_timestamps too early in main(), before
+/sys is assured to be mounted
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=64371
+
+[tomegun: in particular /sys/firmware/efi/efivars needs to be
+mounted, which is not a problem if a systemd-initramfs containing
+the correct module is being used. But not everyone uses an
+initramfs...]
+
+(cherry picked from commit 4f8d551ff0177df87fae6cb970471186a422d064)
+---
+ src/core/main.c    | 9 +--------
+ src/core/manager.c | 6 ++++++
+ 2 files changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index 7fc06be..bf1e3e8 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -69,7 +69,6 @@
+ #include "ima-setup.h"
+ #include "fileio.h"
+ #include "smack-setup.h"
+-#include "efivars.h"
+ 
+ static enum {
+         ACTION_RUN,
+@@ -1239,8 +1238,6 @@ int main(int argc, char *argv[]) {
+         dual_timestamp initrd_timestamp = { 0ULL, 0ULL };
+         dual_timestamp userspace_timestamp = { 0ULL, 0ULL };
+         dual_timestamp kernel_timestamp = { 0ULL, 0ULL };
+-        dual_timestamp firmware_timestamp = { 0ULL, 0ULL };
+-        dual_timestamp loader_timestamp = { 0ULL, 0ULL };
+         static char systemd[] = "systemd";
+         bool skip_setup = false;
+         int j;
+@@ -1289,9 +1286,7 @@ int main(int argc, char *argv[]) {
+         log_show_color(isatty(STDERR_FILENO) > 0);
+ 
+         if (getpid() == 1 && detect_container(NULL) <= 0) {
+-#ifdef ENABLE_EFI
+-                efi_get_boot_timestamps(&userspace_timestamp, &firmware_timestamp, &loader_timestamp);
+-#endif
++
+                 /* Running outside of a container as PID 1 */
+                 arg_running_as = SYSTEMD_SYSTEM;
+                 make_null_stdio();
+@@ -1627,8 +1622,6 @@ int main(int argc, char *argv[]) {
+         m->shutdown_watchdog = arg_shutdown_watchdog;
+         m->userspace_timestamp = userspace_timestamp;
+         m->kernel_timestamp = kernel_timestamp;
+-        m->firmware_timestamp = firmware_timestamp;
+-        m->loader_timestamp = loader_timestamp;
+         m->initrd_timestamp = initrd_timestamp;
+ 
+         manager_set_default_rlimits(m, arg_default_rlimit);
+diff --git a/src/core/manager.c b/src/core/manager.c
+index 0508628..a7cfe57 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -70,6 +70,7 @@
+ #include "cgroup-util.h"
+ #include "path-util.h"
+ #include "audit-fd.h"
++#include "efivars.h"
+ #include "env-util.h"
+ 
+ /* As soon as 16 units are in our GC queue, make sure to run a gc sweep */
+@@ -439,6 +440,11 @@ int manager_new(SystemdRunningAs running_as, Manager **_m) {
+         if (!m)
+                 return -ENOMEM;
+ 
++#ifdef ENABLE_EFI
++        if (detect_container(NULL) <= 0)
++                efi_get_boot_timestamps(&m->userspace_timestamp, &m->firmware_timestamp, &m->loader_timestamp);
++#endif
++
+         m->running_as = running_as;
+         m->name_data_slot = m->conn_data_slot = m->subscribed_data_slot = -1;
+         m->exit_code = _MANAGER_EXIT_CODE_INVALID;
+-- 
+1.8.3.1
+

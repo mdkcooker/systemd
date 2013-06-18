@@ -1,0 +1,33 @@
+From a64c9c904dcb4f4bd09f1ca33139be0ce95ab263 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Bartoszkiewicz?= <mbartoszkiewicz@gmail.com>
+Date: Wed, 15 May 2013 11:28:58 +0200
+Subject: [PATCH 107/160] journal: correctly convert usec_t to timespec.
+
+Use timespec_store instead of (incorrectly) doing it inline.
+
+(cherry picked from commit ca2670162464b98f44d3f30a1d8b47b02609784c)
+---
+ src/journal/journald-server.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/src/journal/journald-server.c b/src/journal/journald-server.c
+index cc52b8a..b717b92 100644
+--- a/src/journal/journald-server.c
++++ b/src/journal/journald-server.c
+@@ -1332,10 +1332,9 @@ int server_schedule_sync(Server *s) {
+                 return 0;
+ 
+         if (s->sync_interval_usec) {
+-                struct itimerspec sync_timer_enable = {
+-                        .it_value.tv_sec = s->sync_interval_usec / USEC_PER_SEC,
+-                        .it_value.tv_nsec = s->sync_interval_usec % MSEC_PER_SEC,
+-                };
++                struct itimerspec sync_timer_enable = {};
++
++                timespec_store(&sync_timer_enable.it_value, s->sync_interval_usec);
+ 
+                 r = timerfd_settime(s->sync_timer_fd, 0, &sync_timer_enable, NULL);
+                 if (r < 0)
+-- 
+1.8.3.1
+

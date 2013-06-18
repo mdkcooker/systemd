@@ -1,0 +1,38 @@
+From 7bba908b002c635b82f9d325c8494f00bd36e104 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 3 Jun 2013 13:55:13 -0400
+Subject: [PATCH 128/160] systemctl,core: allow nuking of symlinks to removed
+ units
+
+Before, one the unit file was deleted, install_context_for_removal()
+would refuse to look for symlinks. But we can remove dangling symlinks
+anyway.
+
+In principle, package installation/deinstallation scripts should do
+that before the unit is uninstalled, but they don't always do. Also,
+a user might have added additional symlinks manually.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=62395
+(cherry picked from commit 02b9e969a6f512d2312e7028ce5c48c84ad87d06)
+---
+ src/shared/install.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/install.c b/src/shared/install.c
+index 954dcb1..d2dd276 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -1413,7 +1413,9 @@ static int install_context_mark_for_removal(
+                 assert_se(hashmap_move_one(c->have_installed, c->will_install, i->name) == 0);
+ 
+                 q = unit_file_search(c, i, paths, root_dir, false);
+-                if (q < 0) {
++                if (q == -ENOENT) {
++                        /* do nothing */
++                } else if (q < 0) {
+                         if (r >= 0)
+                                 r = q;
+ 
+-- 
+1.8.3.1
+

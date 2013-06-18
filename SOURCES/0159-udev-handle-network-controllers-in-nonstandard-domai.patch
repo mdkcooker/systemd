@@ -1,0 +1,82 @@
+From c284b0fd067f92110e891818a4a02f8049bb5be3 Mon Sep 17 00:00:00 2001
+From: Sean McGovern <gseanmcg@gmail.com>
+Date: Wed, 12 Jun 2013 09:32:47 -0400
+Subject: [PATCH 159/160] udev: handle network controllers in nonstandard
+ domains
+
+Onboard network controllers are not always on PCI domain 0.
+
+[Kay: use int instead of long, add [P] to slot naming, remove sysname var]
+
+(cherry picked from commit 214daa72cb0c72ea78d1eccd5ffe630a1e04b2f7)
+---
+ src/udev/udev-builtin-net_id.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/src/udev/udev-builtin-net_id.c b/src/udev/udev-builtin-net_id.c
+index 5719021..5b732bb 100644
+--- a/src/udev/udev-builtin-net_id.c
++++ b/src/udev/udev-builtin-net_id.c
+@@ -35,13 +35,16 @@
+  *   o<index>                              -- on-board device index number
+  *   s<slot>[f<function>][d<dev_id>]       -- hotplug slot index number
+  *   x<MAC>                                -- MAC address
+- *   p<bus>s<slot>[f<function>][d<dev_id>] -- PCI geographical location
+- *   p<bus>s<slot>[f<function>][u<port>][..][c<config>][i<interface>]
++ *   [P<domain>]p<bus>s<slot>[f<function>][d<dev_id>]
++ *                                         -- PCI geographical location
++ *   [P<domain>]p<bus>s<slot>[f<function>][u<port>][..][c<config>][i<interface>]
+  *                                         -- USB port number chain
+  *
+  * All multi-function PCI devices will carry the [f<function>] number in the
+  * device name, including the function 0 device.
+  *
++ * When using PCI geography, The PCI domain is only prepended when it is not 0.
++ *
+  * For USB devices the full chain of port numbers of hubs is composed. If the
+  * name gets longer than the maximum number of 15 characters, the name is not
+  * exported.
+@@ -163,6 +166,7 @@ out:
+ 
+ static int dev_pci_slot(struct udev_device *dev, struct netnames *names) {
+         struct udev *udev = udev_device_get_udev(names->pcidev);
++        unsigned int domain;
+         unsigned int bus;
+         unsigned int slot;
+         unsigned int func;
+@@ -178,7 +182,7 @@ static int dev_pci_slot(struct udev_device *dev, struct netnames *names) {
+         int hotplug_slot = 0;
+         int err = 0;
+ 
+-        if (sscanf(udev_device_get_sysname(names->pcidev), "0000:%x:%x.%d", &bus, &slot, &func) != 3)
++        if (sscanf(udev_device_get_sysname(names->pcidev), "%x:%x:%x.%d", &domain, &bus, &slot, &func) != 4)
+                 return -ENOENT;
+ 
+         /* kernel provided multi-device index */
+@@ -188,7 +192,10 @@ static int dev_pci_slot(struct udev_device *dev, struct netnames *names) {
+ 
+         /* compose a name based on the raw kernel's PCI bus, slot numbers */
+         s = names->pci_path;
+-        l = strpcpyf(&s, sizeof(names->pci_path), "p%ds%d", bus, slot);
++        l = sizeof(names->pci_path);
++        if (domain > 0)
++                l = strpcpyf(&s, l, "P%d", domain);
++        l = strpcpyf(&s, l, "p%ds%d", bus, slot);
+         if (func > 0 || is_pci_multifunction(names->pcidev))
+                 l = strpcpyf(&s, l, "f%d", func);
+         if (dev_id > 0)
+@@ -236,7 +243,10 @@ static int dev_pci_slot(struct udev_device *dev, struct netnames *names) {
+ 
+         if (hotplug_slot > 0) {
+                 s = names->pci_slot;
+-                l = strpcpyf(&s, sizeof(names->pci_slot), "s%d", hotplug_slot);
++                l = sizeof(names->pci_slot);
++                if (domain > 0)
++                        l = strpcpyf(&s, l, "P%d", domain);
++                l = strpcpyf(&s, l, "s%d", hotplug_slot);
+                 if (func > 0 || is_pci_multifunction(names->pcidev))
+                         l = strpcpyf(&s, l, "f%d", func);
+                 if (dev_id > 0)
+-- 
+1.8.3.1
+

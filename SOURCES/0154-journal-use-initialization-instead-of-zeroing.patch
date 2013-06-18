@@ -1,0 +1,71 @@
+From 18915d40c1690a313cec2e425fd33e28d078b6d1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 13 Jun 2013 23:32:14 -0400
+Subject: [PATCH 154/160] journal: use initialization instead of zeroing
+
+(cherry picked from commit 6e5abe1564070a760196b97031eca9cf5e95e8a2)
+---
+ src/journal/journal-send.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/src/journal/journal-send.c b/src/journal/journal-send.c
+index 14c437d..da1f892 100644
+--- a/src/journal/journal-send.c
++++ b/src/journal/journal-send.c
+@@ -204,8 +204,14 @@ _public_ int sd_journal_sendv(const struct iovec *iov, int n) {
+         struct iovec *w;
+         uint64_t *l;
+         int i, j = 0;
+-        struct msghdr mh;
+-        struct sockaddr_un sa;
++        struct sockaddr_un sa = {
++                .sun_family = AF_UNIX,
++                .sun_path = "/run/systemd/journal/socket",
++        };
++        struct msghdr mh = {
++                .msg_name = &sa,
++                .msg_namelen = offsetof(struct sockaddr_un, sun_path) + strlen(sa.sun_path),
++        };
+         ssize_t k;
+         union {
+                 struct cmsghdr cmsghdr;
+@@ -292,13 +298,6 @@ _public_ int sd_journal_sendv(const struct iovec *iov, int n) {
+         if (_unlikely_(fd < 0))
+                 return fd;
+ 
+-        zero(sa);
+-        sa.sun_family = AF_UNIX;
+-        strncpy(sa.sun_path, "/run/systemd/journal/socket", sizeof(sa.sun_path));
+-
+-        zero(mh);
+-        mh.msg_name = &sa;
+-        mh.msg_namelen = offsetof(struct sockaddr_un, sun_path) + strlen(sa.sun_path);
+         mh.msg_iov = w;
+         mh.msg_iovlen = j;
+ 
+@@ -402,7 +401,10 @@ _public_ int sd_journal_perror(const char *message) {
+ }
+ 
+ _public_ int sd_journal_stream_fd(const char *identifier, int priority, int level_prefix) {
+-        union sockaddr_union sa;
++        union sockaddr_union sa = {
++                .un.sun_family = AF_UNIX,
++                .un.sun_path = "/run/systemd/journal/stdout",
++        };
+         int fd;
+         char *header;
+         size_t l;
+@@ -415,10 +417,6 @@ _public_ int sd_journal_stream_fd(const char *identifier, int priority, int leve
+         if (fd < 0)
+                 return -errno;
+ 
+-        zero(sa);
+-        sa.un.sun_family = AF_UNIX;
+-        strncpy(sa.un.sun_path, "/run/systemd/journal/stdout", sizeof(sa.un.sun_path));
+-
+         r = connect(fd, &sa.sa, offsetof(union sockaddr_union, un.sun_path) + strlen(sa.un.sun_path));
+         if (r < 0) {
+                 close_nointr_nofail(fd);
+-- 
+1.8.3.1
+

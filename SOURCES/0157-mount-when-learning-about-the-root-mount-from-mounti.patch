@@ -1,0 +1,35 @@
+From e6fbbc9123c837d442c258df601a3b3036ede605 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Mon, 17 Jun 2013 21:12:53 +0200
+Subject: [PATCH 157/160] mount: when learning about the root mount from
+ mountinfo, don't add conflicting dep for umount.target
+
+That way systemd won't try to umount it at shutdown.
+
+(cherry picked from commit 602c0e740f8290cc9c4f13f2eb4b23fbbd7a8d2b)
+---
+ src/core/mount.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/mount.c b/src/core/mount.c
+index 10073b5..0ad3d95 100644
+--- a/src/core/mount.c
++++ b/src/core/mount.c
+@@ -1538,9 +1538,11 @@ static int mount_add_one(
+                 if (r < 0)
+                         goto fail;
+ 
+-                r = unit_add_dependency_by_name(u, UNIT_CONFLICTS, SPECIAL_UMOUNT_TARGET, NULL, true);
+-                if (r < 0)
+-                        goto fail;
++                if (!path_equal(where, "/")) {
++                        r = unit_add_dependency_by_name(u, UNIT_CONFLICTS, SPECIAL_UMOUNT_TARGET, NULL, true);
++                        if (r < 0)
++                                goto fail;
++                }
+ 
+                 unit_add_to_load_queue(u);
+         } else {
+-- 
+1.8.3.1
+

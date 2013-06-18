@@ -1,0 +1,47 @@
+From 652b19d1e2e4b78f34db09b7b52a29729a53a3c5 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Mon, 3 Jun 2013 14:28:29 +0200
+Subject: [PATCH 129/160] units: cleanup agetty command line
+
+ * baud rate is optional and unnecessary for virtual terminals
+ * term type is optional (default is 'linux' for virtual terminals
+   and 'vt102' for serial lines)
+ * long options are more user-friendly
+
+... all this is supported since util-linux v2.20 (Aug 2011).
+
+(cherry picked from commit 7c1b8f043ed3d23663549dd6084c5a4de51b8e28)
+---
+ units/getty@.service.m4        | 2 +-
+ units/serial-getty@.service.m4 | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/units/getty@.service.m4 b/units/getty@.service.m4
+index 083eb97..f32ca99 100644
+--- a/units/getty@.service.m4
++++ b/units/getty@.service.m4
+@@ -27,7 +27,7 @@ ConditionPathExists=/dev/tty0
+ 
+ [Service]
+ # the VT is cleared by TTYVTDisallocate
+-ExecStart=-/sbin/agetty --noclear %I 38400 linux
++ExecStart=-/sbin/agetty --noclear %I
+ Type=idle
+ Restart=always
+ RestartSec=0
+diff --git a/units/serial-getty@.service.m4 b/units/serial-getty@.service.m4
+index 60d7737..5e16963 100644
+--- a/units/serial-getty@.service.m4
++++ b/units/serial-getty@.service.m4
+@@ -22,7 +22,7 @@ Before=getty.target
+ IgnoreOnIsolate=yes
+ 
+ [Service]
+-ExecStart=-/sbin/agetty -s %I 115200,38400,9600 vt102
++ExecStart=-/sbin/agetty --keep-baud %I 115200,38400,9600
+ Type=idle
+ Restart=always
+ RestartSec=0
+-- 
+1.8.3.1
+

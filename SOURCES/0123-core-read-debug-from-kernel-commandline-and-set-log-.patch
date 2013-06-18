@@ -1,0 +1,93 @@
+From f01b651e43a62c408b34e34312f03597224fba92 Mon Sep 17 00:00:00 2001
+From: Lukas Nykryn <lnykryn@redhat.com>
+Date: Wed, 29 May 2013 14:09:56 +0200
+Subject: [PATCH 123/160] core: read "debug" from kernel commandline and set
+ log level
+
+(cherry picked from commit 9749cd77bc6121a304a7f1eb0f03f26e620dc9da)
+
+Conflicts:
+	TODO
+---
+ man/kernel-command-line.xml | 12 ++++++++++++
+ man/systemd.xml             | 23 ++++++++++++++++++-----
+ src/core/main.c             |  2 ++
+ 3 files changed, 32 insertions(+), 5 deletions(-)
+
+diff --git a/man/kernel-command-line.xml b/man/kernel-command-line.xml
+index 6d064f6..470b48e 100644
+--- a/man/kernel-command-line.xml
++++ b/man/kernel-command-line.xml
+@@ -111,6 +111,18 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
++                                <term><varname>debug</varname></term>
++                                <listitem>
++                                        <para>Parameter understood by
++                                        both the kernel and the system
++                                        and service manager to control
++                                        console log verbosity. For
++                                        details see
++                                        <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>.</para>
++                                </listitem>
++                        </varlistentry>
++
++                        <varlistentry>
+                                 <term><varname>emergency</varname></term>
+                                 <term><varname>single</varname></term>
+                                 <term><varname>s</varname></term>
+diff --git a/man/systemd.xml b/man/systemd.xml
+index d009ed8..497dd2b 100644
+--- a/man/systemd.xml
++++ b/man/systemd.xml
+@@ -1114,15 +1114,28 @@
+                         <varlistentry>
+                                 <term><varname>quiet</varname></term>
+ 
+-                                <listitem><para>If passed turns off
++                                <listitem><para>Turn off
+                                 status output at boot, much like
+                                 <varname>systemd.show_status=false</varname>
+                                 would. Note that this option is also
+                                 read by the kernel itself and disables
+-                                kernel log output to the
+-                                kernel. Passing this option hence
+-                                turns off the usual output from both
+-                                the system manager and the
++                                kernel log output. Passing this option
++                                hence turns off the usual output from
++                                both the system manager and the kernel.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
++                                <term><varname>debug</varname></term>
++
++                                <listitem><para>Turn on debugging
++                                output. This is equivalent to
++                                <varname>systemd.log_level=debug</varname>.
++                                Note that this option is also read by
++                                the kernel itself and enables kernel
++                                debug output.  Passing this option
++                                hence turns on the debug output from
++                                both the system manager and the
+                                 kernel.</para></listitem>
+                         </varlistentry>
+ 
+diff --git a/src/core/main.c b/src/core/main.c
+index bf1e3e8..bb73640 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -410,6 +410,8 @@ static int parse_proc_cmdline_word(const char *word) {
+ 
+         } else if (streq(word, "quiet"))
+                 arg_show_status = false;
++        else if (streq(word, "debug"))
++                log_set_max_level(LOG_DEBUG);
+         else if (!in_initrd()) {
+                 unsigned i;
+ 
+-- 
+1.8.3.1
+

@@ -1,0 +1,181 @@
+From 680ba34a5f6de8c343ef972b2af56666c4aa7109 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Sun, 9 Jun 2013 21:50:56 -0400
+Subject: [PATCH 139/160] journalctl: fix verbose output when no logs are found
+
+$ journalctl -o verbose _EXE=/quiet/binary -f
+-- Logs begin at Sun 2013-03-17 17:28:22 EDT. --
+Failed to get realtime timestamp: Cannot assign requested address
+
+JOURNAL_FOREACH_DATA_RETVAL is added, which allows the caller
+to get the return value from sd_journal_enumerate_data. I think
+we might want to expose this macro like SD_JOURNAL_FOREACH_DATA,
+but for now it is in journal-internal.h.
+
+There's a change in behaviour for output_*, not only in
+output_verbose, that errors in sd_j_enumerate_data are not silently
+ignored anymore.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=56459
+(cherry picked from commit a72b63536f1da3a97677bf38590f22a962e5fe98)
+---
+ src/journal/journal-internal.h |  3 +++
+ src/journal/journalctl.c       | 11 ++++++-----
+ src/shared/logs-show.c         | 27 ++++++++++++++++++++-------
+ 3 files changed, 29 insertions(+), 12 deletions(-)
+
+diff --git a/src/journal/journal-internal.h b/src/journal/journal-internal.h
+index c7e585d..f576a00 100644
+--- a/src/journal/journal-internal.h
++++ b/src/journal/journal-internal.h
+@@ -139,3 +139,6 @@ static inline void journal_closep(sd_journal **j) {
+ }
+ 
+ #define _cleanup_journal_close_ _cleanup_(journal_closep)
++
++#define JOURNAL_FOREACH_DATA_RETVAL(j, data, l, retval)                     \
++        for (sd_journal_restart_data(j); ((retval) = sd_journal_enumerate_data((j), &(data), &(l))) > 0; )
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index eb79c4d..de972a1 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -1288,11 +1288,10 @@ int main(int argc, char *argv[]) {
+                                         log_error("Failed to iterate through journal: %s", strerror(-r));
+                                         goto finish;
+                                 }
++                                if (r == 0)
++                                        break;
+                         }
+ 
+-                        if (r == 0)
+-                                break;
+-
+                         if (arg_until_set && !arg_reverse) {
+                                 usec_t usec;
+ 
+@@ -1338,10 +1337,12 @@ int main(int argc, char *argv[]) {
+                                 arg_catalog * OUTPUT_CATALOG;
+ 
+                         r = output_journal(stdout, j, arg_output, 0, flags);
+-                        if (r < 0 || ferror(stdout))
++                        need_seek = true;
++                        if (r == -EADDRNOTAVAIL)
++                                break;
++                        else if (r < 0 || ferror(stdout))
+                                 goto finish;
+ 
+-                        need_seek = true;
+                         n_shown++;
+                 }
+ 
+diff --git a/src/shared/logs-show.c b/src/shared/logs-show.c
+index b88547e..7947df3 100644
+--- a/src/shared/logs-show.c
++++ b/src/shared/logs-show.c
+@@ -163,7 +163,7 @@ static int output_short(
+ 
+         sd_journal_set_data_threshold(j, flags & OUTPUT_SHOW_ALL ? 0 : PRINT_THRESHOLD);
+ 
+-        SD_JOURNAL_FOREACH_DATA(j, data, length) {
++        JOURNAL_FOREACH_DATA_RETVAL(j, data, length, r) {
+ 
+                 r = parse_field(data, length, "PRIORITY=", &priority, &priority_len);
+                 if (r < 0)
+@@ -218,6 +218,9 @@ static int output_short(
+                         return r;
+         }
+ 
++        if (r < 0)
++                return r;
++
+         if (!message)
+                 return 0;
+ 
+@@ -240,7 +243,7 @@ static int output_short(
+                         r = sd_journal_get_monotonic_usec(j, &t, &boot_id);
+ 
+                 if (r < 0) {
+-                        log_error("Failed to get monotonic: %s", strerror(-r));
++                        log_error("Failed to get monotonic timestamp: %s", strerror(-r));
+                         return r;
+                 }
+ 
+@@ -265,7 +268,7 @@ static int output_short(
+                         r = sd_journal_get_realtime_usec(j, &x);
+ 
+                 if (r < 0) {
+-                        log_error("Failed to get realtime: %s", strerror(-r));
++                        log_error("Failed to get realtime timestamp: %s", strerror(-r));
+                         return r;
+                 }
+ 
+@@ -336,7 +339,8 @@ static int output_verbose(
+ 
+         r = sd_journal_get_realtime_usec(j, &realtime);
+         if (r < 0) {
+-                log_error("Failed to get realtime timestamp: %s", strerror(-r));
++                log_full(r == -EADDRNOTAVAIL ? LOG_DEBUG : LOG_ERR,
++                         "Failed to get realtime timestamp: %s", strerror(-r));
+                 return r;
+         }
+ 
+@@ -350,7 +354,7 @@ static int output_verbose(
+                 format_timestamp(ts, sizeof(ts), realtime),
+                 cursor);
+ 
+-        SD_JOURNAL_FOREACH_DATA(j, data, length) {
++        JOURNAL_FOREACH_DATA_RETVAL(j, data, length, r) {
+                 const char *c;
+                 int fieldlen;
+                 c = memchr(data, '=', length);
+@@ -373,6 +377,9 @@ static int output_verbose(
+                 }
+         }
+ 
++        if (r < 0)
++                return r;
++
+         if (flags & OUTPUT_CATALOG)
+                 print_catalog(f, j);
+ 
+@@ -426,7 +433,7 @@ static int output_export(
+                 (unsigned long long) monotonic,
+                 sd_id128_to_string(boot_id, sid));
+ 
+-        SD_JOURNAL_FOREACH_DATA(j, data, length) {
++        JOURNAL_FOREACH_DATA_RETVAL(j, data, length, r) {
+ 
+                 /* We already printed the boot id, from the data in
+                  * the header, hence let's suppress it here */
+@@ -455,6 +462,9 @@ static int output_export(
+                 fputc('\n', f);
+         }
+ 
++        if (r < 0)
++                return r;
++
+         fputc('\n', f);
+ 
+         return 0;
+@@ -583,7 +593,7 @@ static int output_json(
+                 return -ENOMEM;
+ 
+         /* First round, iterate through the entry and count how often each field appears */
+-        SD_JOURNAL_FOREACH_DATA(j, data, length) {
++        JOURNAL_FOREACH_DATA_RETVAL(j, data, length, r) {
+                 const char *eq;
+                 char *n;
+                 unsigned u;
+@@ -617,6 +627,9 @@ static int output_json(
+                 }
+         }
+ 
++        if (r < 0)
++                return r;
++
+         separator = true;
+         do {
+                 done = true;
+-- 
+1.8.3.1
+

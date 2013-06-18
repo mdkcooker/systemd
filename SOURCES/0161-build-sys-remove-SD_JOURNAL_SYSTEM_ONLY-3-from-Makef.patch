@@ -1,0 +1,43 @@
+From 750eaa17d750253ea6ed810b686eb7df8ec4dc0a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Mon, 10 Jun 2013 15:08:02 -0400
+Subject: [PATCH] build-sys: remove SD_JOURNAL_SYSTEM_ONLY(3) from Makefile
+
+(cherry picked from commit d783cd0423459ff703122f523b86c9d094be2851)
+---
+ Makefile-man.am | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/Makefile-man.am b/Makefile-man.am
+index 807ad78..ba34d1e 100644
+--- a/Makefile-man.am
++++ b/Makefile-man.am
+@@ -118,7 +118,6 @@ MANPAGES_ALIAS += \
+ 	man/SD_JOURNAL_RUNTIME_ONLY.3 \
+ 	man/SD_JOURNAL_SUPPRESS_LOCATION.3 \
+ 	man/SD_JOURNAL_SYSTEM.3 \
+-	man/SD_JOURNAL_SYSTEM_ONLY.3 \
+ 	man/SD_LISTEN_FDS_START.3 \
+ 	man/SD_NOTICE.3 \
+ 	man/SD_WARNING.3 \
+@@ -219,7 +218,6 @@ man/SD_JOURNAL_NOP.3: man/sd_journal_get_fd.3
+ man/SD_JOURNAL_RUNTIME_ONLY.3: man/sd_journal_open.3
+ man/SD_JOURNAL_SUPPRESS_LOCATION.3: man/sd_journal_print.3
+ man/SD_JOURNAL_SYSTEM.3: man/sd_journal_open.3
+-man/SD_JOURNAL_SYSTEM_ONLY.3: man/sd_journal_open.3
+ man/SD_LISTEN_FDS_START.3: man/sd_listen_fds.3
+ man/SD_NOTICE.3: man/sd-daemon.3
+ man/SD_WARNING.3: man/sd-daemon.3
+@@ -364,9 +362,6 @@ man/SD_JOURNAL_SUPPRESS_LOCATION.html: man/sd_journal_print.html
+ man/SD_JOURNAL_SYSTEM.html: man/sd_journal_open.html
+ 	$(html-alias)
+ 
+-man/SD_JOURNAL_SYSTEM_ONLY.html: man/sd_journal_open.html
+-	$(html-alias)
+-
+ man/SD_LISTEN_FDS_START.html: man/sd_listen_fds.html
+ 	$(html-alias)
+ 
+-- 
+1.8.3.1
+

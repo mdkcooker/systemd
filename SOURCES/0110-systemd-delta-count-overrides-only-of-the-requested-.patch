@@ -1,0 +1,88 @@
+From b9d9ffe0196569e02d47361dfc32f9a872885309 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 15 May 2013 20:42:22 -0400
+Subject: [PATCH 110/160] systemd-delta: count overrides only of the requested
+ type
+
+(cherry picked from commit 8fd57568e6e82aafe153ec1f34cca36c9ccee455)
+---
+ src/delta/delta.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
+
+diff --git a/src/delta/delta.c b/src/delta/delta.c
+index fa284bc..49c2fc3 100644
+--- a/src/delta/delta.c
++++ b/src/delta/delta.c
+@@ -118,24 +118,20 @@ static int found_override(const char *top, const char *bottom) {
+         assert(top);
+         assert(bottom);
+ 
+-        if (null_or_empty_path(top) > 0) {
+-                notify_override_masked(top, bottom);
+-                return 0;
+-        }
++        if (null_or_empty_path(top) > 0)
++                return notify_override_masked(top, bottom);
+ 
+         k = readlink_malloc(top, &dest);
+         if (k >= 0) {
+                 if (equivalent(dest, bottom) > 0)
+-                        notify_override_equivalent(top, bottom);
++                        return notify_override_equivalent(top, bottom);
+                 else
+-                        notify_override_redirected(top, bottom);
+-
+-                return 0;
++                        return notify_override_redirected(top, bottom);
+         }
+ 
+-        notify_override_overridden(top, bottom);
++        k = notify_override_overridden(top, bottom);
+         if (!arg_diff)
+-                return 0;
++                return k;
+ 
+         putchar('\n');
+ 
+@@ -155,7 +151,7 @@ static int found_override(const char *top, const char *bottom) {
+ 
+         putchar('\n');
+ 
+-        return 0;
++        return k;
+ }
+ 
+ static int enumerate_dir_d(Hashmap *top, Hashmap *bottom, Hashmap *drops, const char *toppath, const char *drop) {
+@@ -382,15 +378,14 @@ static int process_suffix(const char *prefixes, const char *suffix, bool dropins
+                         k = found_override(f, o);
+                         if (k < 0)
+                                 r = k;
+-                        n_found++;
++                        else
++                                n_found += k;
+                 }
+ 
+                 h = hashmap_get(drops, key);
+                 if (h)
+-                        HASHMAP_FOREACH(o, h, j) {
+-                                notify_override_extended(f, o);
+-                                n_found++;
+-                        }
++                        HASHMAP_FOREACH(o, h, j)
++                                n_found += notify_override_extended(f, o);
+         }
+ 
+ finish:
+@@ -622,7 +617,8 @@ int main(int argc, char *argv[]) {
+         }
+ 
+         if (r >= 0)
+-                printf("\n%i overridden configuration files found.\n", n_found);
++                printf("%s%i overridden configuration files found.\n",
++                       n_found ? "\n" : "", n_found);
+ 
+ finish:
+         pager_close();
+-- 
+1.8.3.1
+

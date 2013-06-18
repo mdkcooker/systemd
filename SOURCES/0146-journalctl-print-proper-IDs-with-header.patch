@@ -1,0 +1,38 @@
+From f73ad0a037888e35b56ff36638b76ed948c17ee0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 5 Jun 2013 18:40:44 -0400
+Subject: [PATCH 146/160] journalctl: print proper IDs with --header
+
+The same buffer was used for two different IDs, messing up
+the output.
+
+(cherry picked from commit 2765b7bb6924e2c26c7bf60bd692a4bc121d9582)
+---
+ src/journal/journal-file.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/journal/journal-file.c b/src/journal/journal-file.c
+index 38499a6..7e2aaa4 100644
+--- a/src/journal/journal-file.c
++++ b/src/journal/journal-file.c
+@@ -2271,7 +2271,7 @@ fail:
+ }
+ 
+ void journal_file_print_header(JournalFile *f) {
+-        char a[33], b[33], c[33];
++        char a[33], b[33], c[33], d[33];
+         char x[FORMAT_TIMESTAMP_MAX], y[FORMAT_TIMESTAMP_MAX];
+         struct stat st;
+         char bytes[FORMAT_BYTES_MAX];
+@@ -2301,7 +2301,7 @@ void journal_file_print_header(JournalFile *f) {
+                sd_id128_to_string(f->header->file_id, a),
+                sd_id128_to_string(f->header->machine_id, b),
+                sd_id128_to_string(f->header->boot_id, c),
+-               sd_id128_to_string(f->header->seqnum_id, c),
++               sd_id128_to_string(f->header->seqnum_id, d),
+                f->header->state == STATE_OFFLINE ? "OFFLINE" :
+                f->header->state == STATE_ONLINE ? "ONLINE" :
+                f->header->state == STATE_ARCHIVED ? "ARCHIVED" : "UNKNOWN",
+-- 
+1.8.3.1
+

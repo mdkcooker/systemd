@@ -1,0 +1,88 @@
+From 3219ca8912a34394f60dc86553348a26dd8d858b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 30 May 2013 20:28:09 -0400
+Subject: [PATCH 126/160] systemctl: suggest 'systemctl daemon-reload' without
+ --system
+
+--system is default anyway, and some poor user might type 9
+characters without needing to.
+
+(cherry picked from commit 1058cbf2ad3d62d039f8f0be92d9d37777925a39)
+---
+ src/core/manager.c        | 3 ++-
+ src/shared/util.c         | 8 ++++----
+ src/systemctl/systemctl.c | 8 ++++----
+ 3 files changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/src/core/manager.c b/src/core/manager.c
+index a7cfe57..6b0f567 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -1037,7 +1037,8 @@ int manager_load_unit_prepare(Manager *m, const char *name, const char *path, DB
+                 }
+         }
+ 
+-        if ((r = unit_add_name(ret, name)) < 0) {
++        r = unit_add_name(ret, name);
++        if (r < 0) {
+                 unit_free(ret);
+                 return r;
+         }
+diff --git a/src/shared/util.c b/src/shared/util.c
+index 673e0da..2edf9cd 100644
+--- a/src/shared/util.c
++++ b/src/shared/util.c
+@@ -850,18 +850,18 @@ int readlink_malloc(const char *p, char **r) {
+ }
+ 
+ int readlink_and_make_absolute(const char *p, char **r) {
+-        char *target, *k;
++        _cleanup_free_ char *target = NULL;
++        char *k;
+         int j;
+ 
+         assert(p);
+         assert(r);
+ 
+-        if ((j = readlink_malloc(p, &target)) < 0)
++        j = readlink_malloc(p, &target);
++        if (j < 0)
+                 return j;
+ 
+         k = file_in_same_dir(p, target);
+-        free(target);
+-
+         if (!k)
+                 return -ENOMEM;
+ 
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 5ccbbbc..6a4c2d6 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -1913,8 +1913,8 @@ static int start_unit_one(
+         }
+ 
+         if (need_daemon_reload(bus, n))
+-                log_warning("Warning: Unit file of %s changed on disk, 'systemctl %s daemon-reload' recommended.",
+-                            n, arg_scope == UNIT_FILE_SYSTEM ? "--system" : "--user");
++                log_warning("Warning: Unit file of %s changed on disk, 'systemctl %sdaemon-reload' recommended.",
++                            n, arg_scope == UNIT_FILE_SYSTEM ? "" : "--user ");
+ 
+         if (s) {
+                 char *p;
+@@ -2974,10 +2974,10 @@ static void print_status_info(UnitStatusInfo *i) {
+         }
+ 
+         if (i->need_daemon_reload)
+-                printf("\n%sWarning:%s Unit file changed on disk, 'systemctl %s daemon-reload' recommended.\n",
++                printf("\n%sWarning:%s Unit file changed on disk, 'systemctl %sdaemon-reload' recommended.\n",
+                        ansi_highlight_red(true),
+                        ansi_highlight_red(false),
+-                       arg_scope == UNIT_FILE_SYSTEM ? "--system" : "--user");
++                       arg_scope == UNIT_FILE_SYSTEM ? "" : "--user ");
+ }
+ 
+ static void show_unit_help(UnitStatusInfo *i) {
+-- 
+1.8.3.1
+

@@ -1,0 +1,57 @@
+From 39a1f52136f1f3f98dad533d7e4d1179ff036ad8 Mon Sep 17 00:00:00 2001
+From: Chengwei Yang <chengwei.yang@intel.com>
+Date: Mon, 20 May 2013 15:22:27 +0800
+Subject: [PATCH 132/160] manager: Do not handle SIGKILL since we can not
+
+This is a minor fix because it's not a major issue, this fix just avoid
+to get EINVAL error from sigaction(2).
+
+There are two signals can not handled at user space, SIGKILL and
+SIGSTOP even we're PID 1, trying to handle these two signals will get
+EINVAL error.
+
+There are two kinds of systemd instance, running as system manager or
+user session manager, apparently, the latter is a general user space
+process which can not handle SIGKILL. The special pid 1 also can not
+do that refer to kernel/signal.c:do_sigaction().
+
+However, pid 1 is unkillable because the kernel did attach
+SIGNAL_UNKILLABLE to it at system boot up, refer to
+init/main.c:start_kernel()
+    --> rest_init()
+        --> kernel_thread()
+            --> kernel_init()
+                --> init_post()
+                    current->signal->flags |= SIGNAL_UNKILLABLE
+
+(cherry picked from commit 1cce5d639cdcb3b237e2eda3c36782f98ff23b46)
+---
+ src/core/main.c  | 1 -
+ src/shared/def.h | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/core/main.c b/src/core/main.c
+index bb73640..26aa561 100644
+--- a/src/core/main.c
++++ b/src/core/main.c
+@@ -1405,7 +1405,6 @@ int main(int argc, char *argv[]) {
+         /* Reset all signal handlers. */
+         assert_se(reset_all_signal_handlers() == 0);
+ 
+-        /* If we are init, we can block sigkill. Yay. */
+         ignore_signals(SIGNALS_IGNORE, -1);
+ 
+         if (parse_config_file() < 0)
+diff --git a/src/shared/def.h b/src/shared/def.h
+index 5ba170f..5abb544 100644
+--- a/src/shared/def.h
++++ b/src/shared/def.h
+@@ -32,4 +32,4 @@
+ #define SYSTEMD_CGROUP_CONTROLLER "name=systemd"
+ 
+ #define SIGNALS_CRASH_HANDLER SIGSEGV,SIGILL,SIGFPE,SIGBUS,SIGQUIT,SIGABRT
+-#define SIGNALS_IGNORE SIGKILL,SIGPIPE
++#define SIGNALS_IGNORE SIGPIPE
+-- 
+1.8.3.1
+

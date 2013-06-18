@@ -1,0 +1,147 @@
+From 1669f8fd6d49692facea71799073f6ba1bc681df Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 4 Jun 2013 19:33:34 -0400
+Subject: [PATCH 143/160] journalctl: add --system/--user flags
+
+--user basically gives messages from your own systemd --user services.
+--system basically gives messages from PID 1, kernel, and --system
+services. Those two options are not exahustive, because a priviledged
+user might be able to see messages from other users, and they will not
+be shown with either or both of those flags.
+
+(cherry picked from commit 3f3a438f58d7b1d2ba2b44d6d356fb1eaa65b66a)
+---
+ man/journalctl.xml                          | 14 ++++++++++++++
+ shell-completion/bash/journalctl            |  1 +
+ shell-completion/systemd-zsh-completion.zsh |  2 ++
+ src/journal/journalctl.c                    | 21 ++++++++++++++++++---
+ 4 files changed, 35 insertions(+), 3 deletions(-)
+
+diff --git a/man/journalctl.xml b/man/journalctl.xml
+index cc7d1a0..53e2401 100644
+--- a/man/journalctl.xml
++++ b/man/journalctl.xml
+@@ -438,6 +438,20 @@
+                         </varlistentry>
+ 
+                         <varlistentry>
++                                <term><option>--system</option></term>
++                                <term><option>--user</option></term>
++
++                                <listitem><para>Show messages from
++                                system services and the kernel (with
++                                <option>--system</option>).  Show
++                                messages from service of current user
++                                (with <option>--user</option>).
++                                If neither is specified, show all
++                                messages that the user can see.
++                                </para></listitem>
++                        </varlistentry>
++
++                        <varlistentry>
+                                 <term><option>-D</option></term>
+                                 <term><option>--directory=</option></term>
+ 
+diff --git a/shell-completion/bash/journalctl b/shell-completion/bash/journalctl
+index 19362ae..5ab59c9 100644
+--- a/shell-completion/bash/journalctl
++++ b/shell-completion/bash/journalctl
+@@ -38,6 +38,7 @@ _journalctl() {
+         local field_vals= cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD-1]}
+         local -A OPTS=(
+                 [STANDALONE]='-a --all --full
++                              --system --user
+                               -b --this-boot --disk-usage -f --follow --header
+                               -h --help -l --local --new-id128 -m --merge --no-pager
+                               --no-tail -q --quiet --setup-keys --this-boot --verify
+diff --git a/shell-completion/systemd-zsh-completion.zsh b/shell-completion/systemd-zsh-completion.zsh
+index 411646e..6862891 100644
+--- a/shell-completion/systemd-zsh-completion.zsh
++++ b/shell-completion/systemd-zsh-completion.zsh
+@@ -71,6 +71,8 @@ _ctls()
+                 '--since=[Start showing entries newer or of the specified date]:YYYY-MM-DD HH\:MM\:SS' \
+                 '--until=[Stop showing entries older or of the specified date]:YYYY-MM-DD HH\:MM\:SS' \
+                 {-c,--cursor=}'[Start showing entries from specified cursor]:cursors:_journal_fields __CURSORS' \
++                '--system[Show system and kernel messages]' \
++                '--user[Show messages from user services]' \
+                 {-b,--this-boot}'[Show data only from current boot]' \
+                 {-u,--unit=}'[Show data only from the specified unit]:units:_journal_fields _SYSTEMD_UNIT' \
+                 '--user-unit[Show data only from the specified user session unit]:units:_journal_fields _SYSTEMD_USER_UNIT' \
+diff --git a/src/journal/journalctl.c b/src/journal/journalctl.c
+index de972a1..f404e41 100644
+--- a/src/journal/journalctl.c
++++ b/src/journal/journalctl.c
+@@ -86,6 +86,7 @@ static char **arg_user_units = NULL;
+ static const char *arg_field = NULL;
+ static bool arg_catalog = false;
+ static bool arg_reverse = false;
++static int arg_journal_type = 0;
+ static const char *arg_root = NULL;
+ 
+ static enum {
+@@ -105,6 +106,8 @@ static int help(void) {
+         printf("%s [OPTIONS...] [MATCHES...]\n\n"
+                "Query the journal.\n\n"
+                "Flags:\n"
++               "     --system            Show only the system journal\n"
++               "     --user              Show only the user journal for current user\n"
+                "     --since=DATE        Start showing entries newer or of the specified date\n"
+                "     --until=DATE        Stop showing entries older or of the specified date\n"
+                "  -c --cursor=CURSOR     Start showing entries from specified cursor\n"
+@@ -158,6 +161,8 @@ static int parse_argv(int argc, char *argv[]) {
+                 ARG_NO_PAGER,
+                 ARG_NO_TAIL,
+                 ARG_NEW_ID128,
++                ARG_USER,
++                ARG_SYSTEM,
+                 ARG_ROOT,
+                 ARG_HEADER,
+                 ARG_FULL,
+@@ -171,7 +176,7 @@ static int parse_argv(int argc, char *argv[]) {
+                 ARG_USER_UNIT,
+                 ARG_LIST_CATALOG,
+                 ARG_DUMP_CATALOG,
+-                ARG_UPDATE_CATALOG
++                ARG_UPDATE_CATALOG,
+         };
+ 
+         static const struct option options[] = {
+@@ -190,6 +195,8 @@ static int parse_argv(int argc, char *argv[]) {
+                 { "merge",        no_argument,       NULL, 'm'              },
+                 { "this-boot",    no_argument,       NULL, 'b'              },
+                 { "dmesg",        no_argument,       NULL, 'k'              },
++                { "system",       no_argument,       NULL, ARG_SYSTEM       },
++                { "user",         no_argument,       NULL, ARG_USER         },
+                 { "directory",    required_argument, NULL, 'D'              },
+                 { "root",         required_argument, NULL, ARG_ROOT         },
+                 { "header",       no_argument,       NULL, ARG_HEADER       },
+@@ -324,6 +331,14 @@ static int parse_argv(int argc, char *argv[]) {
+                         arg_this_boot = arg_dmesg = true;
+                         break;
+ 
++                case ARG_SYSTEM:
++                        arg_journal_type |= SD_JOURNAL_SYSTEM;
++                        break;
++
++                case ARG_USER:
++                        arg_journal_type |= SD_JOURNAL_CURRENT_USER;
++                        break;
++
+                 case 'D':
+                         arg_directory = optarg;
+                         break;
+@@ -1094,9 +1109,9 @@ int main(int argc, char *argv[]) {
+         }
+ 
+         if (arg_directory)
+-                r = sd_journal_open_directory(&j, arg_directory, 0);
++                r = sd_journal_open_directory(&j, arg_directory, arg_journal_type);
+         else
+-                r = sd_journal_open(&j, arg_merge ? 0 : SD_JOURNAL_LOCAL_ONLY);
++                r = sd_journal_open(&j, !arg_merge*SD_JOURNAL_LOCAL_ONLY + arg_journal_type);
+         if (r < 0) {
+                 log_error("Failed to open journal: %s", strerror(-r));
+                 return EXIT_FAILURE;
+-- 
+1.8.3.1
+
