@@ -20,8 +20,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	204
-Release:	%mkrel 2
+Version:	206
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -39,68 +39,6 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-systemctl-does-not-expand-u-so-revert-back-to-I.patch
-Patch101: 0101-Start-ctrl-alt-del.target-irreversibly.patch
-Patch102: 0102-keymap-Add-support-for-Eject-button-on-MSI-GE60-GE70.patch
-Patch103: 0103-sd-journal-check-if-the-pointers-passed-are-the-same.patch
-Patch104: 0104-journalctl-add-k-dmesg.patch
-Patch105: 0105-units-rework-systemd-random-seed-load-save-.service-.patch
-Patch106: 0106-utmp-turn-systemd-update-utmp-shutdown.service-into-.patch
-Patch107: 0107-journal-correctly-convert-usec_t-to-timespec.patch
-Patch108: 0108-Fix-syscall-__NR_fanotify_mark-.-on-arm.patch
-Patch109: 0109-systemd-delta-add-support-for-drop-in-snippets.patch
-Patch110: 0110-systemd-delta-count-overrides-only-of-the-requested-.patch
-Patch111: 0111-core-fix-DBus-property-ExecMainExitTimestamp.patch
-Patch112: 0112-keymap-Add-Samsung-900XC3.patch
-Patch113: 0113-keymap-Add-BenQ-JoyBook.patch
-Patch114: 0114-keymap-Add-DIXONSP.patch
-Patch115: 0115-systemctl-honor-no-legend-in-list-sockets.patch
-Patch116: 0116-service-kill-processes-with-SIGKILL-on-watchdog-fail.patch
-Patch117: 0117-systemctl-make-systemctl-is-enabled-work-for-templat.patch
-Patch118: 0118-systemctl-mangle-names-when-avoiding-dbus.patch
-Patch119: 0119-keymap-Add-Logitech-USB-iTouch.patch
-Patch120: 0120-systemd-record-efi-timestamps-after-sys-is-mounted.patch
-Patch121: 0121-Fix-CPUShares-configuration-option.patch
-Patch122: 0122-journald-DO-recalculate-the-ACL-mask-but-only-if-it-.patch
-Patch123: 0123-core-read-debug-from-kernel-commandline-and-set-log-.patch
-Patch124: 0124-systemctl-add-commands-set-default-and-get-default.patch
-Patch125: 0125-systemctl-add-command-set-log-level.patch
-Patch126: 0126-systemctl-suggest-systemctl-daemon-reload-without-sy.patch
-Patch127: 0127-journal-take-KeepFree-into-account-when-reporting-ma.patch
-Patch128: 0128-systemctl-core-allow-nuking-of-symlinks-to-removed-u.patch
-Patch129: 0129-units-cleanup-agetty-command-line.patch
-Patch130: 0130-systemctl-limit-logs-in-status-to-current-boot.patch
-Patch131: 0131-keymap-add-some-more-Asus-laptop-keys.patch
-Patch132: 0132-manager-Do-not-handle-SIGKILL-since-we-can-not.patch
-Patch133: 0133-service-execute-ExecStopPost-commands-when-the-watch.patch
-Patch134: 0134-cgroup-the-tasks-attribute-is-obsolete-cgroup.procs-.patch
-Patch135: 0135-logs-show-print-multiline-messages.patch
-Patch136: 0136-systemctl-remove-extra-padding-from-status-output.patch
-Patch137: 0137-Allow-for-the-use-of-in-remote-host-calls.patch
-Patch138: 0138-service-don-t-report-alien-child-as-alive-when-it-s-.patch
-Patch139: 0139-journalctl-fix-verbose-output-when-no-logs-are-found.patch
-Patch140: 0140-dev-setup-do-not-create-a-dangling-proc-kcore-symlin.patch
-Patch141: 0141-journal-simplify-match_free_if_empty.patch
-Patch142: 0142-journal-add-ability-to-filter-by-current-user.patch
-Patch143: 0143-journalctl-add-system-user-flags.patch
-Patch144: 0144-journal-loop-less-in-MATCH_AND_TERM-conditionals.patch
-Patch145: 0145-journalctl-no-color-for-reboot-when-not-on-tty.patch
-Patch146: 0146-journalctl-print-proper-IDs-with-header.patch
-Patch147: 0147-journalctl-print-monotonic-timestamp-in-header.patch
-Patch148: 0148-journal-add-sd_journal_open_files.patch
-Patch149: 0149-journalctl-allow-the-user-to-specify-the-file-s-to-u.patch
-Patch150: 0150-journal-remember-last-direction-of-search-and-keep-o.patch
-Patch151: 0151-journal-change-direction-tests-to-use-the-same-conve.patch
-Patch152: 0152-journal-letting-interleaved-seqnums-go.patch
-Patch153: 0153-journald-do-not-overwrite-syslog-facility-when-parsi.patch
-Patch154: 0154-journal-use-initialization-instead-of-zeroing.patch
-Patch155: 0155-journald-do-not-calculate-free-space-too-early.patch
-Patch156: 0156-journalctl-loginctl-systemctl-systemd-cgls-add-l-as-.patch
-Patch157: 0157-mount-when-learning-about-the-root-mount-from-mounti.patch
-Patch158: 0158-rules-only-run-systemd-sysctl-when-a-network-device-.patch
-Patch159: 0159-udev-handle-network-controllers-in-nonstandard-domai.patch
-Patch160: 0160-journalctl-properly-print-headers-of-empty-journals.patch
-Patch161: 0161-build-sys-remove-SD_JOURNAL_SYSTEM_ONLY-3-from-Makef.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -459,9 +397,6 @@ chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
 # This file is already in sytemd-ui rpm
 rm -fr %buildroot%_mandir/man1/systemadm.*
 
-# (cg) This should be moving at some point upstream so pre-empt it
-mv %{buildroot}%{_sysconfdir}/rpm %{buildroot}%{_prefix}/lib
-
 # (cg) This restores the horrible network name generator.
 # See comment above for why this sucks and why it will be removed in mga4
 install -p -m 0644 %{SOURCE50} %{buildroot}%{_prefix}/lib/udev/rules.d/
@@ -595,6 +530,7 @@ fi
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %dir %{_sysconfdir}/udev/rules.d
 %{_prefix}/lib/sysctl.d/50-default.conf
@@ -611,12 +547,14 @@ fi
 %{_bindir}/kernel-install
 %{_bindir}/localectl
 %{_bindir}/loginctl
+%{_bindir}/machinectl
 %{_bindir}/systemd
 %{_bindir}/systemd-ask-password
 %{_bindir}/systemd-coredumpctl
 %{_bindir}/systemd-inhibit
 %{_bindir}/systemd-machine-id-setup
 %{_bindir}/systemd-notify
+%{_bindir}/systemd-run
 %{_bindir}/systemd-tmpfiles
 %{_bindir}/systemd-tty-ask-password-agent
 %{_bindir}/timedatectl
@@ -649,6 +587,7 @@ fi
 %{_mandir}/man1/journalctl.*
 %{_mandir}/man1/localectl.*
 %{_mandir}/man1/loginctl.*
+%{_mandir}/man1/machinectl.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-*
 %{_mandir}/man1/timedatectl.*
@@ -673,6 +612,7 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/interfaces/org.freedesktop.hostname1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.locale1.xml
@@ -729,7 +669,7 @@ fi
 %{_libdir}/libsystemd-*.so
 %{_libdir}/pkgconfig/libsystemd-*.pc
 %{_datadir}/pkgconfig/systemd.pc
-%{_prefix}/lib/rpm/macros.systemd
+%{_prefix}/lib/rpm/macros.d/macros.systemd
 
 %files -n %{libdaemon}
 %defattr(-,root,root,-)
