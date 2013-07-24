@@ -173,6 +173,25 @@ Obsoletes:     %{mklibname -d systemd-id128} < 186
 %description devel
 This package provides the development files for systemd.
 
+%package -n nss-myhostname
+Summary:	systemd provided glibc plugin for local system host name resolution
+Group:		System/Base
+
+%description -n nss-myhostname
+nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
+functionality of the GNU C Library (glibc) providing host name
+resolution for the locally configured system hostname as returned by
+gethostname(2). Various software relies on an always resolvable local
+host name. When using dynamic hostnames this is usually achieved by
+patching /etc/hosts at the same time as changing the host name. This
+however is not ideal since it requires a writable /etc file system and
+is fragile because the file might be edited by the administrator at
+the same time. nss-myhostname simply returns all locally configure
+public IP addresses, or -- if none are configured -- the IPv4 address
+127.0.0.2 (wich is on the local loopback) and the IPv6 address ::1
+(which is the local host) for whatever system hostname is configured
+locally. Patching /etc/hosts is thus no longer necessary.
+
 %package -n %{libdaemon}
 Summary:       Systemd-daemon library package
 Group:         System/Libraries
@@ -403,9 +422,6 @@ install -p -m 0644 %{SOURCE50} %{buildroot}%{_prefix}/lib/udev/rules.d/
 install -p -m 0644 %{SOURCE51} %{buildroot}%{_prefix}/lib/udev/
 install -p -m 0755 %{SOURCE52} %{buildroot}%{_prefix}/lib/udev/
 
-# (cg) Just because I'm lazy while testing this....
-# TODO deprecate nss-myhostname package
-rm -f %{buildroot}%{_libdir}/libnss_myhostname.so.2 %{buildroot}/usr/share/man/man8/nss-myhostname.*
 # (cg) We've not decided on this yet, but it'll likely be enabled "soon"
 rm -f %{buildroot}%{_prefix}/lib/udev/rules.d/80-net-name-slot.rules
 
@@ -670,6 +686,10 @@ fi
 %{_libdir}/pkgconfig/libsystemd-*.pc
 %{_datadir}/pkgconfig/systemd.pc
 %{_prefix}/lib/rpm/macros.d/macros.systemd
+
+%files -n nss-myhostname
+%{_mandir}/man8/nss-myhostname.*
+%{_libdir}/libnss_myhostname.so.2
 
 %files -n %{libdaemon}
 %defattr(-,root,root,-)
