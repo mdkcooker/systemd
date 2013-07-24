@@ -406,9 +406,6 @@ chmod 755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
 # This file is already in sytemd-ui rpm
 rm -fr %buildroot%_mandir/man1/systemadm.*
 
-# (cg) We've not decided on this yet, but it'll likely be enabled "soon"
-rm -f %{buildroot}%{_prefix}/lib/udev/rules.d/80-net-name-slot.rules
-
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
@@ -421,6 +418,19 @@ fi
 %post
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
+
+if [ $1 -eq 2 ]; then
+	echo >&2
+	echo "Disabling Persistent Network Device Names due to upgrade." >&2
+	echo "To enable, rm %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules and your" >&2
+	echo "%{_sysconfdir}/udev/rules.d/70-persistent-net.rules files." >&2
+	echo "Note: Some reconfiguration of firewall and network config scripts will also" >&2
+	echo "      be required if you do this" >&2
+	echo >&2
+	mkdir -p %{_sysconfdir}/udev/rules.d >/dev/null 2>&1 || :
+	ln -s /dev/null %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules >/dev/null 2>&1 || :
+fi
+
 
 %triggerin units -- %{name}-units < 35-1
 # Enable the services we install by default.
