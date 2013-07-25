@@ -424,19 +424,6 @@ fi
 %{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
 %{_bindir}/journalctl --update-catalog >/dev/null 2>&1 || :
 
-if [ $1 -eq 2 ]; then
-	echo >&2
-	echo "Disabling Persistent Network Device Names due to upgrade." >&2
-	echo "To enable, rm %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules and your" >&2
-	echo "%{_sysconfdir}/udev/rules.d/70-persistent-net.rules files." >&2
-	echo "Note: Some reconfiguration of firewall and network config scripts will also" >&2
-	echo "      be required if you do this" >&2
-	echo >&2
-	mkdir -p %{_sysconfdir}/udev/rules.d >/dev/null 2>&1 || :
-	ln -s /dev/null %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules >/dev/null 2>&1 || :
-fi
-
-
 %triggerin units -- %{name}-units < 35-1
 # Enable the services we install by default.
         %{_bindir}/systemctl --quiet enable \
@@ -454,6 +441,23 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 # and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
 %triggerun -- %{name} < 195-4.mga3
 %{_bindir}/systemctl restart systemd-logind.service
+
+# (cg) mageia 4 introduces the Consistent Network Device Names feature
+# https://wiki.mageia.org/en/Feature:NetworkDeviceNameChange
+# To prevent it being enabled on upgrades and breaking configs, we ensure the
+# feature is disabled when we detect an older version of systemd being removed.
+%triggerun -- %{name} < 206
+echo >&2
+echo "Disabling Persistent Network Device Names due to upgrade." >&2
+echo "To enable, rm %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules and your" >&2
+echo "%{_sysconfdir}/udev/rules.d/70-persistent-net.rules files." >&2
+echo "Note: Some reconfiguration of firewall and network config scripts will also" >&2
+echo "      be required if you do this" >&2
+echo >&2
+mkdir -p %{_sysconfdir}/udev/rules.d >/dev/null 2>&1 || :
+ln -s /dev/null %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules >/dev/null 2>&1 || :
+
+
 
 %post units
 if [ $1 -eq 1 ] ; then
