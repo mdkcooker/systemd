@@ -424,18 +424,6 @@ fi
 %{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
 %{_bindir}/journalctl --update-catalog >/dev/null 2>&1 || :
 
-%triggerin units -- %{name}-units < 35-1
-# Enable the services we install by default.
-        %{_bindir}/systemctl --quiet enable \
-                hwclock-load.service \
-                getty@.service \
-                remote-fs.target \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
-                2>&1 || :
-# rc-local is now enabled by default in base package
-rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
-
 # (blino) systemd 195 changed the prototype of logind's OpenSession()
 # see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
 # and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
@@ -456,7 +444,6 @@ echo "      be required if you do this" >&2
 echo >&2
 mkdir -p %{_sysconfdir}/udev/rules.d >/dev/null 2>&1 || :
 ln -s /dev/null %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules >/dev/null 2>&1 || :
-
 
 
 %post units
@@ -491,7 +478,6 @@ if [ -z $hostname_new ]; then
         fi
 fi
 
-
 %preun units
 if [ $1 -eq 0 ] ; then
         %{_bindir}/systemctl --quiet disable \
@@ -508,6 +494,19 @@ fi
 if [ $1 -ge 1 ] ; then
         %{_bindir}/systemctl daemon-reload 2>&1 || :
 fi
+
+%triggerin units -- %{name}-units < 35-1
+# Enable the services we install by default.
+        %{_bindir}/systemctl --quiet enable \
+                hwclock-load.service \
+                getty@.service \
+                remote-fs.target \
+                systemd-readahead-replay.service \
+                systemd-readahead-collect.service \
+                2>&1 || :
+# rc-local is now enabled by default in base package
+rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
+
 
 %files
 # (cg) Note some of these directories are empty, but that is intended
