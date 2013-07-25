@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -375,6 +375,8 @@ touch %{buildroot}%{_sysconfdir}/machine-info
 touch %{buildroot}%{_sysconfdir}/timezone
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+mkdir -p %{buildroot}%{_sysconfdir}/udev
+touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 
 # Make sure the NTP units dir exists
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/ntp-units.d/
@@ -418,6 +420,7 @@ fi
 %post
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
+%{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
 
 if [ $1 -eq 2 ]; then
 	echo >&2
@@ -521,6 +524,7 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/udev/udev.conf
+%ghost %{_sysconfdir}/udev/hwdb.bin
 %{_sysconfdir}/xdg/systemd
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
