@@ -419,8 +419,10 @@ fi
 
 %post
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
+%{_prefix}/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
 %{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
+%{_bindir}/journalctl --update-catalog >/dev/null 2>&1 || :
 
 if [ $1 -eq 2 ]; then
 	echo >&2
