@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -39,6 +39,15 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+Patch100: 0100-core-synchronously-block-when-logging.patch
+Patch101: 0101-journal-immediately-sync-to-disk-as-soon-as-we-recei.patch
+Patch102: 0102-initctl-use-irreversible-jobs-when-switching-runleve.patch
+Patch103: 0103-udev-log-error-if-chmod-chown-of-static-dev-nodes-fa.patch
+Patch104: 0104-udev-static_node-don-t-touch-permissions-uneccessari.patch
+Patch105: 0105-tmpfiles-support-passing-prefix-multiple-times.patch
+Patch106: 0106-tmpfiles-introduce-exclude-prefix.patch
+Patch107: 0107-tmpfiles-setup-exclude-dev-prefixes-files.patch
+Patch108: 0108-shell-completion-add-kernel-install.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
