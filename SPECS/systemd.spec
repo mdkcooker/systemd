@@ -290,6 +290,7 @@ find src/ -name "*.vala" -exec touch '{}' \;
 autoreconf --force --install --verbose
 %configure2_5x \
   --with-distro=mageia \
+  --with-rc-local-script-path-start=/etc/rc.d/rc.local \
   --disable-static \
   --disable-selinux \
   --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware \
