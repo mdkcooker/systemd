@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -468,7 +468,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         %{_bindir}/systemctl --quiet enable \
-                getty@.service \
+                getty@tty1.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -506,7 +506,7 @@ fi
 # Enable the services we install by default.
         %{_bindir}/systemctl --quiet enable \
                 hwclock-load.service \
-                getty@.service \
+                getty@tty1.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
