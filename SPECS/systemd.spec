@@ -289,13 +289,10 @@ find src/ -name "*.vala" -exec touch '{}' \;
 %build
 autoreconf --force --install --verbose
 %configure2_5x \
-  --with-distro=mageia \
   --with-rc-local-script-path-start=/etc/rc.d/rc.local \
   --disable-static \
   --disable-selinux \
-  --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware \
-  --with-usb-ids-path=/usr/share/usb.ids \
-  --with-pci-ids-path=/usr/share/pci.ids
+  --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware
 
 %make
 
