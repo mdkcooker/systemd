@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	%mkrel 5
+Release:	%mkrel 6
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -48,6 +48,8 @@ Patch105: 0105-tmpfiles-support-passing-prefix-multiple-times.patch
 Patch106: 0106-tmpfiles-introduce-exclude-prefix.patch
 Patch107: 0107-tmpfiles-setup-exclude-dev-prefixes-files.patch
 Patch108: 0108-shell-completion-add-kernel-install.patch
+Patch109: 0109-logind-update-state-file-after-generating-the-sessio.patch
+Patch110: 0110-logind-update-the-session-state-file-before-we-send-.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
