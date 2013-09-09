@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	%mkrel 6
+Release:	%mkrel 7
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -292,6 +292,7 @@ find src/ -name "*.vala" -exec touch '{}' \;
 autoreconf --force --install --verbose
 %configure2_5x \
   --with-rc-local-script-path-start=/etc/rc.d/rc.local \
+  --enable-chkconfig \
   --disable-static \
   --disable-selinux \
   --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware
