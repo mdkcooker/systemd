@@ -1,0 +1,26 @@
+From bf24e638afb32ebc49b063c007888410fb9d19bd Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 17 Sep 2013 15:28:22 -0500
+Subject: [PATCH 149/169] Update TODO
+
+---
+ TODO | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/TODO b/TODO
+index d109e01..b5a93b2 100644
+--- a/TODO
++++ b/TODO
+@@ -58,6 +58,9 @@ CGroup Rework Completion:
+ 
+ Features:
+ 
++* When using "systemd status" on a slice unit also show all messages
++  matching _SYSTEMD_SLICE= not just _SYSTEMD_UNIT=
++
+ * always set memory.user_hierarchy for all cgroups we create
+ 
+ * After coming back from hibernation reset hibernation swap partition
+-- 
+1.8.4
+

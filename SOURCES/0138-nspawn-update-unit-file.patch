@@ -1,0 +1,26 @@
+From 3331234adc763378a5e48e7ad6dc2bf9657aa535 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 17 Sep 2013 11:59:47 -0500
+Subject: [PATCH 138/169] nspawn: update unit file
+
+ControlGroup= is obsolete, so let's drop it from the default nspawn unit
+file.
+---
+ units/systemd-nspawn@.service.in | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/units/systemd-nspawn@.service.in b/units/systemd-nspawn@.service.in
+index c0d5886..eca62e3 100644
+--- a/units/systemd-nspawn@.service.in
++++ b/units/systemd-nspawn@.service.in
+@@ -11,7 +11,6 @@ Documentation=man:systemd-nspawn(1)
+ 
+ [Service]
+ ExecStart=@bindir@/systemd-nspawn -bjD /var/lib/container/%i
+-ControlGroup=%R/machine/%i.nspawn cpu:/
+ Type=notify
+ 
+ [Install]
+-- 
+1.8.4
+

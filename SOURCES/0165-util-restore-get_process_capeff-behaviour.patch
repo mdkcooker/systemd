@@ -1,0 +1,47 @@
+From 0a7b53bdd2bb36c9543830c087954f184cd06535 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 17 Sep 2013 18:34:47 -0500
+Subject: [PATCH 165/169] util: restore get_process_capeff behaviour
+
+69ab8088 unified parsing of status files and removed the logic of
+skipping extra '0's when getting the effective capabilities. Restore
+that logic, so that the same capabilities are always mapped to the
+same strings in the journal.
+---
+ src/shared/fileio.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/src/shared/fileio.c b/src/shared/fileio.c
+index 4e2b444..23bc742 100644
+--- a/src/shared/fileio.c
++++ b/src/shared/fileio.c
+@@ -650,9 +650,9 @@ int executable_is_script(const char *path, char **interpreter) {
+ }
+ 
+ /**
+- * Retrieve one field from a file like /proc/self/status.
+- * pattern should start with '\n' and end with ':'. Whitespace
+- * after ':' will be skipped. field must be freed afterwards.
++ * Retrieve one field from a file like /proc/self/status.  pattern
++ * should start with '\n' and end with a ':'. Whitespace and zeros
++ * after the ':' will be skipped. field must be freed afterwards.
+  */
+ int get_status_field(const char *filename, const char *pattern, char **field) {
+         _cleanup_free_ char *status = NULL;
+@@ -672,7 +672,12 @@ int get_status_field(const char *filename, const char *pattern, char **field) {
+                 return -ENOENT;
+ 
+         t += strlen(pattern);
+-        t += strspn(t, WHITESPACE);
++        /* Also skip zeros, because when this is used for capabilities,
++         * we don't want the zeros. This way the same cabality set
++         * always maps to the same string, irrespective of the total
++         * capability set size. For other numbers it shouldn't matter.
++         */
++        t += strspn(t, WHITESPACE "0");
+ 
+         len = strcspn(t, WHITESPACE);
+ 
+-- 
+1.8.4
+

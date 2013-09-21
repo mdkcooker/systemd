@@ -1,0 +1,181 @@
+From 92432fcc7f3a0320c07e99c5d395568a3aa216b6 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Tue, 17 Sep 2013 17:39:59 +0200
+Subject: [PATCH 139/169] logind: rename vtconsole to seat0
+
+The seat->vtconsole member always points to the default seat seat0. Even
+if VTs are disabled, it's used as default seat. Therefore, rename it to
+seat0 to correctly state what it is.
+
+This also changes the seat files in /run from IS_VTCONSOLE to IS_SEAT0. It
+wasn't used by any code, yet, so this seems fine.
+
+While we are at it, we also remove every "if (s->vtconsole)" as this
+pointer is always valid!
+---
+ src/login/logind-dbus.c    |  8 ++++----
+ src/login/logind-seat.c    | 14 +++++++-------
+ src/login/logind-seat.h    |  2 +-
+ src/login/logind-session.c |  2 +-
+ src/login/logind.c         |  8 ++++----
+ src/login/logind.h         |  2 +-
+ 6 files changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index 113a2b7..4a23c93 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -404,8 +404,8 @@ static int bus_manager_create_session(Manager *m, DBusMessage *message) {
+                 int v;
+ 
+                 if (!seat)
+-                        seat = m->vtconsole;
+-                else if (seat != m->vtconsole)
++                        seat = m->seat0;
++                else if (seat != m->seat0)
+                         return -EINVAL;
+ 
+                 v = vtnr_from_tty(tty);
+@@ -420,8 +420,8 @@ static int bus_manager_create_session(Manager *m, DBusMessage *message) {
+         } else if (tty_is_console(tty)) {
+ 
+                 if (!seat)
+-                        seat = m->vtconsole;
+-                else if (seat != m->vtconsole)
++                        seat = m->seat0;
++                else if (seat != m->seat0)
+                         return -EINVAL;
+ 
+                 if (vtnr != 0)
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index 2c60b8a..9b6ceb3 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -105,11 +105,11 @@ int seat_save(Seat *s) {
+ 
+         fprintf(f,
+                 "# This is private data. Do not parse.\n"
+-                "IS_VTCONSOLE=%i\n"
++                "IS_SEAT0=%i\n"
+                 "CAN_MULTI_SESSION=%i\n"
+                 "CAN_TTY=%i\n"
+                 "CAN_GRAPHICAL=%i\n",
+-                seat_is_vtconsole(s),
++                seat_is_seat0(s),
+                 seat_can_multi_session(s),
+                 seat_can_tty(s),
+                 seat_can_graphical(s));
+@@ -424,16 +424,16 @@ int seat_attach_session(Seat *s, Session *session) {
+         return 0;
+ }
+ 
+-bool seat_is_vtconsole(Seat *s) {
++bool seat_is_seat0(Seat *s) {
+         assert(s);
+ 
+-        return s->manager->vtconsole == s;
++        return s->manager->seat0 == s;
+ }
+ 
+ bool seat_can_multi_session(Seat *s) {
+         assert(s);
+ 
+-        if (!seat_is_vtconsole(s))
++        if (!seat_is_seat0(s))
+                 return false;
+ 
+         /* If we can't watch which VT is in the foreground, we don't
+@@ -445,7 +445,7 @@ bool seat_can_multi_session(Seat *s) {
+ bool seat_can_tty(Seat *s) {
+         assert(s);
+ 
+-        return seat_is_vtconsole(s);
++        return seat_is_seat0(s);
+ }
+ 
+ bool seat_has_master_device(Seat *s) {
+@@ -503,7 +503,7 @@ int seat_check_gc(Seat *s, bool drop_not_started) {
+         if (drop_not_started && !s->started)
+                 return 0;
+ 
+-        if (seat_is_vtconsole(s))
++        if (seat_is_seat0(s))
+                 return 1;
+ 
+         return seat_has_master_device(s);
+diff --git a/src/login/logind-seat.h b/src/login/logind-seat.h
+index bd5390f..47fe89a 100644
+--- a/src/login/logind-seat.h
++++ b/src/login/logind-seat.h
+@@ -60,7 +60,7 @@ int seat_preallocate_vts(Seat *s);
+ 
+ int seat_attach_session(Seat *s, Session *session);
+ 
+-bool seat_is_vtconsole(Seat *s);
++bool seat_is_seat0(Seat *s);
+ bool seat_can_multi_session(Seat *s);
+ bool seat_can_tty(Seat *s);
+ bool seat_has_master_device(Seat *s);
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index fa8b515..407429c 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -372,7 +372,7 @@ int session_activate(Session *s) {
+         if (s->seat->active == s)
+                 return 0;
+ 
+-        assert(seat_is_vtconsole(s->seat));
++        assert(seat_is_seat0(s->seat));
+ 
+         return chvt(s->vtnr);
+ }
+diff --git a/src/login/logind.c b/src/login/logind.c
+index c99c284..702382a 100644
+--- a/src/login/logind.c
++++ b/src/login/logind.c
+@@ -858,7 +858,7 @@ int manager_dispatch_vcsa_udev(Manager *m) {
+          * VTs, to make sure our auto VTs never go away. */
+ 
+         if (name && startswith(name, "vcsa") && streq_ptr(udev_device_get_action(d), "remove"))
+-                r = seat_preallocate_vts(m->vtconsole);
++                r = seat_preallocate_vts(m->seat0);
+ 
+         udev_device_unref(d);
+ 
+@@ -883,9 +883,9 @@ int manager_dispatch_button_udev(Manager *m) {
+ 
+ int manager_dispatch_console(Manager *m) {
+         assert(m);
++        assert(m->seat0);
+ 
+-        if (m->vtconsole)
+-                seat_read_active_vt(m->vtconsole);
++        seat_read_active_vt(m->seat0);
+ 
+         return 0;
+ }
+@@ -1543,7 +1543,7 @@ int manager_startup(Manager *m) {
+                 return r;
+ 
+         /* Instantiate magic seat 0 */
+-        r = manager_add_seat(m, "seat0", &m->vtconsole);
++        r = manager_add_seat(m, "seat0", &m->seat0);
+         if (r < 0)
+                 return r;
+ 
+diff --git a/src/login/logind.h b/src/login/logind.h
+index a76936d..9e6296c 100644
+--- a/src/login/logind.h
++++ b/src/login/logind.h
+@@ -74,7 +74,7 @@ struct Manager {
+         unsigned reserve_vt;
+         int reserve_vt_fd;
+ 
+-        Seat *vtconsole;
++        Seat *seat0;
+ 
+         char **kill_only_users, **kill_exclude_users;
+         bool kill_user_processes;
+-- 
+1.8.4
+

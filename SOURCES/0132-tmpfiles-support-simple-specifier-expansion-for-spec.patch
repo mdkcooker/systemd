@@ -1,0 +1,271 @@
+From 1731e34a4ebddf6e1247ad252c7a45c2c1163f42 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 17 Sep 2013 11:02:02 -0500
+Subject: [PATCH 132/169] tmpfiles: support simple specifier expansion for
+ specified paths
+
+---
+ Makefile.am             |  7 ++++--
+ man/tmpfiles.d.xml      | 57 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ src/test/test-strv.c    | 10 ++++-----
+ src/tmpfiles/tmpfiles.c | 51 ++++++++++++++++++++++++++-----------------
+ 4 files changed, 97 insertions(+), 28 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index b69d66d..af12fa5 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1542,12 +1542,15 @@ EXTRA_DIST += \
+ # ------------------------------------------------------------------------------
+ if ENABLE_TMPFILES
+ systemd_tmpfiles_SOURCES = \
+-	src/tmpfiles/tmpfiles.c
++	src/tmpfiles/tmpfiles.c \
++	src/shared/specifier.c \
++	src/shared/specifier.h
+ 
+ systemd_tmpfiles_LDADD = \
+ 	libsystemd-label.la \
+ 	libsystemd-shared.la \
+-	libsystemd-capability.la
++	libsystemd-capability.la \
++	libsystemd-id128-internal.la
+ 
+ rootbin_PROGRAMS += \
+ 	systemd-tmpfiles
+diff --git a/man/tmpfiles.d.xml b/man/tmpfiles.d.xml
+index cdc87c9..1cf8992 100644
+--- a/man/tmpfiles.d.xml
++++ b/man/tmpfiles.d.xml
+@@ -67,7 +67,7 @@
+                 <title>Configuration Format</title>
+ 
+                 <para>Each configuration file shall be named in the
+-                style of <filename>&lt;program&gt;.conf</filename>.
++                style of <filename>&lt;package&gt;.conf</filename>.
+                 Files in <filename>/etc/</filename> override files
+                 with the same name in <filename>/usr/lib/</filename>
+                 and <filename>/run/</filename>.  Files in
+@@ -100,8 +100,12 @@
+ d    /run/user   0755 root root 10d -
+ L    /tmp/foobar -    -    -    -   /dev/null</programlisting>
+ 
++
+                 <refsect2>
+                         <title>Type</title>
++
++                        <para>The following line types are understood:</para>
++
+                         <variablelist>
+                                 <varlistentry>
+                                         <term><varname>f</varname></term>
+@@ -234,6 +238,57 @@ L    /tmp/foobar -    -    -    -   /dev/null</programlisting>
+                 </refsect2>
+ 
+                 <refsect2>
++                        <title>Path</title>
++
++                        <para>The file system path specification supports simple specifier
++                        expansion. The following expansions are
++                        understood:</para>
++
++                        <table>
++                                <title>Specifiers available</title>
++                                <tgroup cols='3' align='left' colsep='1' rowsep='1'>
++                                        <colspec colname="spec" />
++                                        <colspec colname="mean" />
++                                        <colspec colname="detail" />
++                                        <thead>
++                                                <row>
++                                                        <entry>Specifier</entry>
++                                                        <entry>Meaning</entry>
++                                                        <entry>Details</entry>
++                                                </row>
++                                        </thead>
++                                        <tbody>
++                                                <row>
++                                                        <entry><literal>%m</literal></entry>
++                                                        <entry>Machine ID</entry>
++                                                        <entry>The machine ID of the running system, formatted as string. See <citerefentry><refentrytitle>machine-id</refentrytitle><manvolnum>5</manvolnum></citerefentry> for more information.</entry>
++                                                </row>
++                                                <row>
++                                                        <entry><literal>%b</literal></entry>
++                                                        <entry>Boot ID</entry>
++                                                        <entry>The boot ID of the running system, formatted as string. See <citerefentry><refentrytitle>random</refentrytitle><manvolnum>4</manvolnum></citerefentry> for more information.</entry>
++                                                </row>
++                                                <row>
++                                                        <entry><literal>%H</literal></entry>
++                                                        <entry>Host name</entry>
++                                                        <entry>The hostname of the running system.</entry>
++                                                </row>
++                                                <row>
++                                                        <entry><literal>%v</literal></entry>
++                                                        <entry>Kernel release</entry>
++                                                        <entry>Identical to <command>uname -r</command> output.</entry>
++                                                </row>
++                                                <row>
++                                                        <entry><literal>%%</literal></entry>
++                                                        <entry>Escaped %</entry>
++                                                        <entry>Single percent sign.</entry>
++                                                </row>
++                                        </tbody>
++                                </tgroup>
++                        </table>
++                </refsect2>
++
++                <refsect2>
+                         <title>Mode</title>
+ 
+                         <para>The file access mode to use when
+diff --git a/src/test/test-strv.c b/src/test/test-strv.c
+index 6513d2e..c3d536d 100644
+--- a/src/test/test-strv.c
++++ b/src/test/test-strv.c
+@@ -27,19 +27,19 @@
+ #include "strv.h"
+ 
+ static void test_specifier_printf(void) {
+-        _cleanup_free_ char *w = NULL;
+-        int r;
+-
+-        const Specifier table[] = {
++        static const Specifier table[] = {
+                 { 'a', specifier_string, (char*) "AAAA" },
+                 { 'b', specifier_string, (char*) "BBBB" },
+                 { 'm', specifier_machine_id, NULL },
+                 { 'B', specifier_boot_id, NULL },
+                 { 'H', specifier_host_name, NULL },
+                 { 'v', specifier_kernel_release, NULL },
+-                { 0, NULL, NULL }
++                {}
+         };
+ 
++        _cleanup_free_ char *w = NULL;
++        int r;
++
+         r = specifier_printf("xxx a=%a b=%b yyy", table, NULL, &w);
+         assert_se(r >= 0);
+         assert_se(w);
+diff --git a/src/tmpfiles/tmpfiles.c b/src/tmpfiles/tmpfiles.c
+index 5eca82a..fb25b77 100644
+--- a/src/tmpfiles/tmpfiles.c
++++ b/src/tmpfiles/tmpfiles.c
+@@ -51,6 +51,7 @@
+ #include "set.h"
+ #include "conf-files.h"
+ #include "capability.h"
++#include "specifier.h"
+ 
+ /* This reads all files listed in /etc/tmpfiles.d/?*.conf and creates
+  * them in the file system. This is intended to be used to create
+@@ -1038,10 +1039,19 @@ static bool should_include_path(const char *path) {
+ }
+ 
+ static int parse_line(const char *fname, unsigned line, const char *buffer) {
++
++        static const Specifier specifier_table[] = {
++                { 'm', specifier_machine_id, NULL },
++                { 'b', specifier_boot_id, NULL },
++                { 'H', specifier_host_name, NULL },
++                { 'v', specifier_kernel_release, NULL },
++                {}
++        };
++
+         _cleanup_item_free_ Item *i = NULL;
+         Item *existing;
+         _cleanup_free_ char
+-                *mode = NULL, *user = NULL, *group = NULL, *age = NULL;
++                *mode = NULL, *user = NULL, *group = NULL, *age = NULL, *path = NULL;
+         char type;
+         Hashmap *h;
+         int r, n = -1;
+@@ -1050,14 +1060,10 @@ static int parse_line(const char *fname, unsigned line, const char *buffer) {
+         assert(line >= 1);
+         assert(buffer);
+ 
+-        i = new0(Item, 1);
+-        if (!i)
+-                return log_oom();
+-
+         r = sscanf(buffer,
+                    "%c %ms %ms %ms %ms %ms %n",
+                    &type,
+-                   &i->path,
++                   &path,
+                    &mode,
+                    &user,
+                    &group,
+@@ -1068,6 +1074,16 @@ static int parse_line(const char *fname, unsigned line, const char *buffer) {
+                 return -EIO;
+         }
+ 
++        i = new0(Item, 1);
++        if (!i)
++                return log_oom();
++
++        r = specifier_printf(path, specifier_table, NULL, &i->path);
++        if (r < 0) {
++                log_error("[%s:%u] Failed to replace specifiers: %s", fname, line, path);
++                return r;
++        }
++
+         if (n >= 0)  {
+                 n += strspn(buffer+n, WHITESPACE);
+                 if (buffer[n] != 0 && (buffer[n] != '-' || buffer[n+1] != 0)) {
+@@ -1307,11 +1323,12 @@ static int parse_argv(int argc, char *argv[]) {
+ }
+ 
+ static int read_config_file(const char *fn, bool ignore_enoent) {
+-        FILE *f;
+-        unsigned v = 0;
+-        int r;
++        _cleanup_fclose_ FILE *f = NULL;
++        char line[LINE_MAX];
+         Iterator iterator;
++        unsigned v = 0;
+         Item *i;
++        int r;
+ 
+         assert(fn);
+ 
+@@ -1324,23 +1341,19 @@ static int read_config_file(const char *fn, bool ignore_enoent) {
+                 return r;
+         }
+ 
+-        log_debug("apply: %s\n", fn);
+-        for (;;) {
+-                char line[LINE_MAX], *l;
++        FOREACH_LINE(line, f, break) {
++                char *l;
+                 int k;
+ 
+-                if (!(fgets(line, sizeof(line), f)))
+-                        break;
+-
+                 v++;
+ 
+                 l = strstrip(line);
+                 if (*l == '#' || *l == 0)
+                         continue;
+ 
+-                if ((k = parse_line(fn, v, l)) < 0)
+-                        if (r == 0)
+-                                r = k;
++                k = parse_line(fn, v, l);
++                if (k < 0 && r == 0)
++                        r = k;
+         }
+ 
+         /* we have to determine age parameter for each entry of type X */
+@@ -1377,8 +1390,6 @@ static int read_config_file(const char *fn, bool ignore_enoent) {
+                         r = -EIO;
+         }
+ 
+-        fclose(f);
+-
+         return r;
+ }
+ 
+-- 
+1.8.4
+

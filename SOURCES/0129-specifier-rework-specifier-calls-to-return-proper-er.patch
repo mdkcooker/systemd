@@ -1,0 +1,1340 @@
+From 19f6d710772305610b928bc2678b9d77fe11e770 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 17 Sep 2013 10:03:46 -0500
+Subject: [PATCH 129/169] specifier: rework specifier calls to return proper
+ error message
+
+Previously the specifier calls could only indicate OOM by returning
+NULL. With this change they will return negative errno-style error codes
+like everything else.
+---
+ src/core/load-fragment.c    | 184 ++++++++++++++++++++++++----------------
+ src/core/service.c          |   6 +-
+ src/core/socket.c           |   6 +-
+ src/core/unit-printf.c      | 200 +++++++++++++++++++++++++++++---------------
+ src/core/unit-printf.h      |   6 +-
+ src/shared/install-printf.c |  54 ++++++++----
+ src/shared/install-printf.h |   2 +-
+ src/shared/install.c        |  25 +++---
+ src/shared/specifier.c      | 105 ++++++++++++++---------
+ src/shared/specifier.h      |  14 ++--
+ src/test/test-strv.c        |  16 +++-
+ src/test/test-unit-file.c   |   7 +-
+ src/test/test-unit-name.c   |   8 +-
+ 13 files changed, 395 insertions(+), 238 deletions(-)
+
+diff --git a/src/core/load-fragment.c b/src/core/load-fragment.c
+index f4a268c..cfc6f07 100644
+--- a/src/core/load-fragment.c
++++ b/src/core/load-fragment.c
+@@ -99,9 +99,12 @@ int config_parse_unit_deps(const char* unit,
+                 if (!t)
+                         return log_oom();
+ 
+-                k = unit_name_printf(u, t);
+-                if (!k)
+-                        return log_oom();
++                r = unit_name_printf(u, t, &k);
++                if (r < 0) {
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
++                                   "Failed to resolve specifiers, ignoring: %s", strerror(-r));
++                        continue;
++                }
+ 
+                 r = unit_add_dependency_by_name(u, d, k, NULL, true);
+                 if (r < 0)
+@@ -124,16 +127,17 @@ int config_parse_unit_string_printf(const char *unit,
+ 
+         Unit *u = userdata;
+         _cleanup_free_ char *k = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+         assert(rvalue);
+         assert(u);
+ 
+-        k = unit_full_printf(u, rvalue);
+-        if (!k)
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++        r = unit_full_printf(u, rvalue, &k);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve unit specifiers on %s, ignoring: %s", rvalue, strerror(-r));
+ 
+         return config_parse_string(unit, filename, line, section, lvalue, ltype,
+                                    k ? k : rvalue, data, userdata);
+@@ -151,16 +155,17 @@ int config_parse_unit_strv_printf(const char *unit,
+ 
+         Unit *u = userdata;
+         _cleanup_free_ char *k = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+         assert(rvalue);
+         assert(u);
+ 
+-        k = unit_full_printf(u, rvalue);
+-        if (!k)
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++        r = unit_full_printf(u, rvalue, &k);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve unit specifiers on %s, ignoring: %s", rvalue, strerror(-r));
+ 
+         return config_parse_strv(unit, filename, line, section, lvalue, ltype,
+                                  k ? k : rvalue, data, userdata);
+@@ -178,16 +183,17 @@ int config_parse_unit_path_printf(const char *unit,
+ 
+         Unit *u = userdata;
+         _cleanup_free_ char *k = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+         assert(rvalue);
+         assert(u);
+ 
+-        k = unit_full_printf(u, rvalue);
+-        if (!k)
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++        r = unit_full_printf(u, rvalue, &k);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve unit specifiers on %s, ignoring: %s", rvalue, strerror(-r));
+ 
+         return config_parse_path(unit, filename, line, section, lvalue, ltype,
+                                  k ? k : rvalue, data, userdata);
+@@ -205,6 +211,7 @@ int config_parse_socket_listen(const char *unit,
+ 
+         SocketPort *p, *tail;
+         Socket *s;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -226,32 +233,31 @@ int config_parse_socket_listen(const char *unit,
+         if (ltype != SOCKET_SOCKET) {
+ 
+                 p->type = ltype;
+-                p->path = unit_full_printf(UNIT(s), rvalue);
+-                if (!p->path) {
++                r = unit_full_printf(UNIT(s), rvalue, &p->path);
++                if (r < 0) {
+                         p->path = strdup(rvalue);
+                         if (!p->path) {
+                                 free(p);
+                                 return log_oom();
+                         } else
+-                                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                                           "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++                                log_syntax(unit, LOG_ERR, filename, line, -r,
++                                           "Failed to resolve unit specifiers on %s, ignoring: %s", rvalue, strerror(-r));
+                 }
+ 
+                 path_kill_slashes(p->path);
+ 
+         } else if (streq(lvalue, "ListenNetlink")) {
+                 _cleanup_free_ char  *k = NULL;
+-                int r;
+ 
+                 p->type = SOCKET_SOCKET;
+-                k = unit_full_printf(UNIT(s), rvalue);
+-                if (!k)
+-                        log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                                   "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++                r = unit_full_printf(UNIT(s), rvalue, &k);
++                if (r < 0)
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
++                                   "Failed to resolve unit specifiers on %s, ignoring: %s", rvalue, strerror(-r));
+ 
+                 r = socket_address_parse_netlink(&p->address, k ? k : rvalue);
+                 if (r < 0) {
+-                        log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
+                                    "Failed to parse address value, ignoring: %s", rvalue);
+                         free(p);
+                         return 0;
+@@ -259,17 +265,16 @@ int config_parse_socket_listen(const char *unit,
+ 
+         } else {
+                 _cleanup_free_ char *k = NULL;
+-                int r;
+ 
+                 p->type = SOCKET_SOCKET;
+-                k = unit_full_printf(UNIT(s), rvalue);
+-                if (!k)
+-                        log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                                   "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++                r = unit_full_printf(UNIT(s), rvalue, &k);
++                if (r < 0)
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
++                                   "Failed to resolve unit specifiers on %s, ignoring: %s", rvalue, strerror(-r));
+ 
+                 r = socket_address_parse(&p->address, k ? k : rvalue);
+                 if (r < 0) {
+-                        log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
+                                    "Failed to parse address value, ignoring: %s", rvalue);
+                         free(p);
+                         return 0;
+@@ -1230,11 +1235,12 @@ int config_parse_trigger_unit(
+                 return 0;
+         }
+ 
+-        p = unit_name_printf(u, rvalue);
+-        if (!p)
+-                return log_oom();
++        r = unit_name_printf(u, rvalue, &p);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve specifiers, ignoring: %s", strerror(-r));
+ 
+-        type = unit_name_to_type(p);
++        type = unit_name_to_type(p ?: rvalue);
+         if (type < 0) {
+                 log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+                            "Unit type not valid, ignoring: %s", rvalue);
+@@ -1247,10 +1253,10 @@ int config_parse_trigger_unit(
+                 return 0;
+         }
+ 
+-        r = unit_add_two_dependencies_by_name(u, UNIT_BEFORE, UNIT_TRIGGERS, p, NULL, true);
++        r = unit_add_two_dependencies_by_name(u, UNIT_BEFORE, UNIT_TRIGGERS, p ?: rvalue, NULL, true);
+         if (r < 0) {
+                 log_syntax(unit, LOG_ERR, filename, line, -r,
+-                           "Failed to add trigger on %s, ignoring: %s", p, strerror(-r));
++                           "Failed to add trigger on %s, ignoring: %s", p ?: rvalue, strerror(-r));
+                 return 0;
+         }
+ 
+@@ -1271,6 +1277,7 @@ int config_parse_path_spec(const char *unit,
+         PathSpec *s;
+         PathType b;
+         _cleanup_free_ char *k = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1290,13 +1297,13 @@ int config_parse_path_spec(const char *unit,
+                 return 0;
+         }
+ 
+-        k = unit_full_printf(UNIT(p), rvalue);
+-        if (!k) {
++        r = unit_full_printf(UNIT(p), rvalue, &k);
++        if (r < 0) {
+                 k = strdup(rvalue);
+                 if (!k)
+                         return log_oom();
+                 else
+-                        log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
+                                    "Failed to resolve unit specifiers on %s. Ignoring.",
+                                    rvalue);
+         }
+@@ -1344,19 +1351,20 @@ int config_parse_socket_service(const char *unit,
+ 
+         dbus_error_init(&error);
+ 
+-        p = unit_name_printf(UNIT(s), rvalue);
+-        if (!p)
+-                return log_oom();
++        r = unit_name_printf(UNIT(s), rvalue, &p);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve specifiers, ignoring: %s", rvalue);
+ 
+-        if (!endswith(p, ".service")) {
++        if (!endswith(p ?: rvalue, ".service")) {
+                 log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+                            "Unit must be of type service, ignoring: %s", rvalue);
+                 return 0;
+         }
+ 
+-        r = manager_load_unit(UNIT(s)->manager, p, NULL, &error, &x);
++        r = manager_load_unit(UNIT(s)->manager, p ?: rvalue, NULL, &error, &x);
+         if (r < 0) {
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++                log_syntax(unit, LOG_ERR, filename, line, r,
+                            "Failed to load unit %s, ignoring: %s",
+                            rvalue, bus_error(&error, r));
+                 dbus_error_free(&error);
+@@ -1395,23 +1403,24 @@ int config_parse_service_sockets(const char *unit,
+                 if (!t)
+                         return log_oom();
+ 
+-                k = unit_name_printf(UNIT(s), t);
+-                if (!k)
+-                        return log_oom();
++                r = unit_name_printf(UNIT(s), t, &k);
++                if (r < 0)
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
++                                   "Failed to resolve specifiers, ignoring: %s", strerror(-r));
+ 
+-                if (!endswith(k, ".socket")) {
++                if (!endswith(k ?: t, ".socket")) {
+                         log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                                   "Unit must be of type socket, ignoring: %s", k);
++                                   "Unit must be of type socket, ignoring: %s", k ?: t);
+                         continue;
+                 }
+ 
+-                r = unit_add_two_dependencies_by_name(UNIT(s), UNIT_WANTS, UNIT_AFTER, k, NULL, true);
++                r = unit_add_two_dependencies_by_name(UNIT(s), UNIT_WANTS, UNIT_AFTER, k ?: t, NULL, true);
+                 if (r < 0)
+                         log_syntax(unit, LOG_ERR, filename, line, -r,
+                                    "Failed to add dependency on %s, ignoring: %s",
+-                                   k, strerror(-r));
++                                   k ?: t, strerror(-r));
+ 
+-                r = unit_add_dependency_by_name(UNIT(s), UNIT_TRIGGERED_BY, k, NULL, true);
++                r = unit_add_dependency_by_name(UNIT(s), UNIT_TRIGGERED_BY, k ?: t, NULL, true);
+                 if (r < 0)
+                         return r;
+         }
+@@ -1463,7 +1472,8 @@ int config_parse_unit_env_file(const char *unit,
+ 
+         char ***env = data;
+         Unit *u = userdata;
+-        _cleanup_free_ char *s = NULL;
++        _cleanup_free_ char *n = NULL;
++        const char *s;
+         int r;
+ 
+         assert(filename);
+@@ -1478,10 +1488,12 @@ int config_parse_unit_env_file(const char *unit,
+                 return 0;
+         }
+ 
+-        s = unit_full_printf(u, rvalue);
+-        if (!s)
+-                return log_oom();
++        r = unit_full_printf(u, rvalue, &n);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, r,
++                           "Failed to resolve specifiers, ignoring: %s", rvalue);
+ 
++        s = n ?: rvalue;
+         if (!path_is_absolute(s[0] == '-' ? s + 1 : s)) {
+                 log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+                            "Path '%s' is not absolute, ignoring.", s);
+@@ -1509,6 +1521,7 @@ int config_parse_environ(const char *unit,
+         char*** env = data, *w, *state;
+         size_t l;
+         _cleanup_free_ char *k = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1522,12 +1535,16 @@ int config_parse_environ(const char *unit,
+                 return 0;
+         }
+ 
+-        if (u)
+-                k = unit_full_printf(u, rvalue);
+-        else
+-                k = strdup(rvalue);
++        if (u) {
++                r = unit_full_printf(u, rvalue, &k);
++                if (r < 0)
++                        log_syntax(unit, LOG_ERR, filename, line, -r,
++                                   "Failed to resolve specifiers, ignoring: %s", rvalue);
++        }
+ 
+         if (!k)
++                k = strdup(rvalue);
++        if (!k)
+                 return log_oom();
+ 
+         FOREACH_WORD_QUOTED(w, l, k, state) {
+@@ -1598,6 +1615,7 @@ int config_parse_unit_condition_path(const char *unit,
+         bool trigger, negate;
+         Condition *c;
+         _cleanup_free_ char *p = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1619,9 +1637,15 @@ int config_parse_unit_condition_path(const char *unit,
+         if (negate)
+                 rvalue++;
+ 
+-        p = unit_full_printf(u, rvalue);
+-        if (!p)
+-                return log_oom();
++        r = unit_full_printf(u, rvalue, &p);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve specifiers, ignoring: %s", rvalue);
++        if (!p) {
++                p = strdup(rvalue);
++                if (!p)
++                        return log_oom();
++        }
+ 
+         if (!path_is_absolute(p)) {
+                 log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+@@ -1652,6 +1676,7 @@ int config_parse_unit_condition_string(const char *unit,
+         bool trigger, negate;
+         Condition *c;
+         _cleanup_free_ char *s = NULL;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+@@ -1673,9 +1698,15 @@ int config_parse_unit_condition_string(const char *unit,
+         if (negate)
+                 rvalue++;
+ 
+-        s = unit_full_printf(u, rvalue);
+-        if (!s)
+-                return log_oom();
++        r = unit_full_printf(u, rvalue, &s);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
++                           "Failed to resolve specifiers, ignoring: %s", rvalue);
++        if (!s) {
++                s = strdup(rvalue);
++                if (!s)
++                        return log_oom();
++        }
+ 
+         c = condition_new(cond, s, trigger, negate);
+         if (!c)
+@@ -1929,21 +1960,26 @@ int config_parse_unit_slice(
+         assert(rvalue);
+         assert(u);
+ 
+-        k = unit_name_printf(u, rvalue);
+-        if (!k)
+-                log_syntax(unit, LOG_ERR, filename, line, EINVAL,
++        r = unit_name_printf(u, rvalue, &k);
++        if (r < 0)
++                log_syntax(unit, LOG_ERR, filename, line, -r,
+                            "Failed to resolve unit specifiers on %s. Ignoring.", rvalue);
++        if (!k) {
++                k = strdup(rvalue);
++                if (!k)
++                        return log_oom();
++        }
+ 
+-        r = manager_load_unit(u->manager, k ? k : rvalue, NULL, NULL, &slice);
++        r = manager_load_unit(u->manager, k, NULL, NULL, &slice);
+         if (r < 0) {
+                 log_syntax(unit, LOG_ERR, filename, line, -r,
+-                           "Failed to load slice unit %s. Ignoring.", k ? k : rvalue);
++                           "Failed to load slice unit %s. Ignoring.", k);
+                 return 0;
+         }
+ 
+         if (slice->type != UNIT_SLICE) {
+                 log_syntax(unit, LOG_ERR, filename, line, EINVAL,
+-                           "Slice unit %s is not a slice. Ignoring.", k ? k : rvalue);
++                           "Slice unit %s is not a slice. Ignoring.", k);
+                 return 0;
+         }
+ 
+diff --git a/src/core/service.c b/src/core/service.c
+index 246a86e..cc61b54 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -1765,11 +1765,9 @@ static int service_spawn(
+         } else
+                 unit_unwatch_timer(UNIT(s), &s->timer_watch);
+ 
+-        argv = unit_full_printf_strv(UNIT(s), c->argv);
+-        if (!argv) {
+-                r = -ENOMEM;
++        r = unit_full_printf_strv(UNIT(s), c->argv, &argv);
++        if (r < 0)
+                 goto fail;
+-        }
+ 
+         our_env = new0(char*, 5);
+         if (!our_env) {
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 2130e48..46a73e0 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -1226,11 +1226,9 @@ static int socket_spawn(Socket *s, ExecCommand *c, pid_t *_pid) {
+         if (r < 0)
+                 goto fail;
+ 
+-        argv = unit_full_printf_strv(UNIT(s), c->argv);
+-        if (!argv) {
+-                r = -ENOMEM;
++        r = unit_full_printf_strv(UNIT(s), c->argv, &argv);
++        if (r < 0)
+                 goto fail;
+-        }
+ 
+         r = exec_spawn(c,
+                        argv,
+diff --git a/src/core/unit-printf.c b/src/core/unit-printf.c
+index ffc203d..1a29a98 100644
+--- a/src/core/unit-printf.c
++++ b/src/core/unit-printf.c
+@@ -30,98 +30,158 @@
+ #include "cgroup-util.h"
+ #include "special.h"
+ 
+-static char *specifier_prefix_and_instance(char specifier, void *data, void *userdata) {
++static int specifier_prefix_and_instance(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
++        char *n;
++
+         assert(u);
+ 
+-        return unit_name_to_prefix_and_instance(u->id);
++        n = unit_name_to_prefix_and_instance(u->id);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_prefix(char specifier, void *data, void *userdata) {
++static int specifier_prefix(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
++        char *n;
++
+         assert(u);
+ 
+-        return unit_name_to_prefix(u->id);
++        n = unit_name_to_prefix(u->id);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_prefix_unescaped(char specifier, void *data, void *userdata) {
++static int specifier_prefix_unescaped(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
+-        char *p, *r;
++        _cleanup_free_ char *p = NULL;
++        char *n;
+ 
+         assert(u);
+ 
+         p = unit_name_to_prefix(u->id);
+         if (!p)
+-                return NULL;
++                return -ENOMEM;
+ 
+-        r = unit_name_unescape(p);
+-        free(p);
++        n = unit_name_unescape(p);
++        if (!n)
++                return -ENOMEM;
+ 
+-        return r;
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_instance_unescaped(char specifier, void *data, void *userdata) {
++static int specifier_instance_unescaped(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
++        char *n;
++
+         assert(u);
+ 
+         if (u->instance)
+-                return unit_name_unescape(u->instance);
++                n = unit_name_unescape(u->instance);
++        else
++                n = strdup("");
++
++        if (!n)
++                return -ENOMEM;
+ 
+-        return strdup("");
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_filename(char specifier, void *data, void *userdata) {
++static int specifier_filename(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
++        char *n;
++
+         assert(u);
+ 
+         if (u->instance)
+-                return unit_name_path_unescape(u->instance);
++                n = unit_name_path_unescape(u->instance);
++        else
++                n = unit_name_to_path(u->id);
+ 
+-        return unit_name_to_path(u->id);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_cgroup(char specifier, void *data, void *userdata) {
++static int specifier_cgroup(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
++        char *n;
++
+         assert(u);
+ 
+-        return unit_default_cgroup_path(u);
++        n = unit_default_cgroup_path(u);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_cgroup_root(char specifier, void *data, void *userdata) {
+-        _cleanup_free_ char *p = NULL;
++static int specifier_cgroup_root(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
+         const char *slice;
++        char *n;
+         int r;
+ 
+         assert(u);
+ 
+         slice = unit_slice_name(u);
+         if (specifier == 'R' || !slice)
+-                return strdup(u->manager->cgroup_root);
++                n = strdup(u->manager->cgroup_root);
++        else {
++                _cleanup_free_ char *p = NULL;
+ 
+-        r = cg_slice_to_path(slice, &p);
+-        if (r < 0)
+-                return NULL;
++                r = cg_slice_to_path(slice, &p);
++                if (r < 0)
++                        return r;
++
++                n = strjoin(u->manager->cgroup_root, "/", p, NULL);
++                if (!n)
++                        return -ENOMEM;
++        }
+ 
+-        return strjoin(u->manager->cgroup_root, "/", p, NULL);
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_runtime(char specifier, void *data, void *userdata) {
++static int specifier_runtime(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
++        char *n = NULL;
++
+         assert(u);
+ 
+         if (u->manager->running_as == SYSTEMD_USER) {
+                 const char *e;
+ 
+                 e = getenv("XDG_RUNTIME_DIR");
+-                if (e)
+-                        return strdup(e);
++                if (e) {
++                        n = strdup(e);
++                        if (!n)
++                                return -ENOMEM;
++                }
+         }
+ 
+-        return strdup("/run");
++        if (!n) {
++                n = strdup("/run");
++                if (!n)
++                        return -ENOMEM;
++        }
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_user_name(char specifier, void *data, void *userdata) {
++static int specifier_user_name(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
+         ExecContext *c;
+         int r;
+@@ -143,26 +203,31 @@ static char *specifier_user_name(char specifier, void *data, void *userdata) {
+         /* fish username from passwd */
+         r = get_user_creds(&username, &uid, NULL, NULL, NULL);
+         if (r < 0)
+-                return NULL;
++                return r;
+ 
+         switch (specifier) {
+                 case 'U':
+                         if (asprintf(&printed, "%d", uid) < 0)
+-                                return NULL;
++                                return -ENOMEM;
+                         break;
+                 case 'u':
+                         printed = strdup(username);
+                         break;
+         }
+ 
+-        return printed;
++        if (!printed)
++                return -ENOMEM;
++
++        *ret = printed;
++        return 0;
+ }
+ 
+-static char *specifier_user_home(char specifier, void *data, void *userdata) {
++static int specifier_user_home(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
+         ExecContext *c;
+         int r;
+         const char *username, *home;
++        char *n;
+ 
+         assert(u);
+ 
+@@ -174,25 +239,31 @@ static char *specifier_user_home(char specifier, void *data, void *userdata) {
+ 
+                 r = get_home_dir(&h);
+                 if (r < 0)
+-                        return NULL;
++                        return r;
+ 
+-                return h;
++                *ret = h;
++                return 0;
+         }
+ 
+         username = c->user;
+         r = get_user_creds(&username, NULL, NULL, &home, NULL);
+         if (r < 0)
+-               return NULL;
++               return r;
+ 
+-        return strdup(home);
++        n = strdup(home);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_user_shell(char specifier, void *data, void *userdata) {
++static int specifier_user_shell(char specifier, void *data, void *userdata, char **ret) {
+         Unit *u = userdata;
+         ExecContext *c;
+         int r;
+         const char *username, *shell;
+-        char *ret;
++        char *n;
+ 
+         assert(u);
+ 
+@@ -205,27 +276,18 @@ static char *specifier_user_shell(char specifier, void *data, void *userdata) {
+ 
+         /* return /bin/sh for root, otherwise the value from passwd */
+         r = get_user_creds(&username, NULL, NULL, NULL, &shell);
+-        if (r < 0) {
+-                log_warning_unit(u->id,
+-                                 "Failed to determine shell: %s",
+-                                 strerror(-r));
+-                return NULL;
+-        }
+-
+-        if (!path_is_absolute(shell)) {
+-                log_warning_unit(u->id,
+-                                 "Shell %s is not absolute, ignoring.",
+-                                 shell);
+-        }
++        if (r < 0)
++                return r;
+ 
+-        ret = strdup(shell);
+-        if (!ret)
+-                log_oom();
++        n = strdup(shell);
++        if (!n)
++                return -ENOMEM;
+ 
+-        return ret;
++        *ret = n;
++        return 0;
+ }
+ 
+-char *unit_name_printf(Unit *u, const char* format) {
++int unit_name_printf(Unit *u, const char* format, char **ret) {
+ 
+         /*
+          * This will use the passed string as format string and
+@@ -247,11 +309,12 @@ char *unit_name_printf(Unit *u, const char* format) {
+ 
+         assert(u);
+         assert(format);
++        assert(ret);
+ 
+-        return specifier_printf(format, table, u);
++        return specifier_printf(format, table, u, ret);
+ }
+ 
+-char *unit_full_printf(Unit *u, const char *format) {
++int unit_full_printf(Unit *u, const char *format, char **ret) {
+ 
+         /* This is similar to unit_name_printf() but also supports
+          * unescaping. Also, adds a couple of additional codes:
+@@ -296,14 +359,17 @@ char *unit_full_printf(Unit *u, const char *format) {
+                 {}
+         };
+ 
++        assert(u);
+         assert(format);
++        assert(ret);
+ 
+-        return specifier_printf(format, table, u);
++        return specifier_printf(format, table, u, ret);
+ }
+ 
+-char **unit_full_printf_strv(Unit *u, char **l) {
++int unit_full_printf_strv(Unit *u, char **l, char ***ret) {
+         size_t n;
+         char **r, **i, **j;
++        int q;
+ 
+         /* Applies unit_full_printf to every entry in l */
+ 
+@@ -312,22 +378,22 @@ char **unit_full_printf_strv(Unit *u, char **l) {
+         n = strv_length(l);
+         r = new(char*, n+1);
+         if (!r)
+-                return NULL;
++                return -ENOMEM;
+ 
+         for (i = l, j = r; *i; i++, j++) {
+-                *j = unit_full_printf(u, *i);
+-                if (!*j)
++                q = unit_full_printf(u, *i, j);
++                if (q < 0)
+                         goto fail;
+         }
+ 
+         *j = NULL;
+-        return r;
++        *ret = r;
++        return 0;
+ 
+ fail:
+         for (j--; j >= r; j--)
+                 free(*j);
+ 
+         free(r);
+-
+-        return NULL;
++        return q;
+ }
+diff --git a/src/core/unit-printf.h b/src/core/unit-printf.h
+index d2f4ccd..51acad6 100644
+--- a/src/core/unit-printf.h
++++ b/src/core/unit-printf.h
+@@ -23,6 +23,6 @@
+ 
+ #include "unit.h"
+ 
+-char *unit_name_printf(Unit *u, const char* text);
+-char *unit_full_printf(Unit *u, const char *text);
+-char **unit_full_printf_strv(Unit *u, char **l);
++int unit_name_printf(Unit *u, const char* text, char **ret);
++int unit_full_printf(Unit *u, const char *text, char **ret);
++int unit_full_printf_strv(Unit *u, char **l, char ***ret);
+diff --git a/src/shared/install-printf.c b/src/shared/install-printf.c
+index 1157ea9..1ee1243 100644
+--- a/src/shared/install-printf.c
++++ b/src/shared/install-printf.c
+@@ -27,21 +27,35 @@
+ #include "util.h"
+ #include "install-printf.h"
+ 
+-static char *specifier_prefix_and_instance(char specifier, void *data, void *userdata) {
++static int specifier_prefix_and_instance(char specifier, void *data, void *userdata, char **ret) {
+         InstallInfo *i = userdata;
++        char *n;
++
+         assert(i);
+ 
+-        return unit_name_to_prefix_and_instance(i->name);
++        n = unit_name_to_prefix_and_instance(i->name);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_prefix(char specifier, void *data, void *userdata) {
++static int specifier_prefix(char specifier, void *data, void *userdata, char **ret) {
+         InstallInfo *i = userdata;
++        char *n;
++
+         assert(i);
+ 
+-        return unit_name_to_prefix(i->name);
++        n = unit_name_to_prefix(i->name);
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-static char *specifier_instance(char specifier, void *data, void *userdata) {
++static int specifier_instance(char specifier, void *data, void *userdata, char **ret) {
+         InstallInfo *i = userdata;
+         char *instance;
+         int r;
+@@ -50,14 +64,19 @@ static char *specifier_instance(char specifier, void *data, void *userdata) {
+ 
+         r = unit_name_to_instance(i->name, &instance);
+         if (r < 0)
+-                return NULL;
+-        if (instance != NULL)
+-                return instance;
+-        else
+-                return strdup("");
++                return r;
++
++        if (!instance) {
++                instance = strdup("");
++                if (!instance)
++                        return -ENOMEM;
++        }
++
++        *ret = instance;
++        return 0;
+ }
+ 
+-static char *specifier_user_name(char specifier, void *data, void *userdata) {
++static int specifier_user_name(char specifier, void *data, void *userdata, char **ret) {
+         InstallInfo *i = userdata;
+         const char *username;
+         _cleanup_free_ char *tmp = NULL;
+@@ -82,18 +101,20 @@ static char *specifier_user_name(char specifier, void *data, void *userdata) {
+ 
+                 r = get_user_creds(&username, &uid, NULL, NULL, NULL);
+                 if (r < 0)
+-                        return NULL;
++                        return r;
+ 
+                 if (asprintf(&printed, "%d", uid) < 0)
+-                        return NULL;
++                        return -ENOMEM;
+                 break;
+         }}
+ 
+-        return printed;
++
++        *ret = printed;
++        return 0;
+ }
+ 
+ 
+-char *install_full_printf(InstallInfo *i, const char *format) {
++int install_full_printf(InstallInfo *i, const char *format, char **ret) {
+ 
+         /* This is similar to unit_full_printf() but does not support
+          * anything path-related.
+@@ -129,6 +150,7 @@ char *install_full_printf(InstallInfo *i, const char *format) {
+ 
+         assert(i);
+         assert(format);
++        assert(ret);
+ 
+-        return specifier_printf(format, table, i);
++        return specifier_printf(format, table, i, ret);
+ }
+diff --git a/src/shared/install-printf.h b/src/shared/install-printf.h
+index 46f5294..6ffa488 100644
+--- a/src/shared/install-printf.h
++++ b/src/shared/install-printf.h
+@@ -22,4 +22,4 @@
+ #pragma once
+ 
+ #include "install.h"
+-char *install_full_printf(InstallInfo *i, const char *format);
++int install_full_printf(InstallInfo *i, const char *format, char **ret);
+diff --git a/src/shared/install.c b/src/shared/install.c
+index 07e06c4..9722ed4 100644
+--- a/src/shared/install.c
++++ b/src/shared/install.c
+@@ -967,14 +967,15 @@ static int config_parse_user(const char *unit,
+ 
+         InstallInfo *i = data;
+         char* printed;
++        int r;
+ 
+         assert(filename);
+         assert(lvalue);
+         assert(rvalue);
+ 
+-        printed = install_full_printf(i, rvalue);
+-        if (!printed)
+-                return -ENOMEM;
++        r = install_full_printf(i, rvalue, &printed);
++        if (r < 0)
++                return r;
+ 
+         free(i->user);
+         i->user = printed;
+@@ -1200,9 +1201,9 @@ static int install_info_symlink_alias(
+         STRV_FOREACH(s, i->aliases) {
+                 _cleanup_free_ char *alias_path = NULL, *dst = NULL;
+ 
+-                dst = install_full_printf(i, *s);
+-                if (!dst)
+-                        return -ENOMEM;
++                q = install_full_printf(i, *s, &dst);
++                if (q < 0)
++                        return q;
+ 
+                 alias_path = path_make_absolute(dst, config_path);
+                 if (!alias_path)
+@@ -1232,9 +1233,9 @@ static int install_info_symlink_wants(
+         STRV_FOREACH(s, i->wanted_by) {
+                 _cleanup_free_ char *path = NULL, *dst = NULL;
+ 
+-                dst = install_full_printf(i, *s);
+-                if (!dst)
+-                        return -ENOMEM;
++                q = install_full_printf(i, *s, &dst);
++                if (q < 0)
++                        return q;
+ 
+                 if (!unit_name_is_valid(dst, true)) {
+                         r = -EINVAL;
+@@ -1269,9 +1270,9 @@ static int install_info_symlink_requires(
+         STRV_FOREACH(s, i->required_by) {
+                 _cleanup_free_ char *path = NULL, *dst = NULL;
+ 
+-                dst = install_full_printf(i, *s);
+-                if (!dst)
+-                        return -ENOMEM;
++                q = install_full_printf(i, *s, &dst);
++                if (q < 0)
++                        return q;
+ 
+                 if (!unit_name_is_valid(dst, true)) {
+                         r = -EINVAL;
+diff --git a/src/shared/specifier.c b/src/shared/specifier.c
+index bb8859f..8fbf6db 100644
+--- a/src/shared/specifier.c
++++ b/src/shared/specifier.c
+@@ -32,21 +32,22 @@
+  *
+  */
+ 
+-char *specifier_printf(const char *text, const Specifier table[], void *userdata) {
+-        char *r, *t;
++int specifier_printf(const char *text, const Specifier table[], void *userdata, char **_ret) {
++        char *ret, *t;
+         const char *f;
+         bool percent = false;
+         size_t l;
++        int r;
+ 
+         assert(text);
+         assert(table);
+ 
+         l = strlen(text);
+-        r = new(char, l+1);
+-        if (!r)
+-                return NULL;
++        ret = new(char, l+1);
++        if (!ret)
++                return -ENOMEM;
+ 
+-        t = r;
++        t = ret;
+ 
+         for (f = text; *f; f++, l--) {
+ 
+@@ -61,32 +62,31 @@ char *specifier_printf(const char *text, const Specifier table[], void *userdata
+                                                 break;
+ 
+                                 if (i->lookup) {
+-                                        char *n, *w;
++                                        _cleanup_free_ char *w = NULL;
++                                        char *n;
+                                         size_t k, j;
+ 
+-                                        w = i->lookup(i->specifier, i->data, userdata);
+-                                        if (!w) {
+-                                                free(r);
+-                                                return NULL;
++                                        r = i->lookup(i->specifier, i->data, userdata, &w);
++                                        if (r < 0) {
++                                                free(ret);
++                                                return r;
+                                         }
+ 
+-                                        j = t - r;
++                                        j = t - ret;
+                                         k = strlen(w);
+ 
+                                         n = new(char, j + k + l + 1);
+                                         if (!n) {
+-                                                free(r);
+-                                                free(w);
+-                                                return NULL;
++                                                free(ret);
++                                                return -ENOMEM;
+                                         }
+ 
+-                                        memcpy(n, r, j);
++                                        memcpy(n, ret, j);
+                                         memcpy(n + j, w, k);
+ 
+-                                        free(r);
+-                                        free(w);
++                                        free(ret);
+ 
+-                                        r = n;
++                                        ret = n;
+                                         t = n + j + k;
+                                 } else {
+                                         *(t++) = '%';
+@@ -102,58 +102,81 @@ char *specifier_printf(const char *text, const Specifier table[], void *userdata
+         }
+ 
+         *t = 0;
+-        return r;
++        *_ret = ret;
++        return 0;
+ }
+ 
+ /* Generic handler for simple string replacements */
+ 
+-char* specifier_string(char specifier, void *data, void *userdata) {
+-        return strdup(strempty(data));
++int specifier_string(char specifier, void *data, void *userdata, char **ret) {
++        char *n;
++
++        n = strdup(strempty(data));
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-char *specifier_machine_id(char specifier, void *data, void *userdata) {
++int specifier_machine_id(char specifier, void *data, void *userdata, char **ret) {
+         sd_id128_t id;
+-        char *buf;
++        char *n;
+         int r;
+ 
+         r = sd_id128_get_machine(&id);
+         if (r < 0)
+-                return NULL;
++                return r;
+ 
+-        buf = new(char, 33);
+-        if (!buf)
+-                return NULL;
++        n = new(char, 33);
++        if (!n)
++                return -ENOMEM;
+ 
+-        return sd_id128_to_string(id, buf);
++        *ret = sd_id128_to_string(id, n);
++        return 0;
+ }
+ 
+-char *specifier_boot_id(char specifier, void *data, void *userdata) {
++int specifier_boot_id(char specifier, void *data, void *userdata, char **ret) {
+         sd_id128_t id;
+-        char *buf;
++        char *n;
+         int r;
+ 
+         r = sd_id128_get_boot(&id);
+         if (r < 0)
+-                return NULL;
++                return r;
+ 
+-        buf = new(char, 33);
+-        if (!buf)
+-                return NULL;
++        n = new(char, 33);
++        if (!n)
++                return -ENOMEM;
+ 
+-        return sd_id128_to_string(id, buf);
++        *ret = sd_id128_to_string(id, n);
++        return 0;
+ }
+ 
+-char *specifier_host_name(char specifier, void *data, void *userdata) {
+-        return gethostname_malloc();
++int specifier_host_name(char specifier, void *data, void *userdata, char **ret) {
++        char *n;
++
++        n = gethostname_malloc();
++        if (!n)
++                return -ENOMEM;
++
++        *ret = n;
++        return 0;
+ }
+ 
+-char *specifier_kernel_release(char specifier, void *data, void *userdata) {
++int specifier_kernel_release(char specifier, void *data, void *userdata, char **ret) {
+         struct utsname uts;
++        char *n;
+         int r;
+ 
+         r = uname(&uts);
+         if (r < 0)
+-                return NULL;
++                return -errno;
++
++        n = strdup(uts.release);
++        if (!n)
++                return -ENOMEM;
+ 
+-        return strdup(uts.release);
++        *ret = n;
++        return 0;
+ }
+diff --git a/src/shared/specifier.h b/src/shared/specifier.h
+index d13e640..fca206f 100644
+--- a/src/shared/specifier.h
++++ b/src/shared/specifier.h
+@@ -21,7 +21,7 @@
+   along with systemd; If not, see <http://www.gnu.org/licenses/>.
+ ***/
+ 
+-typedef char* (*SpecifierCallback)(char specifier, void *data, void *userdata);
++typedef int (*SpecifierCallback)(char specifier, void *data, void *userdata, char **ret);
+ 
+ typedef struct Specifier {
+         const char specifier;
+@@ -29,11 +29,11 @@ typedef struct Specifier {
+         void *data;
+ } Specifier;
+ 
+-char *specifier_printf(const char *text, const Specifier table[], void *userdata);
++int specifier_printf(const char *text, const Specifier table[], void *userdata, char **ret);
+ 
+-char *specifier_string(char specifier, void *data, void *userdata);
++int specifier_string(char specifier, void *data, void *userdata, char **ret);
+ 
+-char *specifier_machine_id(char specifier, void *data, void *userdata);
+-char *specifier_boot_id(char specifier, void *data, void *userdata);
+-char *specifier_host_name(char specifier, void *data, void *userdata);
+-char *specifier_kernel_release(char specifier, void *data, void *userdata);
++int specifier_machine_id(char specifier, void *data, void *userdata, char **ret);
++int specifier_boot_id(char specifier, void *data, void *userdata, char **ret);
++int specifier_host_name(char specifier, void *data, void *userdata, char **ret);
++int specifier_kernel_release(char specifier, void *data, void *userdata, char **ret);
+diff --git a/src/test/test-strv.c b/src/test/test-strv.c
+index 25bee22..6513d2e 100644
+--- a/src/test/test-strv.c
++++ b/src/test/test-strv.c
+@@ -28,18 +28,30 @@
+ 
+ static void test_specifier_printf(void) {
+         _cleanup_free_ char *w = NULL;
++        int r;
+ 
+         const Specifier table[] = {
+                 { 'a', specifier_string, (char*) "AAAA" },
+                 { 'b', specifier_string, (char*) "BBBB" },
++                { 'm', specifier_machine_id, NULL },
++                { 'B', specifier_boot_id, NULL },
++                { 'H', specifier_host_name, NULL },
++                { 'v', specifier_kernel_release, NULL },
+                 { 0, NULL, NULL }
+         };
+ 
+-        w = specifier_printf("xxx a=%a b=%b yyy", table, NULL);
++        r = specifier_printf("xxx a=%a b=%b yyy", table, NULL, &w);
++        assert_se(r >= 0);
++        assert_se(w);
++
+         puts(w);
++        assert_se(streq(w, "xxx a=AAAA b=BBBB yyy"));
+ 
++        free(w);
++        r = specifier_printf("machine=%m, boot=%B, host=%H, version=%v", table, NULL, &w);
++        assert_se(r >= 0);
+         assert_se(w);
+-        assert_se(streq(w, "xxx a=AAAA b=BBBB yyy"));
++        puts(w);
+ }
+ 
+ static const char* const input_table_multiple[] = {
+diff --git a/src/test/test-unit-file.c b/src/test/test-unit-file.c
+index dc6bc55..0413ae2 100644
+--- a/src/test/test-unit-file.c
++++ b/src/test/test-unit-file.c
+@@ -302,17 +302,18 @@ static void test_install_printf(void) {
+ 
+         _cleanup_free_ char *mid, *bid, *host;
+ 
+-        assert_se((mid = specifier_machine_id('m', NULL, NULL)));
+-        assert_se((bid = specifier_boot_id('b', NULL, NULL)));
++        assert_se(specifier_machine_id('m', NULL, NULL, &mid) >= 0 && mid);
++        assert_se(specifier_boot_id('b', NULL, NULL, &bid) >= 0 && bid);
+         assert_se((host = gethostname_malloc()));
+ 
+ #define expect(src, pattern, result)                                    \
+         do {                                                            \
+-                _cleanup_free_ char *t = install_full_printf(&src, pattern); \
++                _cleanup_free_ char *t = NULL;                          \
+                 _cleanup_free_ char                                     \
+                         *d1 = strdup(i.name),                           \
+                         *d2 = strdup(i.path),                           \
+                         *d3 = strdup(i.user);                           \
++                assert_se(install_full_printf(&src, pattern, &t) >= 0 || !result); \
+                 memzero(i.name, strlen(i.name));                        \
+                 memzero(i.path, strlen(i.path));                        \
+                 memzero(i.user, strlen(i.user));                        \
+diff --git a/src/test/test-unit-name.c b/src/test/test-unit-name.c
+index c17692b..67ccdd4 100644
+--- a/src/test/test-unit-name.c
++++ b/src/test/test-unit-name.c
+@@ -117,8 +117,8 @@ static int test_unit_printf(void) {
+         _cleanup_free_ char *mid, *bid, *host, *root_uid;
+         struct passwd *root;
+ 
+-        assert_se((mid = specifier_machine_id('m', NULL, NULL)));
+-        assert_se((bid = specifier_boot_id('b', NULL, NULL)));
++        assert_se(specifier_machine_id('m', NULL, NULL, &mid) >= 0 && mid);
++        assert_se(specifier_boot_id('b', NULL, NULL, &bid) >= 0 && bid);
+         assert_se((host = gethostname_malloc()));
+ 
+         assert_se((root = getpwnam("root")));
+@@ -134,8 +134,8 @@ static int test_unit_printf(void) {
+ #define expect(unit, pattern, expected)                                 \
+         {                                                               \
+                 char *e;                                                \
+-                _cleanup_free_ char *t =                                \
+-                        unit_full_printf(unit, pattern);                \
++                _cleanup_free_ char *t;                                 \
++                assert_se(unit_full_printf(unit, pattern, &t) >= 0);    \
+                 printf("result: %s\nexpect: %s\n", t, expected);        \
+                 if ((e = endswith(expected, "*")))                      \
+                         assert(strncmp(t, e, e-expected));              \
+-- 
+1.8.4
+

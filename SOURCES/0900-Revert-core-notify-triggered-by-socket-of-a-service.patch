@@ -1,0 +1,158 @@
+From 6b4c52a24a032af412016efb67b190ab0e3d2ca1 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Thu, 19 Sep 2013 00:06:34 +0100
+Subject: [PATCH 400/401] Revert "core: notify triggered by socket of a
+ service"
+
+This reverts commit d137a488afb59801177dc34c218f339bfbbdb044.
+---
+ TODO               |  3 +++
+ src/core/service.c | 31 +++++++++++++++++++++++++++++++
+ src/core/socket.c  | 39 +--------------------------------------
+ src/core/socket.h  |  3 +++
+ 4 files changed, 38 insertions(+), 38 deletions(-)
+
+diff --git a/TODO b/TODO
+index c0f51de..8ee0d7c 100644
+--- a/TODO
++++ b/TODO
+@@ -160,6 +160,9 @@ Features:
+   Maybe take a BSD lock at the disk device node and teach udev to
+   check for that and suppress event handling.
+ 
++* when a service changes state make reflect that in the
++  RUNNING/LISTENING states of its socket
++
+ * when recursively showing the cgroup hierarchy, optionally also show
+   the hierarchies of child processes
+ 
+diff --git a/src/core/service.c b/src/core/service.c
+index cc61b54..0e7a3af 100644
+--- a/src/core/service.c
++++ b/src/core/service.c
+@@ -1489,6 +1489,24 @@ static int service_search_main_pid(Service *s) {
+         return 0;
+ }
+ 
++static void service_notify_sockets_dead(Service *s, bool failed_permanent) {
++        Iterator i;
++        Unit *u;
++
++        assert(s);
++
++        /* Notifies all our sockets when we die */
++
++        if (s->socket_fd >= 0)
++                return;
++
++        SET_FOREACH(u, UNIT(s)->dependencies[UNIT_TRIGGERED_BY], i)
++                if (u->type == UNIT_SOCKET)
++                        socket_notify_service_dead(SOCKET(u), failed_permanent);
++
++        return;
++}
++
+ static void service_set_state(Service *s, ServiceState state) {
+         ServiceState old_state;
+         const UnitActiveState *table;
+@@ -1540,6 +1558,19 @@ static void service_set_state(Service *s, ServiceState state) {
+                 s->control_command_id = _SERVICE_EXEC_COMMAND_INVALID;
+         }
+ 
++        if (state == SERVICE_FAILED)
++                service_notify_sockets_dead(s, s->result == SERVICE_FAILURE_START_LIMIT);
++
++        if (state == SERVICE_DEAD ||
++            state == SERVICE_STOP ||
++            state == SERVICE_STOP_SIGTERM ||
++            state == SERVICE_STOP_SIGKILL ||
++            state == SERVICE_STOP_POST ||
++            state == SERVICE_FINAL_SIGTERM ||
++            state == SERVICE_FINAL_SIGKILL ||
++            state == SERVICE_AUTO_RESTART)
++                service_notify_sockets_dead(s, false);
++
+         if (state != SERVICE_START_PRE &&
+             state != SERVICE_START &&
+             state != SERVICE_START_POST &&
+diff --git a/src/core/socket.c b/src/core/socket.c
+index 46a73e0..192aaa3 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -2275,7 +2275,7 @@ int socket_collect_fds(Socket *s, int **fds, unsigned *n_fds) {
+         return 0;
+ }
+ 
+-static void socket_notify_service_dead(Socket *s, bool failed_permanent) {
++void socket_notify_service_dead(Socket *s, bool failed_permanent) {
+         assert(s);
+ 
+         /* The service is dead. Dang!
+@@ -2320,41 +2320,6 @@ static void socket_reset_failed(Unit *u) {
+         s->result = SOCKET_SUCCESS;
+ }
+ 
+-static void socket_trigger_notify(Unit *u, Unit *other) {
+-        Socket *s = SOCKET(u);
+-        Service *se = SERVICE(other);
+-
+-        assert(u);
+-        assert(other);
+-
+-        /* Don't propagate state changes from the service if we are
+-           already down or accepting connections */
+-        if ((s->state !=  SOCKET_RUNNING &&
+-            s->state != SOCKET_LISTENING) ||
+-            s->accept)
+-                return;
+-
+-        if (other->load_state != UNIT_LOADED ||
+-            other->type != UNIT_SERVICE)
+-                return;
+-
+-        if (se->state == SERVICE_FAILED)
+-                socket_notify_service_dead(s, se->result == SERVICE_FAILURE_START_LIMIT);
+-
+-        if (se->state == SERVICE_DEAD ||
+-            se->state == SERVICE_STOP ||
+-            se->state == SERVICE_STOP_SIGTERM ||
+-            se->state == SERVICE_STOP_SIGKILL ||
+-            se->state == SERVICE_STOP_POST ||
+-            se->state == SERVICE_FINAL_SIGTERM ||
+-            se->state == SERVICE_FINAL_SIGKILL ||
+-            se->state == SERVICE_AUTO_RESTART)
+-                socket_notify_service_dead(s, false);
+-
+-        if (se->state == SERVICE_RUNNING)
+-                socket_set_state(s, SOCKET_RUNNING);
+-}
+-
+ static int socket_kill(Unit *u, KillWho who, int signo, DBusError *error) {
+         return unit_kill_common(u, who, signo, -1, SOCKET(u)->control_pid, error);
+ }
+@@ -2435,8 +2400,6 @@ const UnitVTable socket_vtable = {
+         .sigchld_event = socket_sigchld_event,
+         .timer_event = socket_timer_event,
+ 
+-        .trigger_notify = socket_trigger_notify,
+-
+         .reset_failed = socket_reset_failed,
+ 
+         .bus_interface = "org.freedesktop.systemd1.Socket",
+diff --git a/src/core/socket.h b/src/core/socket.h
+index 5733322..8f9dfdb 100644
+--- a/src/core/socket.h
++++ b/src/core/socket.h
+@@ -156,6 +156,9 @@ struct Socket {
+ /* Called from the service code when collecting fds */
+ int socket_collect_fds(Socket *s, int **fds, unsigned *n_fds);
+ 
++/* Called from the service when it shut down */
++void socket_notify_service_dead(Socket *s, bool failed_permanent);
++
+ /* Called from the mount code figure out if a mount is a dependency of
+  * any of the sockets of this socket */
+ int socket_add_one_mount_link(Socket *s, Mount *m);
+-- 
+1.8.4
+

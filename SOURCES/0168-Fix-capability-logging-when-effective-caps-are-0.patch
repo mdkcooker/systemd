@@ -1,0 +1,33 @@
+From 4ec29144ddc311d78baa6875631ed6968fd90817 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Wed, 18 Sep 2013 11:39:32 -0500
+Subject: [PATCH 168/169] Fix capability logging when effective caps are 0
+
+Shawn Landen> Doesn't this also skip the last '0' when it is all '0's?
+              You need to keep the last one.
+---
+ src/shared/fileio.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/shared/fileio.c b/src/shared/fileio.c
+index 23bc742..8aa4cdb 100644
+--- a/src/shared/fileio.c
++++ b/src/shared/fileio.c
+@@ -677,7 +677,13 @@ int get_status_field(const char *filename, const char *pattern, char **field) {
+          * always maps to the same string, irrespective of the total
+          * capability set size. For other numbers it shouldn't matter.
+          */
+-        t += strspn(t, WHITESPACE "0");
++        if (*t) {
++                t += strspn(t, WHITESPACE "0");
++                /* Back off one char if there's nothing but whitespace
++                   and zeros */
++                if (!*t)
++                        t --;
++        }
+ 
+         len = strcspn(t, WHITESPACE);
+ 
+-- 
+1.8.4
+

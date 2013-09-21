@@ -1,0 +1,25 @@
+From e58ae4103710295a8afd43c83d0c6bf088ae744f Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 17 Sep 2013 11:59:41 -0500
+Subject: [PATCH 137/169] update TODO
+
+---
+ TODO | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/TODO b/TODO
+index 1ca3142..6a96c77 100644
+--- a/TODO
++++ b/TODO
+@@ -58,6 +58,8 @@ CGroup Rework Completion:
+ 
+ Features:
+ 
++* always set memory.user_hierarchy for all cgroups we create
++
+ * Get rid of MemorySoftLimit=
+ 
+ * After coming back from hibernation reset hibernation swap partition
+-- 
+1.8.4
+

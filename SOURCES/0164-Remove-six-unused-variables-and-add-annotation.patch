@@ -1,0 +1,96 @@
+From 1dc2ced4646a78b3dee9e3ea44130f938d6425bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Tue, 17 Sep 2013 17:30:47 -0500
+Subject: [PATCH 164/169] Remove six unused variables and add annotation
+
+clang FTW!
+---
+ src/fstab-generator/fstab-generator.c   | 4 ++--
+ src/journal/test-journal-interleaving.c | 2 +-
+ src/login/logind-dbus.c                 | 1 -
+ src/login/logind-session.c              | 1 -
+ src/machine/machined-dbus.c             | 2 --
+ 5 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index b73dfa4..9efccb9 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -64,7 +64,7 @@ static int mount_find_pri(struct mntent *me, int *ret) {
+ }
+ 
+ static int add_swap(const char *what, struct mntent *me) {
+-        _cleanup_free_ char *name = NULL, *unit = NULL, *lnk = NULL, *device = NULL;
++        _cleanup_free_ char *name = NULL, *unit = NULL, *lnk = NULL;
+         _cleanup_fclose_ FILE *f = NULL;
+         bool noauto;
+         int r, pri = -1;
+@@ -159,7 +159,7 @@ static int add_mount(
+                 const char *post,
+                 const char *source) {
+         _cleanup_free_ char
+-                *name = NULL, *unit = NULL, *lnk = NULL, *device = NULL,
++                *name = NULL, *unit = NULL, *lnk = NULL,
+                 *automount_name = NULL, *automount_unit = NULL;
+         _cleanup_fclose_ FILE *f = NULL;
+ 
+diff --git a/src/journal/test-journal-interleaving.c b/src/journal/test-journal-interleaving.c
+index 2b21523..1a058ea 100644
+--- a/src/journal/test-journal-interleaving.c
++++ b/src/journal/test-journal-interleaving.c
+@@ -36,7 +36,7 @@
+ 
+ static bool arg_keep = false;
+ 
+-static void log_assert_errno(const char *text, int eno, const char *file, int line, const char *func) {
++_noreturn_ static void log_assert_errno(const char *text, int eno, const char *file, int line, const char *func) {
+         log_meta(LOG_CRIT, file, line, func,
+                  "'%s' failed at %s:%u (%s): %s.",
+                  text, file, line, func, strerror(eno));
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index fd8ee1b..ec590c0 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -2395,7 +2395,6 @@ DBusHandlerResult bus_message_filter(
+ 
+         } else if (dbus_message_is_signal(message, "org.freedesktop.DBus.Properties", "PropertiesChanged")) {
+ 
+-                _cleanup_dbus_message_unref_ DBusMessage *reply = NULL;
+                 _cleanup_free_ char *unit = NULL;
+                 const char *path;
+ 
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index ce982ef..27aa335 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -259,7 +259,6 @@ int session_load(Session *s) {
+                 *seat = NULL,
+                 *vtnr = NULL,
+                 *leader = NULL,
+-                *audit_id = NULL,
+                 *type = NULL,
+                 *class = NULL,
+                 *uid = NULL,
+diff --git a/src/machine/machined-dbus.c b/src/machine/machined-dbus.c
+index 5a016e7..a526a52 100644
+--- a/src/machine/machined-dbus.c
++++ b/src/machine/machined-dbus.c
+@@ -117,7 +117,6 @@ static bool valid_machine_name(const char *p) {
+ static int bus_manager_create_machine(Manager *manager, DBusMessage *message) {
+ 
+         const char *name, *service, *class, *root_directory;
+-        _cleanup_free_ char *p = NULL;
+         DBusMessageIter iter, sub;
+         MachineClass c;
+         uint32_t leader;
+@@ -560,7 +559,6 @@ DBusHandlerResult bus_message_filter(
+ 
+         } else if (dbus_message_is_signal(message, "org.freedesktop.DBus.Properties", "PropertiesChanged")) {
+ 
+-                _cleanup_dbus_message_unref_ DBusMessage *reply = NULL;
+                 _cleanup_free_ char *unit = NULL;
+                 const char *path;
+ 
+-- 
+1.8.4
+

@@ -1,0 +1,358 @@
+From 718d006a63f773c42106494e823250c48942cf08 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Tue, 17 Sep 2013 17:39:54 +0200
+Subject: [PATCH 133/169] logind: listen actively for session devices
+
+Session compositors need access to fbdev, DRM and evdev devices if they
+control a session. To make logind pass them to sessions, we need to
+listen for them actively.
+
+However, we avoid creating new seats for non master-of-seat devices. Only
+once a seat is created, we start remembering all other session devices. If
+the last master-device is removed (even if there are other non-master
+devices still available), we destroy the seat. This is the current
+behavior, but we need to explicitly implement it now as there may be
+non-master devices in the seat->devices list.
+
+Unlike master devices, we don't care whether our list of non-master
+devices is complete. We don't export this list but use it only as cache if
+sessions request these devices. Hence, if a session requests a device that
+is not in the list, we will simply look it up. However, once a session
+requested a device, we must be notified of "remove" udev events. So we
+must link the devices somehow into the device-list.
+
+Regarding the implementation, we now sort the device list by the "master"
+flag. This guarantees that master devices are at the front and non-master
+devices at the tail of the list. Thus, we can easily test whether a seat
+has a master device attached.
+---
+ src/login/logind-device.c | 35 ++++++++++++++++++---
+ src/login/logind-device.h |  3 +-
+ src/login/logind-seat.c   | 11 +++++--
+ src/login/logind-seat.h   |  1 +
+ src/login/logind.c        | 79 +++++++++++++++++++++++++++++++++++++++++------
+ src/login/logind.h        |  6 ++--
+ 6 files changed, 116 insertions(+), 19 deletions(-)
+
+diff --git a/src/login/logind-device.c b/src/login/logind-device.c
+index 51b1535..2bcd6a1 100644
+--- a/src/login/logind-device.c
++++ b/src/login/logind-device.c
+@@ -25,7 +25,7 @@
+ #include "logind-device.h"
+ #include "util.h"
+ 
+-Device* device_new(Manager *m, const char *sysfs) {
++Device* device_new(Manager *m, const char *sysfs, bool master) {
+         Device *d;
+ 
+         assert(m);
+@@ -48,6 +48,7 @@ Device* device_new(Manager *m, const char *sysfs) {
+         }
+ 
+         d->manager = m;
++        d->master = master;
+         dual_timestamp_get(&d->timestamp);
+ 
+         return d;
+@@ -75,11 +76,16 @@ void device_detach(Device *d) {
+         LIST_REMOVE(Device, devices, d->seat->devices, d);
+         d->seat = NULL;
+ 
+-        seat_add_to_gc_queue(s);
+-        seat_send_changed(s, "CanGraphical\0");
++        if (!seat_has_master_device(s)) {
++                seat_add_to_gc_queue(s);
++                seat_send_changed(s, "CanGraphical\0");
++        }
+ }
+ 
+ void device_attach(Device *d, Seat *s) {
++        Device *i;
++        bool had_master;
++
+         assert(d);
+         assert(s);
+ 
+@@ -90,7 +96,26 @@ void device_attach(Device *d, Seat *s) {
+                 device_detach(d);
+ 
+         d->seat = s;
+-        LIST_PREPEND(Device, devices, s->devices, d);
++        had_master = seat_has_master_device(s);
++
++        /* We keep the device list sorted by the "master" flag. That is, master
++         * devices are at the front, other devices at the tail. As there is no
++         * way to easily add devices at the list-tail, we need to iterate the
++         * list to find the first non-master device when adding non-master
++         * devices. We assume there is only a few (normally 1) master devices
++         * per seat, so we iterate only a few times. */
++
++        if (d->master || !s->devices)
++                LIST_PREPEND(Device, devices, s->devices, d);
++        else {
++                LIST_FOREACH(devices, i, s->devices) {
++                        if (!i->devices_next || !i->master) {
++                                LIST_INSERT_AFTER(Device, devices, s->devices, i, d);
++                                break;
++                        }
++                }
++        }
+ 
+-        seat_send_changed(s, "CanGraphical\0");
++        if (!had_master && d->master)
++                seat_send_changed(s, "CanGraphical\0");
+ }
+diff --git a/src/login/logind-device.h b/src/login/logind-device.h
+index 3b15356..315f0e6 100644
+--- a/src/login/logind-device.h
++++ b/src/login/logind-device.h
+@@ -33,13 +33,14 @@ struct Device {
+ 
+         char *sysfs;
+         Seat *seat;
++        bool master;
+ 
+         dual_timestamp timestamp;
+ 
+         LIST_FIELDS(struct Device, devices);
+ };
+ 
+-Device* device_new(Manager *m, const char *sysfs);
++Device* device_new(Manager *m, const char *sysfs, bool master);
+ void device_free(Device *d);
+ void device_attach(Device *d, Seat *s);
+ void device_detach(Device *d);
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index 470d08b..2c60b8a 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -448,10 +448,17 @@ bool seat_can_tty(Seat *s) {
+         return seat_is_vtconsole(s);
+ }
+ 
++bool seat_has_master_device(Seat *s) {
++        assert(s);
++
++        /* device list is ordered by "master" flag */
++        return !!s->devices && s->devices->master;
++}
++
+ bool seat_can_graphical(Seat *s) {
+         assert(s);
+ 
+-        return !!s->devices;
++        return seat_has_master_device(s);
+ }
+ 
+ int seat_get_idle_hint(Seat *s, dual_timestamp *t) {
+@@ -499,7 +506,7 @@ int seat_check_gc(Seat *s, bool drop_not_started) {
+         if (seat_is_vtconsole(s))
+                 return 1;
+ 
+-        return !!s->devices;
++        return seat_has_master_device(s);
+ }
+ 
+ void seat_add_to_gc_queue(Seat *s) {
+diff --git a/src/login/logind-seat.h b/src/login/logind-seat.h
+index c8ab17f..bd5390f 100644
+--- a/src/login/logind-seat.h
++++ b/src/login/logind-seat.h
+@@ -63,6 +63,7 @@ int seat_attach_session(Seat *s, Session *session);
+ bool seat_is_vtconsole(Seat *s);
+ bool seat_can_multi_session(Seat *s);
+ bool seat_can_tty(Seat *s);
++bool seat_has_master_device(Seat *s);
+ bool seat_can_graphical(Seat *s);
+ 
+ int seat_get_idle_hint(Seat *s, dual_timestamp *t);
+diff --git a/src/login/logind.c b/src/login/logind.c
+index 4ef92b8..29019c2 100644
+--- a/src/login/logind.c
++++ b/src/login/logind.c
+@@ -151,6 +151,8 @@ void manager_free(Manager *m) {
+ 
+         if (m->udev_seat_monitor)
+                 udev_monitor_unref(m->udev_seat_monitor);
++        if (m->udev_device_monitor)
++                udev_monitor_unref(m->udev_device_monitor);
+         if (m->udev_vcsa_monitor)
+                 udev_monitor_unref(m->udev_vcsa_monitor);
+         if (m->udev_button_monitor)
+@@ -184,7 +186,7 @@ void manager_free(Manager *m) {
+         free(m);
+ }
+ 
+-int manager_add_device(Manager *m, const char *sysfs, Device **_device) {
++int manager_add_device(Manager *m, const char *sysfs, bool master, Device **_device) {
+         Device *d;
+ 
+         assert(m);
+@@ -195,10 +197,13 @@ int manager_add_device(Manager *m, const char *sysfs, Device **_device) {
+                 if (_device)
+                         *_device = d;
+ 
++                /* we support adding master-flags, but not removing them */
++                d->master = d->master || master;
++
+                 return 0;
+         }
+ 
+-        d = device_new(m, sysfs);
++        d = device_new(m, sysfs, master);
+         if (!d)
+                 return -ENOMEM;
+ 
+@@ -373,7 +378,8 @@ int manager_process_seat_device(Manager *m, struct udev_device *d) {
+ 
+         } else {
+                 const char *sn;
+-                Seat *seat;
++                Seat *seat = NULL;
++                bool master;
+ 
+                 sn = udev_device_get_property_value(d, "ID_SEAT");
+                 if (isempty(sn))
+@@ -384,16 +390,23 @@ int manager_process_seat_device(Manager *m, struct udev_device *d) {
+                         return 0;
+                 }
+ 
+-                r = manager_add_device(m, udev_device_get_syspath(d), &device);
++                /* ignore non-master devices for unknown seats */
++                master = udev_device_has_tag(d, "master-of-seat");
++                if (!master && !(seat = hashmap_get(m->seats, sn)))
++                        return 0;
++
++                r = manager_add_device(m, udev_device_get_syspath(d), master, &device);
+                 if (r < 0)
+                         return r;
+ 
+-                r = manager_add_seat(m, sn, &seat);
+-                if (r < 0) {
+-                        if (!device->seat)
+-                                device_free(device);
++                if (!seat) {
++                        r = manager_add_seat(m, sn, &seat);
++                        if (r < 0) {
++                                if (!device->seat)
++                                        device_free(device);
+ 
+-                        return r;
++                                return r;
++                        }
+                 }
+ 
+                 device_attach(device, seat);
+@@ -762,6 +775,22 @@ int manager_dispatch_seat_udev(Manager *m) {
+         return r;
+ }
+ 
++static int manager_dispatch_device_udev(Manager *m) {
++        struct udev_device *d;
++        int r;
++
++        assert(m);
++
++        d = udev_monitor_receive_device(m->udev_device_monitor);
++        if (!d)
++                return -ENOMEM;
++
++        r = manager_process_seat_device(m, d);
++        udev_device_unref(d);
++
++        return r;
++}
++
+ int manager_dispatch_vcsa_udev(Manager *m) {
+         struct udev_device *d;
+         int r = 0;
+@@ -1149,6 +1178,7 @@ static int manager_connect_udev(Manager *m) {
+ 
+         assert(m);
+         assert(!m->udev_seat_monitor);
++        assert(!m->udev_device_monitor);
+         assert(!m->udev_vcsa_monitor);
+         assert(!m->udev_button_monitor);
+ 
+@@ -1169,6 +1199,33 @@ static int manager_connect_udev(Manager *m) {
+         if (epoll_ctl(m->epoll_fd, EPOLL_CTL_ADD, m->udev_seat_fd, &ev) < 0)
+                 return -errno;
+ 
++        m->udev_device_monitor = udev_monitor_new_from_netlink(m->udev, "udev");
++        if (!m->udev_device_monitor)
++                return -ENOMEM;
++
++        r = udev_monitor_filter_add_match_subsystem_devtype(m->udev_device_monitor, "input", NULL);
++        if (r < 0)
++                return r;
++
++        r = udev_monitor_filter_add_match_subsystem_devtype(m->udev_device_monitor, "graphics", NULL);
++        if (r < 0)
++                return r;
++
++        r = udev_monitor_filter_add_match_subsystem_devtype(m->udev_device_monitor, "drm", NULL);
++        if (r < 0)
++                return r;
++
++        r = udev_monitor_enable_receiving(m->udev_device_monitor);
++        if (r < 0)
++                return r;
++
++        m->udev_device_fd = udev_monitor_get_fd(m->udev_device_monitor);
++        zero(ev);
++        ev.events = EPOLLIN;
++        ev.data.u32 = FD_DEVICE_UDEV;
++        if (epoll_ctl(m->epoll_fd, EPOLL_CTL_ADD, m->udev_device_fd, &ev) < 0)
++                return -errno;
++
+         /* Don't watch keys if nobody cares */
+         if (m->handle_power_key != HANDLE_IGNORE ||
+             m->handle_suspend_key != HANDLE_IGNORE ||
+@@ -1545,6 +1602,10 @@ int manager_run(Manager *m) {
+                         manager_dispatch_seat_udev(m);
+                         break;
+ 
++                case FD_DEVICE_UDEV:
++                        manager_dispatch_device_udev(m);
++                        break;
++
+                 case FD_VCSA_UDEV:
+                         manager_dispatch_vcsa_udev(m);
+                         break;
+diff --git a/src/login/logind.h b/src/login/logind.h
+index e9838a8..1a97351 100644
+--- a/src/login/logind.h
++++ b/src/login/logind.h
+@@ -57,9 +57,10 @@ struct Manager {
+         LIST_HEAD(User, user_gc_queue);
+ 
+         struct udev *udev;
+-        struct udev_monitor *udev_seat_monitor, *udev_vcsa_monitor, *udev_button_monitor;
++        struct udev_monitor *udev_seat_monitor, *udev_device_monitor, *udev_vcsa_monitor, *udev_button_monitor;
+ 
+         int udev_seat_fd;
++        int udev_device_fd;
+         int udev_vcsa_fd;
+         int udev_button_fd;
+ 
+@@ -121,6 +122,7 @@ struct Manager {
+ 
+ enum {
+         FD_SEAT_UDEV,
++        FD_DEVICE_UDEV,
+         FD_VCSA_UDEV,
+         FD_BUTTON_UDEV,
+         FD_CONSOLE,
+@@ -132,7 +134,7 @@ enum {
+ Manager *manager_new(void);
+ void manager_free(Manager *m);
+ 
+-int manager_add_device(Manager *m, const char *sysfs, Device **_device);
++int manager_add_device(Manager *m, const char *sysfs, bool master, Device **_device);
+ int manager_add_button(Manager *m, const char *name, Button **_button);
+ int manager_add_seat(Manager *m, const char *id, Seat **_seat);
+ int manager_add_session(Manager *m, const char *id, Session **_session);
+-- 
+1.8.4
+

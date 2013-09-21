@@ -1,0 +1,33 @@
+From 20e1bd9d1b289761a1b0010d778bdaf924f317b3 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Tue, 17 Sep 2013 17:40:00 +0200
+Subject: [PATCH 140/169] logind: fix seat_can_tty() to check for VTs
+
+A seat provides text-logins if it has VTs. This is always limited to seat0
+so the seat_is_seat0() check is correct. However, if VTs are disabled, no
+seat provides text-logins so we also need to check for the console-fd.
+
+This was previously:
+  return seat_is_vtconsole();
+It looked right, but was functionally equivalent to seat_is_seat0(). The
+rename of this helper made it more obvious that it is missing the VT test.
+---
+ src/login/logind-seat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index 9b6ceb3..c5350fb 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -445,7 +445,7 @@ bool seat_can_multi_session(Seat *s) {
+ bool seat_can_tty(Seat *s) {
+         assert(s);
+ 
+-        return seat_is_seat0(s);
++        return seat_is_seat0(s) && s->manager->console_active_fd >= 0;
+ }
+ 
+ bool seat_has_master_device(Seat *s) {
+-- 
+1.8.4
+

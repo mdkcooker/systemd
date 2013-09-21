@@ -1,0 +1,25 @@
+From 360e09ea9ad3a8e84e1729ebd2967ab8f7348170 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 17 Sep 2013 17:11:46 -0500
+Subject: [PATCH 158/169] Update TODO
+
+---
+ TODO | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/TODO b/TODO
+index b5a93b2..d5b32ac 100644
+--- a/TODO
++++ b/TODO
+@@ -58,6 +58,8 @@ CGroup Rework Completion:
+ 
+ Features:
+ 
++* libdsystemd-bus should expose utf8 validation calls
++
+ * When using "systemd status" on a slice unit also show all messages
+   matching _SYSTEMD_SLICE= not just _SYSTEMD_UNIT=
+ 
+-- 
+1.8.4
+

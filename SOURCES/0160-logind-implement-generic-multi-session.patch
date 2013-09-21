@@ -1,0 +1,202 @@
+From d7bd01b547bd91353513131561de9cc7d9f7d405 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Tue, 17 Sep 2013 23:40:19 +0200
+Subject: [PATCH 160/169] logind: implement generic multi-session
+
+This enables the multi-session capability for seats that don't have VTs.
+For legacy seats with VTs, everything stays the same. However, all other
+seats now also get the multi-session capability.
+
+The only feature that was missing was session-switching. As logind can
+force a session-switch and signal that via the "Active" property, we only
+need a way to allow synchronized/delayed session switches. Compositors
+need to cleanup some devices before acknowledging the session switch.
+Therefore, we use the session-devices to give compositors a chance to
+block a session-switch until they cleaned everything up.
+
+If you activate a session on a seat without VTs, we send a PauseDevice
+signal to the active session for every active device. Only once the
+session acknowledged all these with a PauseDeviceComplete() call, we
+perform the final session switch.
+
+One important note is that delayed session-switching is meant for
+backwards compatibility. New compositors or other sessions should really
+try to deal correctly with forced session switches! They only need to
+handle EACCES/EPERM from syscalls and treat them as "PauseDevice" signal.
+
+Following logind patches will add a timeout to session-switches which
+forces the switch if the active session does not react in a timely
+fashion. Moreover, explicit ForceActivate() calls might also be supported.
+Hence, sessions must not crash if their devices get paused.
+---
+ src/login/logind-seat.c           | 15 +++++++++++++++
+ src/login/logind-seat.h           |  2 ++
+ src/login/logind-session-device.c | 28 ++++++++++++++++++++++++++++
+ src/login/logind-session-device.h |  1 +
+ src/login/logind-session.c        | 31 ++++++++++++++++++++++++++-----
+ 5 files changed, 72 insertions(+), 5 deletions(-)
+
+diff --git a/src/login/logind-seat.c b/src/login/logind-seat.c
+index f88738a..4a4d40a 100644
+--- a/src/login/logind-seat.c
++++ b/src/login/logind-seat.c
+@@ -425,6 +425,21 @@ int seat_attach_session(Seat *s, Session *session) {
+         return 0;
+ }
+ 
++void seat_complete_switch(Seat *s) {
++        Session *session;
++
++        assert(s);
++
++        /* if no session-switch is pending or if it got canceled, do nothing */
++        if (!s->pending_switch)
++                return;
++
++        session = s->pending_switch;
++        s->pending_switch = NULL;
++
++        seat_set_active(s, session);
++}
++
+ bool seat_has_vts(Seat *s) {
+         assert(s);
+ 
+diff --git a/src/login/logind-seat.h b/src/login/logind-seat.h
+index d3438b8..be6db6e 100644
+--- a/src/login/logind-seat.h
++++ b/src/login/logind-seat.h
+@@ -38,6 +38,7 @@ struct Seat {
+         LIST_HEAD(Device, devices);
+ 
+         Session *active;
++        Session *pending_switch;
+         LIST_HEAD(Session, sessions);
+ 
+         bool in_gc_queue:1;
+@@ -59,6 +60,7 @@ int seat_read_active_vt(Seat *s);
+ int seat_preallocate_vts(Seat *s);
+ 
+ int seat_attach_session(Seat *s, Session *session);
++void seat_complete_switch(Seat *s);
+ 
+ bool seat_has_vts(Seat *s);
+ bool seat_is_seat0(Seat *s);
+diff --git a/src/login/logind-session-device.c b/src/login/logind-session-device.c
+index 80fd364..e92bb54 100644
+--- a/src/login/logind-session-device.c
++++ b/src/login/logind-session-device.c
+@@ -414,10 +414,21 @@ void session_device_free(SessionDevice *sd) {
+ }
+ 
+ void session_device_complete_pause(SessionDevice *sd) {
++        SessionDevice *iter;
++        Iterator i;
++
+         if (!sd->active)
+                 return;
+ 
+         session_device_stop(sd);
++
++        /* if not all devices are paused, wait for further completion events */
++        HASHMAP_FOREACH(iter, sd->session->devices, i)
++                if (iter->active)
++                        return;
++
++        /* complete any pending session switch */
++        seat_complete_switch(sd->session->seat);
+ }
+ 
+ void session_device_resume_all(Session *s) {
+@@ -449,3 +460,20 @@ void session_device_pause_all(Session *s) {
+                 }
+         }
+ }
++
++unsigned int session_device_try_pause_all(Session *s) {
++        SessionDevice *sd;
++        Iterator i;
++        unsigned int num_pending = 0;
++
++        assert(s);
++
++        HASHMAP_FOREACH(sd, s->devices, i) {
++                if (sd->active) {
++                        session_device_notify(sd, SESSION_DEVICE_TRY_PAUSE);
++                        ++num_pending;
++                }
++        }
++
++        return num_pending;
++}
+diff --git a/src/login/logind-session-device.h b/src/login/logind-session-device.h
+index 511fce0..eac7ca7 100644
+--- a/src/login/logind-session-device.h
++++ b/src/login/logind-session-device.h
+@@ -57,3 +57,4 @@ void session_device_complete_pause(SessionDevice *sd);
+ 
+ void session_device_resume_all(Session *s);
+ void session_device_pause_all(Session *s);
++unsigned int session_device_try_pause_all(Session *s);
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index fcc1901..eea0bfb 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -100,6 +100,8 @@ void session_free(Session *s) {
+         if (s->seat) {
+                 if (s->seat->active == s)
+                         s->seat->active = NULL;
++                if (s->seat->pending_switch == s)
++                        s->seat->pending_switch = NULL;
+ 
+                 LIST_REMOVE(Session, sessions_by_seat, s->seat->sessions, s);
+         }
+@@ -375,21 +377,40 @@ int session_load(Session *s) {
+ }
+ 
+ int session_activate(Session *s) {
++        unsigned int num_pending;
++
+         assert(s);
+         assert(s->user);
+ 
+-        if (s->vtnr <= 0)
+-                return -ENOTSUP;
+-
+         if (!s->seat)
+                 return -ENOTSUP;
+ 
+         if (s->seat->active == s)
+                 return 0;
+ 
+-        assert(seat_has_vts(s->seat));
++        /* on seats with VTs, we let VTs manage session-switching */
++        if (seat_has_vts(s->seat)) {
++                if (s->vtnr <= 0)
++                        return -ENOTSUP;
++
++                return chvt(s->vtnr);
++        }
+ 
+-        return chvt(s->vtnr);
++        /* On seats without VTs, we implement session-switching in logind. We
++         * try to pause all session-devices and wait until the session
++         * controller acknowledged them. Once all devices are asleep, we simply
++         * switch the active session and be done.
++         * We save the session we want to switch to in seat->pending_switch and
++         * seat_complete_switch() will perform the final switch. */
++
++        s->seat->pending_switch = s;
++
++        /* if no devices are running, immediately perform the session switch */
++        num_pending = session_device_try_pause_all(s);
++        if (!num_pending)
++                seat_complete_switch(s->seat);
++
++        return 0;
+ }
+ 
+ static int session_link_x11_socket(Session *s) {
+-- 
+1.8.4
+

@@ -1,0 +1,172 @@
+From e8b212fe56f7f4e1778474777a7a2959244d0047 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Tue, 17 Sep 2013 17:39:55 +0200
+Subject: [PATCH 134/169] logind: add infrastructure to watch busnames
+
+If we want to track bus-names to allow exclusive resource-access, we need
+a way to get notified when a bus-name is gone. We make logind watch for
+NameOwnerChanged dbus events and check whether the name is currently
+watched. If it is, we remove it from the watch-list (notification for
+other objects can be added in follow-up patches).
+---
+ src/login/logind-dbus.c | 17 ++++++++++++++++
+ src/login/logind.c      | 54 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ src/login/logind.h      |  4 ++++
+ 3 files changed, 74 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index d052e74..5decf81 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -2459,6 +2459,23 @@ DBusHandlerResult bus_message_filter(
+                         HASHMAP_FOREACH(session, m->sessions, i)
+                                 session_add_to_gc_queue(session);
+                 }
++
++        } else if (dbus_message_is_signal(message, DBUS_INTERFACE_DBUS, "NameOwnerChanged")) {
++                const char *name, *old, *new;
++                char *key;
++
++                if (!dbus_message_get_args(message, &error,
++                                           DBUS_TYPE_STRING, &name,
++                                           DBUS_TYPE_STRING, &old,
++                                           DBUS_TYPE_STRING, &new,
++                                           DBUS_TYPE_INVALID)) {
++                        log_error("Failed to parse NameOwnerChanged message: %s", bus_error_message(&error));
++                        goto finish;
++                }
++
++                if (*old && !*new && (key = hashmap_remove(m->busnames, old))) {
++                        free(key);
++                }
+         }
+ 
+ finish:
+diff --git a/src/login/logind.c b/src/login/logind.c
+index 29019c2..89e4eee 100644
+--- a/src/login/logind.c
++++ b/src/login/logind.c
+@@ -74,6 +74,7 @@ Manager *manager_new(void) {
+         m->users = hashmap_new(trivial_hash_func, trivial_compare_func);
+         m->inhibitors = hashmap_new(string_hash_func, string_compare_func);
+         m->buttons = hashmap_new(string_hash_func, string_compare_func);
++        m->busnames = hashmap_new(string_hash_func, string_compare_func);
+ 
+         m->user_units = hashmap_new(string_hash_func, string_compare_func);
+         m->session_units = hashmap_new(string_hash_func, string_compare_func);
+@@ -82,7 +83,7 @@ Manager *manager_new(void) {
+         m->inhibitor_fds = hashmap_new(trivial_hash_func, trivial_compare_func);
+         m->button_fds = hashmap_new(trivial_hash_func, trivial_compare_func);
+ 
+-        if (!m->devices || !m->seats || !m->sessions || !m->users || !m->inhibitors || !m->buttons ||
++        if (!m->devices || !m->seats || !m->sessions || !m->users || !m->inhibitors || !m->buttons || !m->busnames ||
+             !m->user_units || !m->session_units ||
+             !m->session_fds || !m->inhibitor_fds || !m->button_fds) {
+                 manager_free(m);
+@@ -111,6 +112,7 @@ void manager_free(Manager *m) {
+         Seat *s;
+         Inhibitor *i;
+         Button *b;
++        char *n;
+ 
+         assert(m);
+ 
+@@ -132,12 +134,16 @@ void manager_free(Manager *m) {
+         while ((b = hashmap_first(m->buttons)))
+                 button_free(b);
+ 
++        while ((n = hashmap_first(m->busnames)))
++                free(hashmap_remove(m->busnames, n));
++
+         hashmap_free(m->devices);
+         hashmap_free(m->seats);
+         hashmap_free(m->sessions);
+         hashmap_free(m->users);
+         hashmap_free(m->inhibitors);
+         hashmap_free(m->buttons);
++        hashmap_free(m->busnames);
+ 
+         hashmap_free(m->user_units);
+         hashmap_free(m->session_units);
+@@ -361,6 +367,40 @@ int manager_add_button(Manager *m, const char *name, Button **_button) {
+         return 0;
+ }
+ 
++int manager_watch_busname(Manager *m, const char *name) {
++        char *n;
++        int r;
++
++        assert(m);
++        assert(name);
++
++        if (hashmap_get(m->busnames, name))
++                return 0;
++
++        n = strdup(name);
++        if (!n)
++                return -ENOMEM;
++
++        r = hashmap_put(m->busnames, n, n);
++        if (r < 0) {
++                free(n);
++                return r;
++        }
++
++        return 0;
++}
++
++void manager_drop_busname(Manager *m, const char *name) {
++        char *key;
++
++        assert(m);
++        assert(name);
++
++        key = hashmap_remove(m->busnames, name);
++        if (key)
++                free(key);
++}
++
+ int manager_process_seat_device(Manager *m, struct udev_device *d) {
+         Device *device;
+         int r;
+@@ -1045,6 +1085,18 @@ static int manager_connect_bus(Manager *m) {
+ 
+         dbus_bus_add_match(m->bus,
+                            "type='signal',"
++                           "sender='"DBUS_SERVICE_DBUS"',"
++                           "interface='"DBUS_INTERFACE_DBUS"',"
++                           "member='NameOwnerChanged',"
++                           "path='"DBUS_PATH_DBUS"'",
++                           &error);
++        if (dbus_error_is_set(&error)) {
++                log_error("Failed to add match for NameOwnerChanged: %s", bus_error_message(&error));
++                dbus_error_free(&error);
++        }
++
++        dbus_bus_add_match(m->bus,
++                           "type='signal',"
+                            "sender='org.freedesktop.systemd1',"
+                            "interface='org.freedesktop.systemd1.Manager',"
+                            "member='JobRemoved',"
+diff --git a/src/login/logind.h b/src/login/logind.h
+index 1a97351..a76936d 100644
+--- a/src/login/logind.h
++++ b/src/login/logind.h
+@@ -51,6 +51,7 @@ struct Manager {
+         Hashmap *users;
+         Hashmap *inhibitors;
+         Hashmap *buttons;
++        Hashmap *busnames;
+ 
+         LIST_HEAD(Seat, seat_gc_queue);
+         LIST_HEAD(Session, session_gc_queue);
+@@ -190,3 +191,6 @@ int manager_unit_is_active(Manager *manager, const char *unit);
+ 
+ /* gperf lookup function */
+ const struct ConfigPerfItem* logind_gperf_lookup(const char *key, unsigned length);
++
++int manager_watch_busname(Manager *manager, const char *name);
++void manager_drop_busname(Manager *manager, const char *name);
+-- 
+1.8.4
+

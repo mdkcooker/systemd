@@ -1,0 +1,42 @@
+From 41a5ef639b248aa3d10609d9af5d0043b909d93c Mon Sep 17 00:00:00 2001
+From: Harald Hoyer <harald@redhat.com>
+Date: Mon, 16 Sep 2013 18:07:43 -0500
+Subject: [PATCH 147/169] TEST-03-JOBS/test.sh: do not output the "failed" if
+ it does not exist
+
+---
+ test/TEST-03-JOBS/test.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/test/TEST-03-JOBS/test.sh b/test/TEST-03-JOBS/test.sh
+index 6440d1f..02fd8b9 100755
+--- a/test/TEST-03-JOBS/test.sh
++++ b/test/TEST-03-JOBS/test.sh
+@@ -21,10 +21,10 @@ run_qemu() {
+     mkdir -p $TESTDIR/root
+     mount ${LOOPDEV}p1 $TESTDIR/root
+     [[ -e $TESTDIR/root/testok ]] && ret=0
+-    cp -a $TESTDIR/root/failed $TESTDIR
++    [[ -f $TESTDIR/root/failed ]] && cp -a $TESTDIR/root/failed $TESTDIR
+     cp -a $TESTDIR/root/var/log/journal $TESTDIR
+     umount $TESTDIR/root
+-    cat $TESTDIR/failed
++    [[ -f $TESTDIR/failed ]] && cat $TESTDIR/failed
+     ls -l $TESTDIR/journal/*/*.journal
+     test -s $TESTDIR/failed && ret=$(($ret+1))
+     return $ret
+@@ -35,9 +35,9 @@ run_nspawn() {
+     ../../systemd-nspawn -b -D $TESTDIR/nspawn-root /usr/lib/systemd/systemd
+     ret=1
+     [[ -e $TESTDIR/nspawn-root/testok ]] && ret=0
+-    cp -a $TESTDIR/nspawn-root/failed $TESTDIR
++    [[ -f $TESTDIR/root/failed ]] && cp -a $TESTDIR/nspawn-root/failed $TESTDIR
+     cp -a $TESTDIR/nspawn-root/var/log/journal $TESTDIR
+-    cat $TESTDIR/failed
++    [[ -f $TESTDIR/failed ]] && cat $TESTDIR/failed
+     ls -l $TESTDIR/journal/*/*.journal
+     test -s $TESTDIR/failed && ret=$(($ret+1))
+     return $ret
+-- 
+1.8.4
+
