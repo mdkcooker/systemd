@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	207
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -492,6 +492,9 @@ if [ $1 -ge 2 -o $2 -ge 2 ] ; then
 fi
 
 %post
+# (cg) This is a pre-script helper but we don't actually need it until tmpfiles
+# are processed, hence whay keeping it in post... (mga#11264)
+%_pre_groupadd %{name}-journal
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
 %{_prefix}/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
