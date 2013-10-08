@@ -20,8 +20,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	207
-Release:	%mkrel 2
+Version:	208
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -33,82 +33,12 @@ Source11: 69-printeracl.rules
 Source12: 61-mobile-zte-drakx-net.rules
 
 # (blino) net rules and helpers
-Source20: 76-net.rules
+Source20: 81-net.rules
 Source21: udev_net_create_ifcfg
 Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-update-TODO.patch
-Patch101: 0101-cryptsetup-generator-don-t-create-tmp-swap-units.patch
-Patch102: 0102-cryptsetup-generator-allow-specifying-options-in-pro.patch
-Patch103: 0103-automount-rename-repeat_unmont-to-repeat_unmount.patch
-Patch104: 0104-cgroup-add-the-missing-setting-of-variable-s-value.patch
-Patch105: 0105-cgroup-correct-the-log-information.patch
-Patch106: 0106-cgroup-fix-incorrectly-setting-memory-cgroup.patch
-Patch107: 0107-random-seed-we-should-return-errno-of-failed-loop_wr.patch
-Patch108: 0108-update-TODO.patch
-Patch109: 0109-core-cgroup-first-print-then-free.patch
-Patch110: 0110-swap-fix-reverse-dependencies.patch
-Patch111: 0111-libudev-fix-move_later-comparison.patch
-Patch112: 0112-man-document-luks.options-kernel-commandline.patch
-Patch113: 0113-keymap-remove-some-commented-out-lines.patch
-Patch114: 0114-Advertise-hibernation-only-if-there-s-enough-free-sw.patch
-Patch115: 0115-README-add-SCSI-BSG-option.patch
-Patch116: 0116-swap-create-.wants-symlink-to-auto-swap-devices.patch
-Patch117: 0117-cgroup-add-missing-equals-for-BlockIOWeight.patch
-Patch118: 0118-Assume-that-proc-meminfo-can-be-missing.patch
-Patch119: 0119-Remove-duplicate-entries-from-syscall-list.patch
-Patch120: 0120-transaction.c-do-not-point-users-to-logs-when-unit-n.patch
-Patch121: 0121-Verify-validity-of-session-name-when-received-from-o.patch
-Patch122: 0122-build-check-for-build-link-flags-harder.patch
-Patch123: 0123-udev-rules-avoid-erroring-on-trailing-whitespace.patch
-Patch124: 0124-login-fix-login_is_valid-test.patch
-Patch125: 0125-keymap-Add-Samsung-Series-5-Ultra.patch
-Patch126: 0126-TODO-spelling-fix.patch
-Patch127: 0127-Add-YouCompleteMe-configuration.patch
-Patch128: 0128-update-TODO.patch
-Patch129: 0129-specifier-rework-specifier-calls-to-return-proper-er.patch
-Patch130: 0130-man-add-a-list-of-environment-variables.patch
-Patch131: 0131-Make-tmpdir-removal-asynchronous.patch
-Patch132: 0132-tmpfiles-support-simple-specifier-expansion-for-spec.patch
-Patch133: 0133-logind-listen-actively-for-session-devices.patch
-Patch134: 0134-logind-add-infrastructure-to-watch-busnames.patch
-Patch135: 0135-logind-add-session-controllers.patch
-Patch136: 0136-logind-make-Session.Activate-lazy.patch
-Patch137: 0137-update-TODO.patch
-Patch138: 0138-nspawn-update-unit-file.patch
-Patch139: 0139-logind-rename-vtconsole-to-seat0.patch
-Patch140: 0140-logind-fix-seat_can_tty-to-check-for-VTs.patch
-Patch141: 0141-logind-fix-session_activate-vtnr-0.patch
-Patch142: 0142-logind-extract-has_vts-from-can_multi_session.patch
-Patch143: 0143-udev-path_id-fix-by-path-link-generation-for-scm-dev.patch
-Patch144: 0144-NEWS-add-some-clarifications.patch
-Patch145: 0145-cgroup-get-rid-of-MemorySoftLimit.patch
-#Patch146: 0146-TEST-01-BASIC-TEST-02-CRYPTSETUP-fixed-strip.patch
-#Patch147: 0147-TEST-03-JOBS-test.sh-do-not-output-the-failed-if-it-.patch
-Patch148: 0148-journald-log-the-slice-of-a-process-along-with-each-.patch
-Patch149: 0149-Update-TODO.patch
-Patch150: 0150-move-utf8-functions-from-libudev-private.h-to-utf8.h.patch
-Patch151: 0151-Use-udev_encode_string-in-fstab_node_to_udev_node.patch
-Patch152: 0152-Use-first-partition-in-proc-swaps-for-hibernation-te.patch
-Patch153: 0153-Make-test-login-and-test-sleep-output-debugging.patch
-Patch154: 0154-test-fileio-assume-that-Buffers-may-be-missing.patch
-Patch155: 0155-tmpfiles-add-a-new-m-line-type-that-adjusts-user-gro.patch
-Patch156: 0156-journald-avoid-NSS-in-journald.patch
-Patch157: 0157-libudev-add-missing-global-to-symbol-export.patch
-Patch158: 0158-Update-TODO.patch
-Patch159: 0159-logind-introduce-session-devices.patch
-Patch160: 0160-logind-implement-generic-multi-session.patch
-Patch161: 0161-backlight-random-seed-move-state-files-into-var-lib-.patch
-Patch162: 0162-gpt-auto-generator-do-not-assume-that-dev-block-u-u-.patch
-Patch163: 0163-logind-fix-build-for-ARM-with-sizeof-dev_t-sizeof-vo.patch
-Patch164: 0164-Remove-six-unused-variables-and-add-annotation.patch
-Patch165: 0165-util-restore-get_process_capeff-behaviour.patch
-Patch166: 0166-logs-show.c-fix-enum-type-in-function-declaration.patch
-Patch167: 0167-polkit-Avoid-race-condition-in-scraping-proc.patch
-Patch168: 0168-Fix-capability-logging-when-effective-caps-are-0.patch
-Patch169: 0169-Spelling-fix-from-later-revision-of-committed-patch-.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -125,8 +55,6 @@ Patch509: 0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
-# (cg) From the ML - should fix httpd stop timeout
-Patch901: 0901-Fix-timeout-when-stopping-Type-notify-service.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel

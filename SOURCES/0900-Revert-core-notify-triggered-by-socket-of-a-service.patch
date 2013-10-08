@@ -1,8 +1,7 @@
-From 6b4c52a24a032af412016efb67b190ab0e3d2ca1 Mon Sep 17 00:00:00 2001
+From 36916519843bb02425ff555430bdeaf92f73f8d5 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 19 Sep 2013 00:06:34 +0100
-Subject: [PATCH 400/401] Revert "core: notify triggered by socket of a
- service"
+Subject: [PATCH] Revert "core: notify triggered by socket of a service"
 
 This reverts commit d137a488afb59801177dc34c218f339bfbbdb044.
 ---
@@ -13,10 +12,10 @@ This reverts commit d137a488afb59801177dc34c218f339bfbbdb044.
  4 files changed, 38 insertions(+), 38 deletions(-)
 
 diff --git a/TODO b/TODO
-index c0f51de..8ee0d7c 100644
+index 07269f4..5099bf8 100644
 --- a/TODO
 +++ b/TODO
-@@ -160,6 +160,9 @@ Features:
+@@ -152,6 +152,9 @@ Features:
    Maybe take a BSD lock at the disk device node and teach udev to
    check for that and suppress event handling.
  
@@ -27,10 +26,10 @@ index c0f51de..8ee0d7c 100644
    the hierarchies of child processes
  
 diff --git a/src/core/service.c b/src/core/service.c
-index cc61b54..0e7a3af 100644
+index 6792024..8812d75 100644
 --- a/src/core/service.c
 +++ b/src/core/service.c
-@@ -1489,6 +1489,24 @@ static int service_search_main_pid(Service *s) {
+@@ -1493,6 +1493,24 @@ static int service_search_main_pid(Service *s) {
          return 0;
  }
  
@@ -55,7 +54,7 @@ index cc61b54..0e7a3af 100644
  static void service_set_state(Service *s, ServiceState state) {
          ServiceState old_state;
          const UnitActiveState *table;
-@@ -1540,6 +1558,19 @@ static void service_set_state(Service *s, ServiceState state) {
+@@ -1544,6 +1562,19 @@ static void service_set_state(Service *s, ServiceState state) {
                  s->control_command_id = _SERVICE_EXEC_COMMAND_INVALID;
          }
  
@@ -76,10 +75,10 @@ index cc61b54..0e7a3af 100644
              state != SERVICE_START &&
              state != SERVICE_START_POST &&
 diff --git a/src/core/socket.c b/src/core/socket.c
-index 46a73e0..192aaa3 100644
+index 6c0ac1a..67996a0 100644
 --- a/src/core/socket.c
 +++ b/src/core/socket.c
-@@ -2275,7 +2275,7 @@ int socket_collect_fds(Socket *s, int **fds, unsigned *n_fds) {
+@@ -2246,7 +2246,7 @@ int socket_collect_fds(Socket *s, int **fds, unsigned *n_fds) {
          return 0;
  }
  
@@ -88,7 +87,7 @@ index 46a73e0..192aaa3 100644
          assert(s);
  
          /* The service is dead. Dang!
-@@ -2320,41 +2320,6 @@ static void socket_reset_failed(Unit *u) {
+@@ -2291,41 +2291,6 @@ static void socket_reset_failed(Unit *u) {
          s->result = SOCKET_SUCCESS;
  }
  
@@ -130,7 +129,7 @@ index 46a73e0..192aaa3 100644
  static int socket_kill(Unit *u, KillWho who, int signo, DBusError *error) {
          return unit_kill_common(u, who, signo, -1, SOCKET(u)->control_pid, error);
  }
-@@ -2435,8 +2400,6 @@ const UnitVTable socket_vtable = {
+@@ -2406,8 +2371,6 @@ const UnitVTable socket_vtable = {
          .sigchld_event = socket_sigchld_event,
          .timer_event = socket_timer_event,
  
@@ -140,7 +139,7 @@ index 46a73e0..192aaa3 100644
  
          .bus_interface = "org.freedesktop.systemd1.Socket",
 diff --git a/src/core/socket.h b/src/core/socket.h
-index 5733322..8f9dfdb 100644
+index 3d7eadc..f35692c 100644
 --- a/src/core/socket.h
 +++ b/src/core/socket.h
 @@ -156,6 +156,9 @@ struct Socket {
@@ -150,9 +149,9 @@ index 5733322..8f9dfdb 100644
 +/* Called from the service when it shut down */
 +void socket_notify_service_dead(Socket *s, bool failed_permanent);
 +
- /* Called from the mount code figure out if a mount is a dependency of
-  * any of the sockets of this socket */
- int socket_add_one_mount_link(Socket *s, Mount *m);
+ /* Called from the service code when a per-connection service ended */
+ void socket_connection_unref(Socket *s);
+ 
 -- 
 1.8.4
 
