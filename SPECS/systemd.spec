@@ -78,6 +78,7 @@ BuildRequires:	python-devel
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(liblzma)
 Requires(pre):	filesystem >= 2.1.9-18
+Requires(pre):	shadow-utils
 Requires:	systemd-units = %{version}-%{release}
 Requires:	dbus >= 1.3.2
 Requires:	initscripts >= 9.21-3
@@ -419,10 +420,14 @@ if [ $1 -ge 2 -o $2 -ge 2 ] ; then
 	%{_bindir}/systemctl daemon-reexec 2>&1 || :
 fi
 
+%pre
+# (cg) Cannot use rpm-helper scripts as it results in a cyclical dep as
+# rpm-helper requires systemd-units which in turn requires systemd...
+if ! getent group %{name}-journal >/dev/null 2>&1; then
+  /usr/sbin/groupadd -r %{name}-journal >/dev/null || :
+fi
+
 %post
-# (cg) This is a pre-script helper but we don't actually need it until tmpfiles
-# are processed, hence whay keeping it in post... (mga#11264)
-%_pre_groupadd %{name}-journal
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
 %{_prefix}/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
@@ -450,6 +455,12 @@ echo >&2
 mkdir -p %{_sysconfdir}/udev/rules.d >/dev/null 2>&1 || :
 ln -s /dev/null %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules >/dev/null 2>&1 || :
 
+%triggerun -- %{name} < 208
+chgrp -R systemd-journal /var/log/journal || :
+chmod 02755 /var/log/journal || :
+if [ -f /etc/machine-id ]; then
+	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
+fi
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -662,7 +673,7 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_docdir}/systemd
 %{_prefix}/lib/systemd/catalog/systemd.catalog
-%dir %{_logdir}/journal
+%attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 
 %files units
 %defattr(-,root,root)
