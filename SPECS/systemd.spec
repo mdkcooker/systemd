@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 2
+Release:	%mkrel 2.1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -119,9 +119,9 @@ work as a drop-in replacement for sysvinit.
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Boot and Init
 Requires(pre):	filesystem >= 2.1.9-18
-Requires:	%{name} = %{version}-%{release}
+Requires(posttrans):	%{name} = %{version}-%{release}
 Conflicts:	initscripts < 9.25
-Requires(post): coreutils grep awk
+Requires(posttrans): coreutils grep awk
 
 %description units
 Basic configuration files, directories and installation tool for the systemd
@@ -462,7 +462,7 @@ if [ -f /etc/machine-id ]; then
 	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
 fi
 
-%post units
+%posttrans units
 if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
         runlevel=$(%{_bindir}/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
