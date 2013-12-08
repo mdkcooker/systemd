@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 4.2
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -181,6 +181,7 @@ Patch237: 0237-systemd-treat-reload-failure-as-failure.patch
 Patch238: 0238-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
 Patch239: 0239-systemd-add-a-start-job-for-all-units-specified-with.patch
 Patch240: 0240-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
+Patch241: 0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -194,6 +195,7 @@ Patch506: 0506-reinstate-TIMEOUT-handling.patch
 Patch507: 0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch508: 0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 Patch509: 0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
+Patch510: 0510-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
