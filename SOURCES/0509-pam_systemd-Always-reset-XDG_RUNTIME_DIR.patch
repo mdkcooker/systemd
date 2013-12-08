@@ -1,7 +1,7 @@
-From 1a07a24a7802dc9cbbb14d23160b2b60c19e2e2c Mon Sep 17 00:00:00 2001
+From 8efdf2dc876baaf771319103e643958838a61033 Mon Sep 17 00:00:00 2001
 From: "Dr. Werner Fink" <werner@suse.de>
 Date: Sun, 8 Dec 2013 23:10:35 +0000
-Subject: [PATCH] pam_systemd: Always reset XDG_RUNTIME_DIR.
+Subject: [PATCH 509/509] pam_systemd: Always reset XDG_RUNTIME_DIR.
 
 This fixes the 'su' case and not just 'su -' case previously.
 ---
@@ -9,7 +9,7 @@ This fixes the 'su' case and not just 'su -' case previously.
  1 file changed, 6 insertions(+)
 
 diff --git a/src/login/pam-module.c b/src/login/pam-module.c
-index a83d25f..5237dee 100644
+index 3984175..d683320 100644
 --- a/src/login/pam-module.c
 +++ b/src/login/pam-module.c
 @@ -418,6 +418,12 @@ _public_ PAM_EXTERN int pam_sm_open_session(

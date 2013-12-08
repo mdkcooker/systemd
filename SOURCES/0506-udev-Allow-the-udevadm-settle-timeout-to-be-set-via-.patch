@@ -1,7 +1,7 @@
-From 23939969ca10b57d8de0b392dd727645a4e1c70c Mon Sep 17 00:00:00 2001
+From 9978f917b5285a238569923349e0671a4ad03f92 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 11 Apr 2012 16:02:21 +0100
-Subject: [PATCH 507/508] udev: Allow the 'udevadm settle' timeout to be set
+Subject: [PATCH 506/509] udev: Allow the 'udevadm settle' timeout to be set
  via the kernel cmdline
 
 On some really old hardware, the default timeout of 120 (which may even
@@ -75,5 +75,5 @@ index c4fc4ee..3f1e1cd 100644
          if (udev_queue == NULL)
                  exit(2);
 -- 
-1.8.1.5
+1.8.4.5
 

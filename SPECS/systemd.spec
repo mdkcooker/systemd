@@ -186,16 +186,15 @@ Patch241: 0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
-Patch501: 0501-Some-more-tmpfiles-fixes.patch
-Patch502: 0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch503: 0503-mageia-Fallback-message-when-display-manager-fails.patch
-Patch504: 0504-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-Patch505: 0505-Allow-booting-from-live-cd-in-virtualbox.patch
-Patch506: 0506-reinstate-TIMEOUT-handling.patch
-Patch507: 0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
-Patch508: 0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
-Patch509: 0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
-Patch510: 0510-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
+Patch501: 0501-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch502: 0502-mageia-Fallback-message-when-display-manager-fails.patch
+Patch503: 0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch504: 0504-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch505: 0505-reinstate-TIMEOUT-handling.patch
+Patch506: 0506-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+Patch507: 0507-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
+Patch508: 0508-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
+Patch509: 0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
