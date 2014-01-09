@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 5
+Release:	%mkrel 6
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -182,6 +182,7 @@ Patch238: 0238-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
 Patch239: 0239-systemd-add-a-start-job-for-all-units-specified-with.patch
 Patch240: 0240-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
 Patch241: 0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
+Patch242: 0242-login-Don-t-stop-a-running-user-manager-from-garbage.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -195,6 +196,9 @@ Patch506: 0506-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch507: 0507-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 Patch508: 0508-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
 Patch509: 0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
+Patch510: 0510-logind-use-correct-who-enum-values-with-KillUnit.patch
+Patch511: 0511-logind-Partial-backport-of-cc377381.patch
+Patch512: 0512-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
