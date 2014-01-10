@@ -581,6 +581,18 @@ fi
 %{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
 %{_bindir}/journalctl --update-catalog >/dev/null 2>&1 || :
 
+if [ $1 == 1 ]; then
+	# On first install process all tmpfiles that may have been installed before us
+	# Hard requires on some packages on systemd might make cyclic deps on early
+	# transactions.
+	# We avoid systemd.conf so as not to create /run/nologin
+	for tmpfile in %{_prefix}/lib/tmpfiles.d/*.conf; do
+		if [ -f "$tmpfile" -a "$tmpfile" != "%{_prefix}/lib/tmpfiles.d/systemd.conf" ]; then
+			/usr/bin/systemd-tmpfiles --create $(basename "$tmpfile")
+		fi
+	done
+fi
+
 # (blino) systemd 195 changed the prototype of logind's OpenSession()
 # see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
 # and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
