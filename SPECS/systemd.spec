@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 6
+Release:	%mkrel 7
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -269,6 +269,7 @@ Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Boot and Init
 Requires(pre):	filesystem >= 2.1.9-18
 Requires:	%{name} = %{version}-%{release}
+Requires:	chkconfig > 1.3.61-2
 Conflicts:	initscripts < 9.25
 Requires(post): coreutils grep awk
 
