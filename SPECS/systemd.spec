@@ -199,6 +199,8 @@ Patch509: 0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
 Patch510: 0510-logind-use-correct-who-enum-values-with-KillUnit.patch
 Patch511: 0511-logind-Partial-backport-of-cc377381.patch
 Patch512: 0512-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
+Patch513: 0513-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
+Patch514: 0514-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
