@@ -39,7 +39,7 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-# NB 100-240 are identical to fedora patches
+# NB Most are identical to fedora patches
 Patch100: 0100-acpi-fptd-fix-memory-leak-in-acpi_get_boot_usec.patch
 Patch101: 0101-fix-lingering-references-to-var-lib-backlight-random.patch
 Patch102: 0102-acpi-make-sure-we-never-free-an-uninitialized-pointe.patch
@@ -183,6 +183,102 @@ Patch239: 0239-systemd-add-a-start-job-for-all-units-specified-with.patch
 Patch240: 0240-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
 Patch241: 0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
 Patch242: 0242-login-Don-t-stop-a-running-user-manager-from-garbage.patch
+Patch243: 0243-Fix-memory-leak-in-stdout-journal-streams.patch
+Patch244: 0244-man-document-is-enabled-output.patch
+Patch245: 0245-kernel-install-add-h-help.patch
+Patch246: 0246-kernel-install-fix-help-output.patch
+Patch247: 0247-man-improve-wording-and-comma-usage-in-systemd.journ.patch
+Patch248: 0248-drop-several-entries-from-kbd-model-map-whose-kbd-la.patch
+Patch249: 0249-correct-name-of-Tajik-kbd-layout-in-kbd-model-map.patch
+Patch250: 0250-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch251: 0251-Ensure-unit-is-journaled-for-short-lived-or-oneshot-.patch
+Patch252: 0252-libudev-hwdb-use-libudev-not-systemd-logging.patch
+Patch253: 0253-core-manager-remove-infinite-loop.patch
+Patch254: 0254-util-check-for-overflow-in-greedy_realloc.patch
+Patch255: 0255-journald-use-a-bit-more-cleanup-magic.patch
+Patch256: 0256-journald-malloc-less-when-streaming-messages.patch
+Patch257: 0257-activate-clean-up-inherited-descriptors.patch
+Patch258: 0258-man-explain-in-more-detail-how-SYSTEMD_READY-influen.patch
+Patch259: 0259-units-don-t-run-readahead-done-timers-in-containers.patch
+Patch260: 0260-test-fileio-replace-mktemp-with-mkstemp-to-avoid-war.patch
+Patch261: 0261-journal-pipe-journalctl-help-output-into-a-pager.patch
+Patch262: 0262-nspawn-complain-and-continue-if-machine-has-same-id.patch
+Patch263: 0263-man-beef-up-ExecStart-description.patch
+Patch264: 0264-man-remove-advice-to-avoid-setting-the-same-var-more.patch
+Patch265: 0265-systemctl-add-the-plain-option-to-the-help-message.patch
+Patch266: 0266-Fix-a-few-resource-leaks-in-error-paths.patch
+Patch267: 0267-Fix-a-few-signed-unsigned-format-string-issues.patch
+Patch268: 0268-util-try-harder-to-increase-the-send-recv-buffers-of.patch
+Patch269: 0269-execute-also-set-SO_SNDBUF-when-spawning-a-service-w.patch
+Patch270: 0270-journal-file-protect-against-alloca-0.patch
+Patch271: 0271-man-describe-journalctl-show-cursor.patch
+Patch272: 0272-journal-fix-against-theoretical-undefined-behavior.patch
+Patch273: 0273-journald-downgrade-warning-message-when-dev-kmsg-doe.patch
+Patch274: 0274-journal-file.c-remove-redundant-assignment-of-variab.patch
+Patch275: 0275-libudev-devices-received-from-udev-are-always-initia.patch
+Patch276: 0276-log-don-t-reopen-dev-console-each-time-we-call-log_o.patch
+Patch277: 0277-log-when-we-log-to-dev-console-and-got-disconnected-.patch
+Patch278: 0278-loginctl-when-showing-device-tree-of-seats-with-no-d.patch
+Patch279: 0279-man-be-more-explicit-about-option-arguments-that-tak.patch
+Patch280: 0280-man-add-DOI-for-refereed-article-on-Forward-Secure-S.patch
+Patch281: 0281-journalctl-zsh-completion-fix-several-issues-in-help.patch
+Patch282: 0282-keymap-Refactor-Acer-tables.patch
+Patch283: 0283-logging-reduce-send-timeout-to-something-more-sensib.patch
+Patch284: 0284-DEFAULT_PATH_SPLIT_USR-macro.patch
+Patch285: 0285-fstab-generator-Do-not-try-to-fsck-non-devices.patch
+Patch286: 0286-logind-remove-dead-variable.patch
+Patch287: 0287-hwdb-update.patch
+Patch288: 0288-delta-replace-readdir_r-with-readdir.patch
+Patch289: 0289-delta-fix-delta-for-drop-ins.patch
+Patch290: 0290-delta-if-prefix-is-specified-only-show-overrides-the.patch
+Patch291: 0291-log-log_error-and-friends-add-a-newline-after-each-l.patch
+Patch292: 0292-man-units-tmpfiles.d-5-cleanup.patch
+Patch293: 0293-tmpfiles-introduce-the-concept-of-unsafe-operations.patch
+Patch294: 0294-sleep-config-fix-useless-check-for-swapfile-type.patch
+Patch295: 0295-journalctl-make-sure-b-foobar-cannot-be-misunderstoo.patch
+Patch296: 0296-man-resolve-word-omissions.patch
+Patch297: 0297-man-improvements-to-comma-placement.patch
+Patch298: 0298-man-grammar-and-wording-improvements.patch
+Patch299: 0299-man-document-fail-nofail-auto-noauto.patch
+Patch300: 0300-man-fix-description-of-is-enabled-returned-value.patch
+Patch301: 0301-man-fix-Type-reference.patch
+Patch302: 0302-man-fix-Type-reference-v2.patch
+Patch303: 0303-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch304: 0304-man-add-a-note-about-propagating-signals.patch
+Patch305: 0305-man-include-autoconf-snippet-in-daemon-7.patch
+Patch306: 0306-systemd-python-fix-setting-of-exception-codes.patch
+Patch307: 0307-systemd-python-fix-listen_fds-under-Python-2.patch
+Patch308: 0308-man-expand-on-some-more-subtle-points-in-systemd.soc.patch
+Patch309: 0309-tmpfiles-rename-unsafe-to-boot.patch
+Patch310: 0310-sleep-config-Dereference-pointer-before-check-for-NU.patch
+Patch311: 0311-sleep-config-fix-double-free.patch
+Patch312: 0312-rules-drivers-do-not-reset-RUN-list.patch
+Patch313: 0313-core-manager-print-info-about-interesting-signals.patch
+Patch314: 0314-core-service-check-if-mainpid-matches-only-if-it-is-.patch
+Patch315: 0315-man-typo-fix.patch
+Patch316: 0316-swap-remove-if-else-with-the-same-data-path.patch
+Patch317: 0317-hwdb-update.patch
+Patch318: 0318-journal-Add-missing-byte-order-conversions.patch
+Patch319: 0319-hwdb-change-key-mappings-for-Samsung-90X3A.patch
+Patch320: 0320-hwdb-add-Samsung-700G.patch
+Patch321: 0321-hwdb-remove-duplicate-entry-for-Samsung-700Z.patch
+Patch322: 0322-hwdb-fix-match-for-Thinkpad-X201-tablet.patch
+Patch323: 0323-keymap-Recognize-different-Toshiba-Satellite-capital.patch
+Patch324: 0324-sleep.c-fix-typo.patch
+Patch325: 0325-delta-ensure-that-d_type-will-be-set-on-every-fs.patch
+Patch326: 0326-tmpfiles-don-t-allow-label_fix-to-print-ENOENT-when-.patch
+Patch327: 0327-man-mention-which-variables-will-be-expanded-in-Exec.patch
+Patch328: 0328-hwdb-Add-support-for-Toshiba-Satellite-P75-A7200-key.patch
+Patch329: 0329-journal-fix-access-to-munmapped-memory-in-sd_journal.patch
+Patch330: 0330-gpt-auto-generator-skip-nonexistent-devices.patch
+Patch331: 0331-gpt-auto-generator-use-EBADSLT-code-when-unable-to-d.patch
+Patch332: 0332-journald-do-not-free-space-when-disk-space-runs-low.patch
+Patch333: 0333-man-add-busctl-1.patch
+
+# (cg) These patches are in fedora but not upstream (possibly not needed due to
+# kdbus/lib-sdbus rework)
+Patch400: 0400-hostnamed-avoid-using-NULL-in-error-path.patch
+Patch401: 0401-core-do-not-segfault-if-swap-activity-happens-when-p.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -589,8 +685,11 @@ if [ $1 == 1 ]; then
 	# Hard requires on some packages on systemd might make cyclic deps on early
 	# transactions.
 	# We avoid systemd.conf so as not to create /run/nologin
+	# NOTE We can probably revert to using filetriggers again for tmpfiles now that
+	#      there is a --boot option which should make running --create without a
+	#      basename config nice and safe.
 	for tmpfile in %{_prefix}/lib/tmpfiles.d/*.conf; do
-		if [ -f "$tmpfile" -a "$tmpfile" != "%{_prefix}/lib/tmpfiles.d/systemd.conf" ]; then
+		if [ -f "$tmpfile" -a "$tmpfile" != "%{_prefix}/lib/tmpfiles.d/systemd-nologin.conf" ]; then
 			/usr/bin/systemd-tmpfiles --create $(basename "$tmpfile")
 		fi
 	done
@@ -735,6 +834,7 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 #%{_prefix}/lib/sysctl.d/50-coredump.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
+%{_prefix}/lib/tmpfiles.d/systemd-nologin.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
 %{_prefix}/lib/tmpfiles.d/x11.conf
 %{_prefix}/lib/kernel/install.d/50-depmod.install
@@ -782,6 +882,7 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %dir %{_datadir}/systemd/gatewayd
 %{_datadir}/systemd/gatewayd/browse.html
 %{_mandir}/man1/bootctl.*
+%{_mandir}/man1/busctl.*
 %{_mandir}/man1/hostnamectl.*
 %{_mandir}/man1/journalctl.*
 %{_mandir}/man1/localectl.*
