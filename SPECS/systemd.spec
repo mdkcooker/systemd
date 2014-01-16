@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
