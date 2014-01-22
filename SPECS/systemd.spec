@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -274,6 +274,7 @@ Patch330: 0330-gpt-auto-generator-skip-nonexistent-devices.patch
 Patch331: 0331-gpt-auto-generator-use-EBADSLT-code-when-unable-to-d.patch
 Patch332: 0332-journald-do-not-free-space-when-disk-space-runs-low.patch
 Patch333: 0333-man-add-busctl-1.patch
+Patch334: 0334-udev-static_node-do-not-exit-rule-after-first-static.patch
 
 # (cg) These patches are in fedora but not upstream (possibly not needed due to
 # kdbus/lib-sdbus rework)
@@ -322,6 +323,8 @@ BuildRequires:	docbook-style-xsl
 BuildRequires:	python-devel
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(liblzma)
+# (cg) don't add more deps for now but add this when cauldron reopens.
+#BuildRequires:	pkgconfig(libqrencode)
 Requires(pre):	filesystem >= 2.1.9-18
 Requires(pre):	shadow-utils
 Requires:	systemd-units = %{version}-%{release}
