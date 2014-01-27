@@ -1,7 +1,7 @@
-From 99bda5e6941f41db0e6b9ec350fee63e936dd734 Mon Sep 17 00:00:00 2001
+From 334dc6d933094c509a6c69fba06a3d43bb67e693 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Mon, 27 Jan 2014 17:54:29 +0000
-Subject: [PATCH] Temprary work around for slow shutdown due to unterminated
+Subject: [PATCH] Temporary work around for slow shutdown due to unterminated
  user sessions.
 
 ---
