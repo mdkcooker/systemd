@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 9
+Release:	%mkrel 10
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -677,6 +677,22 @@ if ! getent group %{name}-journal >/dev/null 2>&1; then
   /usr/sbin/groupadd -r %{name}-journal >/dev/null || :
 fi
 
+# Write on first install or upgrade from MGA3.
+if [ ! -r %{_prefix}/lib/sysctl.d/50-default.conf ]; then
+  if [ ! -d %{_sysconfdir}/sysctl.d ]; then
+    mkdir -m 0755 %{_sysconfdir}/sysctl.d
+  fi
+  cat > %{_sysconfdir}/sysctl.d/51-alt-sysrq.conf << EOF
+# This file ensures that the Alt+SysRq Magic keys still work.
+# This setting is insecure, although commonly expected and you can remove this
+# file to disable this feature. It will not be readded on future systemd
+# upgrades/updates.
+# http://en.wikipedia.org/wiki/Magic_SysRq_key#Security
+kernel.sysrq = 1
+EOF
+
+fi
+
 %post
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
 %{_prefix}/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
@@ -834,6 +850,8 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_sysconfdir}/pam.d/%{name}-user
 %dir %{_sysconfdir}/udev/rules.d
+# (cg) NB See pre script for soemthing that relies on this name...
+# If it is ever renamed, change the pre script too
 %{_prefix}/lib/sysctl.d/50-default.conf
 #%{_prefix}/lib/sysctl.d/50-coredump.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
