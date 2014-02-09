@@ -1,0 +1,25 @@
+From b4854f2e054c447aa5a786225d7c3c07856ca470 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Sun, 2 Feb 2014 17:03:34 +0100
+Subject: [PATCH] fstab-generator: Create fsck-root symlink with correct path
+
+---
+ src/fstab-generator/fstab-generator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 8c4c61c..0d954a2 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -177,7 +177,7 @@ static int add_fsck(FILE *f, const char *what, const char *where, const char *ty
+ 
+                 lnk = strappenda(arg_dest, "/" SPECIAL_LOCAL_FS_TARGET ".wants/systemd-fsck-root.service");
+                 mkdir_parents_label(lnk, 0755);
+-                if (symlink("systemd-fsck-root.service", lnk) < 0) {
++                if (symlink(SYSTEM_DATA_UNIT_PATH "/systemd-fsck-root.service", lnk) < 0) {
+                         log_error("Failed to create symlink %s: %m", lnk);
+                         return -errno;
+                 }
+-- 
+1.8.4.5
+

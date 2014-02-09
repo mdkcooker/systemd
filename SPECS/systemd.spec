@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 10
+Release:	%mkrel 12
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -179,7 +179,8 @@ Patch235: 0235-docs-remove-unneeded-the-s-in-gudev-docs.patch
 Patch236: 0236-man-explicitly-say-when-multiple-units-can-be-specif.patch
 Patch237: 0237-systemd-treat-reload-failure-as-failure.patch
 Patch238: 0238-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
-Patch239: 0239-systemd-add-a-start-job-for-all-units-specified-with.patch
+# (cg) This is a buggy patch wich causes the serialisation failure.
+#Patch239: 0239-systemd-add-a-start-job-for-all-units-specified-with.patch
 Patch240: 0240-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
 Patch241: 0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
 Patch242: 0242-login-Don-t-stop-a-running-user-manager-from-garbage.patch
@@ -299,6 +300,7 @@ Patch512: 0512-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 Patch513: 0513-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 Patch514: 0514-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
 Patch515: 0515-Temporary-work-around-for-slow-shutdown-due-to-unter.patch
+Patch516: 0516-fstab-generator-Create-fsck-root-symlink-with-correc.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
