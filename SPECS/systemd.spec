@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 11
+Release:	%mkrel 12
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -282,11 +282,40 @@ Patch234: 0234-gpt-auto-generator-skip-nonexistent-devices.patch
 Patch235: 0235-gpt-auto-generator-use-EBADSLT-code-when-unable-to-d.patch
 Patch236: 0236-journald-do-not-free-space-when-disk-space-runs-low.patch
 Patch237: 0237-man-add-busctl-1.patch
+Patch238: 0238-journalctl-flip-to-full-by-default.patch
+Patch239: 0239-coredumpctl-in-case-of-error-free-pattern-after-prin.patch
+Patch240: 0240-shell-completion-remove-load-from-systemctl.patch
+Patch241: 0241-units-drop-Install-section-from-multi-user.target-an.patch
+Patch242: 0242-systemctl-skip-native-unit-file-handling-if-sysv-fil.patch
+Patch243: 0243-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch244: 0244-udev-static_node-do-not-exit-rule-after-first-static.patch
+Patch245: 0245-cryptsetup-Support-key-slot-option.patch
+Patch246: 0246-pam_systemd-Ignore-vtnr-when-seat-seat0.patch
+Patch247: 0247-keymap-Add-HP-Chromebook-14-Falco.patch
+Patch248: 0248-keymap-Add-release-quirk-for-Acer-AOA-switchvideomod.patch
+Patch249: 0249-keymap-Add-Sony-Vaio-VGN-FW250.patch
+Patch250: 0250-keymap-Add-Toshiba-EQUIUM.patch
+Patch251: 0251-tmpfiles-fix-memory-leak-of-exclude_prefixes.patch
+Patch252: 0252-analyze-fix-plot-issues-when-using-gummiboot.patch
+Patch253: 0253-udev-add-zram-to-the-list-of-devices-inappropriate-f.patch
+Patch254: 0254-bash-completion-fix-completion-of-complete-verbs.patch
+Patch255: 0255-shell-completion-fix-completion-of-localectl-set-loc.patch
+Patch256: 0256-zsh-completions-kernel-install-only-show-existing-ke.patch
+Patch257: 0257-core-fix-crashes-if-locale.conf-contains-invalid-utf.patch
+Patch258: 0258-core-do-not-print-invalid-utf-8-in-error-messages.patch
+Patch259: 0259-cryptsetup-generator-auto-add-deps-for-device-as-pas.patch
+Patch260: 0260-man-fix-reference-in-systemd-inhibit-1.patch
+Patch261: 0261-man-fix-another-reference-in-systemd-inhibit-1.patch
+Patch262: 0262-fstab-generator-Create-fsck-root-symlink-with-correc.patch
+Patch263: 0263-efi-fix-Undefined-reference-efi_loader_get_boot_usec.patch
+Patch264: 0264-core-make-StopWhenUnneeded-work-in-conjunction-with-.patch
+Patch265: 0265-man-always-place-programlisting-and-programlisting-i.patch
+Patch266: 0266-Temporary-work-around-for-slow-shutdown-due-to-unter.patch
+Patch267: 0267-pam-module-fix-warning-about-ignoring-vtnr.patch
 
 
 # (cg) Some upstream patches we've backported that fedora hasn't
 Patch400: 0400-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
-Patch401: 0401-udev-static_node-do-not-exit-rule-after-first-static.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -300,12 +329,11 @@ Patch506: 0506-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch507: 0507-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 Patch508: 0508-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
 Patch509: 0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
-Patch511: 0511-logind-Partial-backport-of-cc377381.patch
-Patch512: 0512-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
+Patch510: 0510-logind-Partial-backport-of-cc377381.patch
+Patch511: 0511-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
+Patch512: 0512-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch513: 0513-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 Patch514: 0514-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
-Patch515: 0515-Temporary-work-around-for-slow-shutdown-due-to-unter.patch
-Patch516: 0516-fstab-generator-Create-fsck-root-symlink-with-correc.patch
 
 # (cg) Some patches added by me...
 Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
