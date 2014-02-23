@@ -178,7 +178,9 @@ Patch136: 0136-docs-remove-unneeded-the-s-in-gudev-docs.patch
 Patch137: 0137-man-explicitly-say-when-multiple-units-can-be-specif.patch
 Patch138: 0138-systemd-treat-reload-failure-as-failure.patch
 Patch139: 0139-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
-
+Patch140: 0140-systemd-add-a-start-job-for-all-units-specified-with.patch
+# (cg) NB This patch is buggy and causes /run/nologin problems (rhbz#1043212)
+# but it is reverted again below.
 Patch141: 0141-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
 Patch142: 0142-Fix-memory-leak-in-stdout-journal-streams.patch
 Patch143: 0143-man-document-is-enabled-output.patch
@@ -186,8 +188,9 @@ Patch143: 0143-man-document-is-enabled-output.patch
 Patch144: 0144-hostnamed-avoid-using-NULL-in-error-path.patch
 # (cg) Below is not technically a backport (fixed differently upstream in kdbus work)
 Patch145: 0145-logind-use-correct-who-enum-values-with-KillUnit.patch
+# (cg) Revert buggy patch mentioned a few lines above
+Patch146: 0146-Revert-systemd-add-a-start-job-for-all-units-specifi.patch
 # (cg) Below is not technically a backport (fixed differently upstream in kdbus work?)
-
 Patch147: 0147-core-do-not-segfault-if-swap-activity-happens-when-p.patch
 Patch148: 0148-kernel-install-add-h-help.patch
 Patch149: 0149-kernel-install-fix-help-output.patch
