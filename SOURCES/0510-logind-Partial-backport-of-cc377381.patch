@@ -85,7 +85,7 @@ index e2fce5c..318235e 100644
 +        if (u->service_job && manager_job_is_active(u->manager, u->service_job))
                  return 1;
  
-         return 0;
+         if (u->slice && manager_unit_is_active(u->manager, u->slice) != 0)
 diff --git a/src/login/logind.h b/src/login/logind.h
 index 9e6296c..057cfac 100644
 --- a/src/login/logind.h

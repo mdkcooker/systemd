@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 12
+Release:	%mkrel 13
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -222,7 +222,8 @@ Patch174: 0174-man-describe-journalctl-show-cursor.patch
 Patch175: 0175-journal-fix-against-theoretical-undefined-behavior.patch
 Patch176: 0176-journald-downgrade-warning-message-when-dev-kmsg-doe.patch
 Patch177: 0177-journal-file.c-remove-redundant-assignment-of-variab.patch
-Patch178: 0178-login-Don-t-stop-a-running-user-manager-from-garbage.patch
+# (cg) Disabled in fedora due to exessive logging via cron
+#Patch178: 0178-login-Don-t-stop-a-running-user-manager-from-garbage.patch
 Patch179: 0179-libudev-devices-received-from-udev-are-always-initia.patch
 Patch180: 0180-log-don-t-reopen-dev-console-each-time-we-call-log_o.patch
 Patch181: 0181-log-when-we-log-to-dev-console-and-got-disconnected-.patch
@@ -282,14 +283,16 @@ Patch234: 0234-gpt-auto-generator-skip-nonexistent-devices.patch
 Patch235: 0235-gpt-auto-generator-use-EBADSLT-code-when-unable-to-d.patch
 Patch236: 0236-journald-do-not-free-space-when-disk-space-runs-low.patch
 Patch237: 0237-man-add-busctl-1.patch
-Patch238: 0238-journalctl-flip-to-full-by-default.patch
+# (cg) Disabled in fedora spec
+#Patch238: 0238-journalctl-flip-to-full-by-default.patch
 Patch239: 0239-coredumpctl-in-case-of-error-free-pattern-after-prin.patch
 Patch240: 0240-shell-completion-remove-load-from-systemctl.patch
 Patch241: 0241-units-drop-Install-section-from-multi-user.target-an.patch
 Patch242: 0242-systemctl-skip-native-unit-file-handling-if-sysv-fil.patch
 Patch243: 0243-hwdb-Update-database-of-Bluetooth-company-identifier.patch
 Patch244: 0244-udev-static_node-do-not-exit-rule-after-first-static.patch
-Patch245: 0245-cryptsetup-Support-key-slot-option.patch
+# (cg) Disabled in fedora spec
+#Patch245: 0245-cryptsetup-Support-key-slot-option.patch
 Patch246: 0246-pam_systemd-Ignore-vtnr-when-seat-seat0.patch
 Patch247: 0247-keymap-Add-HP-Chromebook-14-Falco.patch
 Patch248: 0248-keymap-Add-release-quirk-for-Acer-AOA-switchvideomod.patch
