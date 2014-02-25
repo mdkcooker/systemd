@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 13
+Release:	%mkrel 14
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -38,7 +38,7 @@ Source21: udev_net_create_ifcfg
 Source22: udev_net_action
 Source23: udev_net.sysconfig
 
-# (cg) Fedora Patches (vast majority are upstream cherry picks)
+# (cg) "Stable" Patches for v208 from http://cgit.freedesktop.org/systemd/systemd-stable/log/?h=v208-stable
 Patch001: 0001-acpi-fptd-fix-memory-leak-in-acpi_get_boot_usec.patch
 Patch002: 0002-fix-lingering-references-to-var-lib-backlight-random.patch
 Patch003: 0003-acpi-make-sure-we-never-free-an-uninitialized-pointe.patch
@@ -222,8 +222,7 @@ Patch174: 0174-man-describe-journalctl-show-cursor.patch
 Patch175: 0175-journal-fix-against-theoretical-undefined-behavior.patch
 Patch176: 0176-journald-downgrade-warning-message-when-dev-kmsg-doe.patch
 Patch177: 0177-journal-file.c-remove-redundant-assignment-of-variab.patch
-# (cg) Disabled in fedora due to exessive logging via cron
-#Patch178: 0178-login-Don-t-stop-a-running-user-manager-from-garbage.patch
+Patch178: 0178-login-Don-t-stop-a-running-user-manager-from-garbage.patch
 Patch179: 0179-libudev-devices-received-from-udev-are-always-initia.patch
 Patch180: 0180-log-don-t-reopen-dev-console-each-time-we-call-log_o.patch
 Patch181: 0181-log-when-we-log-to-dev-console-and-got-disconnected-.patch
@@ -283,8 +282,7 @@ Patch234: 0234-gpt-auto-generator-skip-nonexistent-devices.patch
 Patch235: 0235-gpt-auto-generator-use-EBADSLT-code-when-unable-to-d.patch
 Patch236: 0236-journald-do-not-free-space-when-disk-space-runs-low.patch
 Patch237: 0237-man-add-busctl-1.patch
-# (cg) Disabled in fedora spec
-#Patch238: 0238-journalctl-flip-to-full-by-default.patch
+Patch238: 0238-journalctl-flip-to-full-by-default.patch
 Patch239: 0239-coredumpctl-in-case-of-error-free-pattern-after-prin.patch
 Patch240: 0240-shell-completion-remove-load-from-systemctl.patch
 Patch241: 0241-units-drop-Install-section-from-multi-user.target-an.patch
@@ -315,10 +313,11 @@ Patch264: 0264-core-make-StopWhenUnneeded-work-in-conjunction-with-.patch
 Patch265: 0265-man-always-place-programlisting-and-programlisting-i.patch
 Patch266: 0266-Temporary-work-around-for-slow-shutdown-due-to-unter.patch
 Patch267: 0267-pam-module-fix-warning-about-ignoring-vtnr.patch
+Patch268: 0268-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
+Patch269: 0269-core-do-not-segfault-if-proc-swaps-cannot-be-opened.patch
+Patch270: 0270-Revert-login-Don-t-stop-a-running-user-manager-from-.patch
+Patch271: 0271-Revert-journalctl-flip-to-full-by-default.patch
 
-
-# (cg) Some upstream patches we've backported that fedora hasn't
-Patch400: 0400-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
