@@ -1,7 +1,7 @@
-From 32a85fe24d2bda865c1837e5f7f212af56d1f929 Mon Sep 17 00:00:00 2001
+From 4481a13ee015c3cd470f9acefd067e882bfcd6ad Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 18 Dec 2013 14:35:35 +0000
-Subject: [PATCH 511/512] logind: Partial backport of cc377381
+Subject: [PATCH 510/514] logind: Partial backport of cc377381
 
 This backports the part that ensures the slice and service jobs are active
 before doing gc. This should allow gc to run more often
@@ -12,10 +12,10 @@ before doing gc. This should allow gc to run more often
  3 files changed, 56 insertions(+), 1 deletion(-)
 
 diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
-index 6f3e442..d9c42cd 100644
+index a5ab19c..2c99629 100644
 --- a/src/login/logind-dbus.c
 +++ b/src/login/logind-dbus.c
-@@ -2895,3 +2895,54 @@ int manager_unit_is_active(Manager *manager, const char *unit) {
+@@ -2914,3 +2914,54 @@ int manager_unit_is_active(Manager *manager, const char *unit) {
  
          return !streq(state, "inactive") && !streq(state, "failed");
  }
@@ -71,10 +71,10 @@ index 6f3e442..d9c42cd 100644
 +        return true;
 +}
 diff --git a/src/login/logind-user.c b/src/login/logind-user.c
-index e2fce5c..318235e 100644
+index 3aeac13..92fe778 100644
 --- a/src/login/logind-user.c
 +++ b/src/login/logind-user.c
-@@ -626,7 +626,10 @@ int user_check_gc(User *u, bool drop_not_started) {
+@@ -628,7 +628,10 @@ int user_check_gc(User *u, bool drop_not_started) {
          if (user_check_linger_file(u) > 0)
                  return 1;
  
@@ -87,11 +87,11 @@ index e2fce5c..318235e 100644
  
          if (u->slice && manager_unit_is_active(u->manager, u->slice) != 0)
 diff --git a/src/login/logind.h b/src/login/logind.h
-index 9e6296c..057cfac 100644
+index 540572f..b21c382 100644
 --- a/src/login/logind.h
 +++ b/src/login/logind.h
-@@ -188,6 +188,7 @@ int manager_start_unit(Manager *manager, const char *unit, DBusError *error, cha
- int manager_stop_unit(Manager *manager, const char *unit, DBusError *error, char **job);
+@@ -190,6 +190,7 @@ int manager_stop_unit(Manager *manager, const char *unit, DBusError *error, char
+ int manager_abandon_scope(Manager *manager, const char *scope, DBusError *error);
  int manager_kill_unit(Manager *manager, const char *unit, KillWho who, int signo, DBusError *error);
  int manager_unit_is_active(Manager *manager, const char *unit);
 +int manager_job_is_active(Manager *manager, const char *path);

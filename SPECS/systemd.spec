@@ -21,7 +21,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	%mkrel 14
+Release:	%mkrel 15
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -289,8 +289,7 @@ Patch241: 0241-units-drop-Install-section-from-multi-user.target-an.patch
 Patch242: 0242-systemctl-skip-native-unit-file-handling-if-sysv-fil.patch
 Patch243: 0243-hwdb-Update-database-of-Bluetooth-company-identifier.patch
 Patch244: 0244-udev-static_node-do-not-exit-rule-after-first-static.patch
-# (cg) Disabled in fedora spec
-#Patch245: 0245-cryptsetup-Support-key-slot-option.patch
+Patch245: 0245-cryptsetup-Support-key-slot-option.patch
 Patch246: 0246-pam_systemd-Ignore-vtnr-when-seat-seat0.patch
 Patch247: 0247-keymap-Add-HP-Chromebook-14-Falco.patch
 Patch248: 0248-keymap-Add-release-quirk-for-Acer-AOA-switchvideomod.patch
@@ -317,6 +316,113 @@ Patch268: 0268-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
 Patch269: 0269-core-do-not-segfault-if-proc-swaps-cannot-be-opened.patch
 Patch270: 0270-Revert-login-Don-t-stop-a-running-user-manager-from-.patch
 Patch271: 0271-Revert-journalctl-flip-to-full-by-default.patch
+Patch272: 0272-util-fix-handling-of-trailing-whitespace-in-split_qu.patch
+Patch273: 0273-udev-net_id-Introduce-predictable-network-names-for-.patch
+Patch274: 0274-utils-silence-the-compiler-warning.patch
+Patch275: 0275-fix-SELinux-check-for-transient-units.patch
+Patch276: 0276-s390-getty-generator-initialize-essential-system-ter.patch
+Patch277: 0277-pam-use-correct-log-level.patch
+Patch278: 0278-nspawn-if-we-don-t-find-bash-try-sh.patch
+Patch279: 0279-units-systemd-logind-fails-hard-without-dbus.patch
+Patch280: 0280-man-fix-grammatical-errors-and-other-formatting-issu.patch
+Patch281: 0281-man-replace-STDOUT-with-standard-output-etc.patch
+Patch282: 0282-man-use-spaces-instead-of-tabs.patch
+Patch283: 0283-macro-add-a-macro-to-test-whether-a-value-is-in-a-sp.patch
+Patch284: 0284-core-fix-property-changes-in-transient-units.patch
+Patch285: 0285-core-more-exact-test-on-the-procfs-special-string-de.patch
+Patch286: 0286-doc-update-punctuation.patch
+Patch287: 0287-doc-resolve-missing-extraneous-words-or-inappropriat.patch
+Patch288: 0288-doc-choose-different-words-to-improve-clarity.patch
+Patch289: 0289-doc-properly-use-XML-entities.patch
+Patch290: 0290-man-machinectl-there-is-no-command-kill-machine.patch
+Patch291: 0291-load-modules-properly-return-a-failing-error-code-if.patch
+Patch292: 0292-machinectl-add-bash-completion.patch
+Patch293: 0293-delta-add-bash-completion.patch
+Patch294: 0294-man-document-MAINPID.patch
+Patch295: 0295-man-busctl-typo-fix.patch
+Patch296: 0296-journal-don-t-clobber-return-parameters-of-sd_journa.patch
+Patch297: 0297-udev-make-sure-we-always-return-a-valid-error-code-i.patch
+Patch298: 0298-bootctl-add-bash-completion.patch
+Patch299: 0299-selinux-Don-t-attempt-to-load-policy-in-initramfs-if.patch
+Patch300: 0300-man-there-is-no-ExecStopPre-for-service-units.patch
+Patch301: 0301-man-document-that-per-interface-sysctl-variables-are.patch
+Patch302: 0302-journal-downgrade-vaccuum-message-to-debug-level.patch
+Patch303: 0303-core-gc-half-created-stub-units.patch
+Patch304: 0304-getty-generator-verify-ttys-before-we-make-use-of-th.patch
+Patch305: 0305-units-serial-getty-.service-add-Install-section.patch
+Patch306: 0306-README-document-that-var-run-must-be-a-symlink-run.patch
+Patch307: 0307-Use-var-run-dbus-system_bus_socket-for-the-D-Bus-soc.patch
+Patch308: 0308-mount-don-t-send-out-PropertiesChanged-message-if-ac.patch
+Patch309: 0309-mount-don-t-fire-PropertiesChanged-signals-for-mount.patch
+Patch310: 0310-logs-show-fix-corrupt-output-with-empty-messages.patch
+Patch311: 0311-journalctl-refuse-extra-arguments-with-verify-and-si.patch
+Patch312: 0312-cdrom_id-use-the-old-MMC-fallback.patch
+Patch313: 0313-udev-rules-setup-tty-permissions-and-group-for-sclp_.patch
+Patch314: 0314-bash-add-completion-for-systemd-nspawn.patch
+Patch315: 0315-add-bash-completion-for-systemd-cgls.patch
+Patch316: 0316-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch317: 0317-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch318: 0318-Allow-fractional-parts-in-disk-sizes.patch
+Patch319: 0319-add-bash-completion-for-systemd-cgtop.patch
+Patch320: 0320-execute-free-directory-path-if-we-fail-to-remove-it-.patch
+Patch321: 0321-add-bash-completion-for-systemd-detect-virt.patch
+Patch322: 0322-Do-not-print-invalid-UTF-8-in-error-messages.patch
+Patch323: 0323-add-bash-completion-for-systemd-cat.patch
+Patch324: 0324-journal-assume-that-next-entry-is-after-previous-ent.patch
+Patch325: 0325-journal-forget-file-after-encountering-an-error.patch
+Patch326: 0326-logind-ignore-failing-close-on-session-devices.patch
+Patch327: 0327-core-introduce-new-stop-protocol-for-unit-scopes.patch
+Patch328: 0328-core-watch-SIGCHLD-more-closely-to-track-processes-o.patch
+Patch329: 0329-logind-rework-session-shutdown-logic.patch
+Patch330: 0330-logind-order-all-scopes-after-both-systemd-logind.se.patch
+Patch331: 0331-logind-given-that-we-can-now-relatively-safely-shutd.patch
+Patch332: 0332-logind-fix-reference-to-systemd-user-sessions.servic.patch
+Patch333: 0333-logind-add-forgotten-call-to-user_send_changed.patch
+Patch334: 0334-logind-save-session-after-setting-the-stopping-flag.patch
+Patch335: 0335-logind-save-user-state-after-stopping-the-session.patch
+Patch336: 0336-logind-initialize-timer_fd.patch
+Patch337: 0337-logind-pass-pointer-to-User-object-to-user_save.patch
+Patch338: 0338-core-allow-PIDs-to-be-watched-by-two-units-at-the-sa.patch
+Patch339: 0339-core-correctly-unregister-PIDs-from-PID-hashtables.patch
+Patch340: 0340-logind-uninitialized-timer_fd-is-set-to-1.patch
+Patch341: 0341-logind-add-forgotten-return-statement.patch
+Patch342: 0342-core-fix-detection-of-dead-processes.patch
+Patch343: 0343-Fix-prototype-of-get_process_state.patch
+Patch344: 0344-core-check-for-return-value-from-get_process_state.patch
+Patch345: 0345-man-update-link-to-LSB.patch
+Patch346: 0346-man-systemd-bootchart-fix-spacing-in-command.patch
+Patch347: 0347-man-add-missing-comma.patch
+Patch348: 0348-build-sys-Don-t-distribute-generated-udev-rule.patch
+Patch349: 0349-units-Do-not-unescape-instance-name-in-systemd-backl.patch
+Patch350: 0350-util-add-timeout-to-generator-execution.patch
+Patch351: 0351-input_id-Recognize-buttonless-joystick-types.patch
+Patch352: 0352-logind-fix-policykit-checks.patch
+Patch353: 0353-nspawn-don-t-try-mknod-of-dev-console-with-the-corre.patch
+Patch354: 0354-build-sys-Find-the-tools-for-users-with-no-sbin-usr-.patch
+Patch355: 0355-rules-mark-loop-device-as-SYSTEMD_READY-0-if-no-file.patch
+Patch356: 0356-man-multiple-sleep-modes-are-to-be-separated-by-whit.patch
+Patch357: 0357-man-fix-description-of-systemctl-after-before.patch
+Patch358: 0358-udev-properly-detect-reference-to-unexisting-part-of.patch
+Patch359: 0359-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch360: 0360-gpt-auto-generator-don-t-return-OOM-on-parentless-de.patch
+Patch361: 0361-man-improve-wording-of-systemctl-s-after-before.patch
+Patch362: 0362-cgroup-it-s-not-OK-to-invoke-alloca-in-loops.patch
+Patch363: 0363-hwdb-update.patch
+Patch364: 0364-core-don-t-try-to-relabel-mounts-before-we-loaded-th.patch
+Patch365: 0365-man-explain-that-the-journal-field-SYSLOG_IDENTIFIER.patch
+Patch366: 0366-man-be-more-specific-when-EnvironmentFile-is-read.patch
+Patch367: 0367-systemctl-kill-mode-is-long-long-gone-don-t-mention-.patch
+Patch368: 0368-systemctl-add-more-verbose-explanation-of-kill-who-a.patch
+Patch369: 0369-ask-password-when-the-user-types-a-overly-long-passw.patch
+Patch370: 0370-util-consider-both-fuse.glusterfs-and-glusterfs-netw.patch
+Patch371: 0371-core-do-not-read-system-boot-timestamps-in-systemd-u.patch
+Patch372: 0372-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch373: 0373-Add-hwdb-entry-for-Samsung-Series-7-Ultra.patch
+Patch374: 0374-udev-do-not-export-static-node-tags-for-non-existing.patch
+Patch375: 0375-journalctl-free-arg_file-on-exit.patch
+Patch376: 0376-journal-fix-export-of-messages-containing-newlines.patch
+Patch377: 0377-tty-ask-password-agent-return-negative-errno.patch
+Patch378: 0378-systemd-python-use-.hex-instead-of-.get_hex.patch
 
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
@@ -336,9 +442,6 @@ Patch511: 0511-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 Patch512: 0512-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch513: 0513-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 Patch514: 0514-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
-
-# (cg) Some patches added by me...
-Patch900: 0900-Revert-core-notify-triggered-by-socket-of-a-service.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel
