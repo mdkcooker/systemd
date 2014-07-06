@@ -683,8 +683,6 @@ autoreconf --force --install --verbose
 %make
 
 %install
-rm -rf %{buildroot}
-
 %makeinstall_std
 find %{buildroot} \( -name '*.a' -o -name '*.la' \) -exec rm {} \;
 
@@ -1102,7 +1100,6 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 
 %files units
-%defattr(-,root,root)
 # (cg) Note some of these directories are empty, but that is intended
 # NB I'm not totally sure of the ownership split of directories between systemd and systemd-units.
 %dir %{_sysconfdir}/systemd
@@ -1123,11 +1120,9 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %{_mandir}/man1/systemctl.*
 
 %files -n python-%{name}
-%defattr(-,root,root)
 %{py_platsitedir}/%{name}
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/systemd
 %{_libdir}/libsystemd-*.so
 %{_libdir}/pkgconfig/libsystemd-*.pc
@@ -1139,41 +1134,33 @@ rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
 %{_libdir}/libnss_myhostname.so.2
 
 %files -n %{libdaemon}
-%defattr(-,root,root,-)
 %{_libdir}/libsystemd-daemon.so.%{libdaemon_major}*
 
 %files -n %{liblogin}
-%defattr(-,root,root,-)
 %{_libdir}/libsystemd-login.so.%{liblogin_major}*
 
 %files -n %{libjournal}
-%defattr(-,root,root,-)
 %{_libdir}/libsystemd-journal.so.%{libjournal_major}*
 
 %files -n %{libid128}
-%defattr(-,root,root,-)
 %{_libdir}/libsystemd-id128.so.%{libid128_major}*
 
 %files -n %{libudev}
-%defattr(-,root,root,-)
 %{_libdir}/libudev.so.%{libudev_major}*
 
 %files -n %{libudev_devel}
-%defattr(-,root,root,-)
 %{_libdir}/libudev.so
 %{_includedir}/libudev.h
 %{_datadir}/pkgconfig/udev.pc
 %{_libdir}/pkgconfig/libudev.pc
 
 %files -n %{libgudev}
-%defattr(-,root,root,-)
 %{_libdir}/libgudev-%{libgudev_api}.so.%{libgudev_major}*
 
 %files -n %{libgudev_gir}
 %{_libdir}/girepository-1.0/GUdev-%{libgudev_api}.typelib
 
 %files -n %{libgudev_devel}
-%defattr(-,root,root,-)
 %{_libdir}/libgudev-%{libgudev_api}.so
 %{_includedir}/gudev-%{libgudev_api}
 %{_libdir}/pkgconfig/gudev-%{libgudev_api}.pc
