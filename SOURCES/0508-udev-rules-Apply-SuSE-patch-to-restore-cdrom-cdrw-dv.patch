@@ -1,7 +1,7 @@
-From a068d93d214ff3e030cdb1d9660a2cce35748a36 Mon Sep 17 00:00:00 2001
+From 9d00b290c007eff63c19994ec1ee15ed89d90d54 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Mon, 8 Apr 2013 21:21:25 +0100
-Subject: [PATCH 508/509] udev-rules: Apply SuSE patch to restore cdrom, cdrw,
+Subject: [PATCH 508/511] udev-rules: Apply SuSE patch to restore cdrom, cdrw,
  dvd symlinks (related to mga#8524)
 
 ---
@@ -24,5 +24,5 @@ index 6eaf76a..ec0b19a 100644
  
  LABEL="cdrom_end"
 -- 
-1.8.4.5
+1.9.2
 

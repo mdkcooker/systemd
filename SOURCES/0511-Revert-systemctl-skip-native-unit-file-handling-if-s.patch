@@ -1,0 +1,33 @@
+From 02fb8fb3e312444ded51521b64e9772c9e89f14f Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Sun, 23 Feb 2014 12:50:50 +0000
+Subject: [PATCH 511/513] Revert "systemctl: skip native unit file handling if
+ sysv file handling already handled everything"
+
+This reverts commit 345151292fb48647cb9e9d5c6b4cd5dff0d0452a.
+
+In Mageia 4, we have patches to chkconfig so we'll use this as our
+solution for now rather than this patch.
+---
+ src/systemctl/systemctl.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index 03720f4..d23c6d5 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -5193,11 +5193,6 @@ static int enable_unit(sd_bus *bus, char **args) {
+         if (r < 0)
+                 return r;
+ 
+-        /* If the operation was fully executed by the SysV compat,
+-         * let's finish early */
+-        if (strv_isempty(names))
+-                return 0;
+-
+         if (!bus || avoid_bus()) {
+                 if (streq(verb, "enable")) {
+                         r = unit_file_enable(arg_scope, arg_runtime, arg_root, names, arg_force, &changes, &n_changes);
+-- 
+1.9.2
+

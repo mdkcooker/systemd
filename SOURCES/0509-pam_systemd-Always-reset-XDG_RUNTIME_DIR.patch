@@ -1,20 +1,20 @@
-From 8efdf2dc876baaf771319103e643958838a61033 Mon Sep 17 00:00:00 2001
+From fa7e5e4c85357e29af626499768caddb361f99ec Mon Sep 17 00:00:00 2001
 From: "Dr. Werner Fink" <werner@suse.de>
 Date: Sun, 8 Dec 2013 23:10:35 +0000
-Subject: [PATCH 509/509] pam_systemd: Always reset XDG_RUNTIME_DIR.
+Subject: [PATCH 509/511] pam_systemd: Always reset XDG_RUNTIME_DIR.
 
 This fixes the 'su' case and not just 'su -' case previously.
 ---
- src/login/pam-module.c | 6 ++++++
+ src/login/pam_systemd.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/src/login/pam-module.c b/src/login/pam-module.c
-index 3984175..d683320 100644
---- a/src/login/pam-module.c
-+++ b/src/login/pam-module.c
-@@ -418,6 +418,12 @@ _public_ PAM_EXTERN int pam_sm_open_session(
-                          pam_syslog(handle, LOG_ERR, "Failed to set runtime dir.");
-                          goto finish;
+diff --git a/src/login/pam_systemd.c b/src/login/pam_systemd.c
+index f522d6e..264b23a 100644
+--- a/src/login/pam_systemd.c
++++ b/src/login/pam_systemd.c
+@@ -453,6 +453,12 @@ _public_ PAM_EXTERN int pam_sm_open_session(
+                         pam_syslog(handle, LOG_ERR, "Failed to set seat.");
+                         return r;
                  }
 +        } else {
 +                (void) unsetenv("XDG_RUNTIME_DIR");
@@ -24,7 +24,7 @@ index 3984175..d683320 100644
 +                }
          }
  
-         if (!isempty(seat)) {
+         if (vtnr > 0) {
 -- 
-1.8.4.5
+1.9.2
 

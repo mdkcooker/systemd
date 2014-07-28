@@ -1,7 +1,7 @@
-From 8b426bb409d98ec52f011943a56d89b13196f718 Mon Sep 17 00:00:00 2001
+From b5efb08c5bd0e8d33ecb1bd989f558a8d704a150 Mon Sep 17 00:00:00 2001
 From: Frederic Crozat <fcrozat@mandriva.com>
 Date: Sun, 1 Jul 2012 17:44:41 +0100
-Subject: [PATCH 503/514] Disable modprobe pci devices on coldplug for storage
+Subject: [PATCH 503/511] Disable modprobe pci devices on coldplug for storage
  and display
 
 Signed-off-by: Frederic Crozat <fcrozat@mandriva.com>
@@ -31,5 +31,5 @@ index 8551f47..60c976a 100644
  SUBSYSTEM=="tifm", ENV{TIFM_CARD_TYPE}=="SD", RUN{builtin}+="kmod load tifm_sd"
  SUBSYSTEM=="tifm", ENV{TIFM_CARD_TYPE}=="MS", RUN{builtin}+="kmod load tifm_ms"
 -- 
-1.8.4.5
+1.9.2
 

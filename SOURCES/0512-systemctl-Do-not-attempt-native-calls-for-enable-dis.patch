@@ -1,0 +1,57 @@
+From 19dc1127c5d850f4cd9f49bbd0947756de1aa28c Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Mon, 13 Jan 2014 11:06:35 +0000
+Subject: [PATCH 512/513] systemctl: Do not attempt native calls for
+ enable/disable if sysvinit handleds all units.
+
+If you have sysvinit compat enabled, it might deal with all the passed
+in unit names leaving only a null termitated strv structure.
+
+This cannot be iterated (sensibly) and thus we should just bail out
+and not bother calling various native methods.
+
+This should prevent a bogus warning regarding the lack of [Install]
+sections in systemd units when enabling a sysvinit unit.
+---
+ src/systemctl/systemctl.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/systemctl/systemctl.c b/src/systemctl/systemctl.c
+index d23c6d5..459a211 100644
+--- a/src/systemctl/systemctl.c
++++ b/src/systemctl/systemctl.c
+@@ -5194,6 +5194,11 @@ static int enable_unit(sd_bus *bus, char **args) {
+                 return r;
+ 
+         if (!bus || avoid_bus()) {
++                /* If the sysvinit compat calls have handled everything we may
++                 * have none left to deal with natively... */
++                if (!names[0])
++                        goto finish;
++
+                 if (streq(verb, "enable")) {
+                         r = unit_file_enable(arg_scope, arg_runtime, arg_root, names, arg_force, &changes, &n_changes);
+                         carries_install_info = r;
+@@ -5230,6 +5235,11 @@ static int enable_unit(sd_bus *bus, char **args) {
+                 bool send_force = true, send_preset_mode = false;
+                 const char *method;
+ 
++                /* If the sysvinit compat calls have handled everything we may
++                 * have none left to deal with natively... */
++                if (!names[0])
++                        goto reload;
++
+                 if (streq(verb, "enable")) {
+                         method = "EnableUnitFiles";
+                         expect_carries_install_info = true;
+@@ -5304,6 +5314,7 @@ static int enable_unit(sd_bus *bus, char **args) {
+                 if (r < 0)
+                         return r;
+ 
++reload:
+                 /* Try to reload if enabled */
+                 if (!arg_no_reload)
+                         r = daemon_reload(bus, args);
+-- 
+1.9.2
+

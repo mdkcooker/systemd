@@ -1,7 +1,7 @@
-From 71e71d35d2bd5979802b8571c08fc29a41dfef1e Mon Sep 17 00:00:00 2001
+From 2642bdcc5b79de28513286dd9a47af075f7c1b1f Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 13 Dec 2012 10:57:37 +0000
-Subject: [PATCH 507/509] Mageia: Relax perms on /sys/kernel/debug for
+Subject: [PATCH 507/511] Mageia: Relax perms on /sys/kernel/debug for
  lspcidrake by non-root
 
 ---
@@ -18,5 +18,5 @@ index 5369728..eca360b 100644
  Type=debugfs
 +Options=mode=0755
 -- 
-1.8.4.5
+1.9.2
 

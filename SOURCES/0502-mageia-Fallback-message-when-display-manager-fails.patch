@@ -1,7 +1,7 @@
-From e52786e56832b1d307c532ed54a3d276b0b41182 Mon Sep 17 00:00:00 2001
+From 3415e4239d38b15f4d07f5ef1981502c90eea4e5 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 8 Mar 2012 21:56:11 +0000
-Subject: [PATCH 502/509] mageia: Fallback message when display manager fails.
+Subject: [PATCH 502/511] mageia: Fallback message when display manager fails.
 
 Provide a unit for displaying a message to the user when the
 display manager fails. This can be when no dm application is
@@ -25,10 +25,10 @@ v4: Add back the prefdm.service script removed in v188
  create mode 100644 units/mageia/prefdm.service
 
 diff --git a/Makefile.am b/Makefile.am
-index 16a5c3c..96c330a 100644
+index e238cde..4f55132 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -531,6 +531,11 @@ units-uninstall-hook:
+@@ -590,6 +590,11 @@ units-uninstall-hook:
  INSTALL_DATA_HOOKS += units-install-hook
  UNINSTALL_DATA_HOOKS += units-uninstall-hook
  
@@ -99,5 +99,5 @@ index 0000000..a2545e4
 +RestartSec=0
 +IgnoreSIGPIPE=no
 -- 
-1.8.4.5
+1.9.2
 
