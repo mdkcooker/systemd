@@ -19,7 +19,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	215
+Version:	216
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
@@ -38,6 +38,16 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+Patch100: 0100-systemctl-fail-in-the-case-that-no-unit-files-were-f.patch
+Patch101: 0101-build-remove-repeated-KMOD-section.patch
+Patch102: 0102-machine-id-setup-don-t-try-to-read-UUID-from-VM-cont.patch
+Patch103: 0103-resolved-dns-rr-fix-typo.patch
+Patch104: 0104-resolved-fix-which-return-codes-we-check.patch
+Patch105: 0105-journal-remote-remove-unreachable-code.patch
+Patch106: 0106-util-return-after-freeing-all-members-of-array.patch
+Patch107: 0107-journal-upload-make-sure-that-r-is-initialized.patch
+Patch108: 0108-resolved-write-resolv.conf-search-switch-arguments.patch
+Patch109: 0109-sd-event-add-API-to-access-epoll_fd.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -587,7 +597,6 @@ fi
 %dir %{_prefix}/lib/systemd/system-shutdown
 %dir %{_prefix}/lib/systemd/system-sleep
 %dir %{_prefix}/lib/systemd/network
-%dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
@@ -600,6 +609,8 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/systemd/coredump.conf
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
+%config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
+%config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
 %config(noreplace) %{_sysconfdir}/systemd/resolved.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %config(noreplace) %{_sysconfdir}/systemd/timesyncd.conf
@@ -627,6 +638,7 @@ fi
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_sysconfdir}/pam.d/%{name}-user
 %dir %{_sysconfdir}/udev/rules.d
@@ -634,17 +646,18 @@ fi
 %{_prefix}/lib/systemd/network/80-container-host0.network
 %{_prefix}/lib/systemd/network/80-container-ve.network
 %{_prefix}/lib/systemd/network/99-default.link
-%{_prefix}/lib/systemd/ntp-units.d/90-systemd.list
 # (cg) NB See pre script for soemthing that relies on this name...
 # If it is ever renamed, change the pre script too
 %{_prefix}/lib/sysctl.d/50-default.conf
 #%{_prefix}/lib/sysctl.d/50-coredump.conf
 %{_prefix}/lib/sysusers.d/basic.conf
 %{_prefix}/lib/sysusers.d/systemd.conf
+%{_prefix}/lib/sysusers.d/systemd-remote.conf
 %{_prefix}/lib/tmpfiles.d/etc.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
 %{_prefix}/lib/tmpfiles.d/systemd-nologin.conf
+%{_prefix}/lib/tmpfiles.d/systemd-remote.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
 %{_prefix}/lib/tmpfiles.d/var.conf
 %{_prefix}/lib/tmpfiles.d/x11.conf
@@ -659,9 +672,11 @@ fi
 %{_bindir}/localectl
 %{_bindir}/loginctl
 %{_bindir}/machinectl
+%{_bindir}/networkctl
 %{_bindir}/systemd
 %{_bindir}/systemd-ask-password
-%{_bindir}/systemd-coredumpctl
+%{_bindir}/systemd-escape
+%{_bindir}/systemd-firstboot
 %{_bindir}/systemd-inhibit
 %{_bindir}/systemd-machine-id-setup
 %{_bindir}/systemd-notify
@@ -729,7 +744,14 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
+%dir %{_datadir}/factory
+%dir %{_datadir}/factory/etc
+%{_datadir}/factory/etc/nsswitch.conf
+%dir %{_datadir}/factory/etc/pam.d
+%{_datadir}/factory/etc/pam.d/other
+%{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
@@ -775,6 +797,9 @@ fi
 %files -n nss-myhostname
 %{_mandir}/man8/nss-myhostname.*
 %{_libdir}/libnss_myhostname.so.2
+# (cg) Yes, this is a hack for now, I'll likely rename the package to just lib[64]systemd-nss2 or something...
+%{_libdir}/libnss_mymachines.so.2
+%{_libdir}/libnss_resolve.so.2
 
 %files -n %{libname}
 %defattr(-,root,root,-)

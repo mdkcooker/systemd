@@ -1,7 +1,7 @@
-From 023c6d119a0dd2fb09bf6368952105c5ed967ad0 Mon Sep 17 00:00:00 2001
+From 5427f5e917c52e332925d920721e3900e7379fd9 Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Thu, 15 Mar 2012 02:12:43 +0100
-Subject: [PATCH 505/511] reinstate TIMEOUT= handling
+Subject: [PATCH 505/513] reinstate TIMEOUT= handling
 
 This reverts 43d5c5f03645c4b842659f9b5bd0ae465e885e92 and
 57c6f8ae5f52a6e8ffc66a54966346f733dded39.
@@ -14,7 +14,7 @@ Signed-off-by: Tom Gundersen <teg@jklm.no>
  3 files changed, 30 insertions(+), 3 deletions(-)
 
 diff --git a/src/libudev/libudev-device.c b/src/libudev/libudev-device.c
-index 3a64f24..5a71cec 100644
+index f26a4c4..1a70369 100644
 --- a/src/libudev/libudev-device.c
 +++ b/src/libudev/libudev-device.c
 @@ -80,6 +80,7 @@ struct udev_device {
@@ -56,7 +56,7 @@ index 3a64f24..5a71cec 100644
          } else if (startswith(property, "IFINDEX=")) {
                  udev_device_set_ifindex(udev_device, strtoull(&property[8], NULL, 10));
          } else if (startswith(property, "DEVMODE=")) {
-@@ -657,6 +675,7 @@ struct udev_device *udev_device_new(struct udev *udev)
+@@ -661,6 +679,7 @@ struct udev_device *udev_device_new(struct udev *udev)
          udev_list_init(udev, &udev_device->sysattr_value_list, true);
          udev_list_init(udev, &udev_device->sysattr_list, false);
          udev_list_init(udev, &udev_device->tags_list, true);
@@ -65,10 +65,10 @@ index 3a64f24..5a71cec 100644
          /* copy global properties */
          udev_list_entry_foreach(list_entry, udev_get_properties_list_entry(udev))
 diff --git a/src/libudev/libudev-private.h b/src/libudev/libudev-private.h
-index af0f125..999048f 100644
+index ae97557..61a6bc0 100644
 --- a/src/libudev/libudev-private.h
 +++ b/src/libudev/libudev-private.h
-@@ -75,6 +75,7 @@ const char *udev_device_get_id_filename(struct udev_device *udev_device);
+@@ -74,6 +74,7 @@ const char *udev_device_get_id_filename(struct udev_device *udev_device);
  void udev_device_set_is_initialized(struct udev_device *udev_device);
  int udev_device_add_tag(struct udev_device *udev_device, const char *tag);
  void udev_device_cleanup_tags_list(struct udev_device *udev_device);
@@ -77,19 +77,19 @@ index af0f125..999048f 100644
  void udev_device_set_usec_initialized(struct udev_device *udev_device, usec_t usec_initialized);
  int udev_device_get_devlink_priority(struct udev_device *udev_device);
 diff --git a/src/udev/udevd.c b/src/udev/udevd.c
-index a45d324..977ffb1 100644
+index f882cfb..a07da35 100644
 --- a/src/udev/udevd.c
 +++ b/src/udev/udevd.c
-@@ -424,7 +424,7 @@ out:
+@@ -407,7 +407,7 @@ out:
          }
  }
  
--static void event_run(struct event *event)
-+static void event_run(struct event *event, bool force)
- {
+-static void event_run(struct event *event) {
++static void event_run(struct event *event, bool force) {
          struct udev_list_node *loop;
  
-@@ -450,7 +450,7 @@ static void event_run(struct event *event)
+         udev_list_node_foreach(loop, &worker_list) {
+@@ -432,7 +432,7 @@ static void event_run(struct event *event) {
                  return;
          }
  
@@ -98,7 +98,7 @@ index a45d324..977ffb1 100644
                  if (children_max > 1)
                          log_debug("maximum number (%i) of children reached", children);
                  return;
-@@ -487,6 +487,13 @@ static int event_queue_insert(struct udev_device *dev)
+@@ -468,6 +468,13 @@ static int event_queue_insert(struct udev_device *dev) {
  
          event->state = EVENT_QUEUED;
          udev_list_node_append(&event->node, &event_list);
@@ -112,7 +112,7 @@ index a45d324..977ffb1 100644
          return 0;
  }
  
-@@ -598,7 +605,7 @@ static void event_queue_start(struct udev *udev)
+@@ -576,7 +583,7 @@ static void event_queue_start(struct udev *udev) {
                  if (is_devpath_busy(event))
                          continue;
  
