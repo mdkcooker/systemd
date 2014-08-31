@@ -87,6 +87,10 @@ BuildRequires:	docbook-style-xsl
 BuildRequires:	python-devel
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(liblzma)
+BuildRequires:	pkgconfig(libidn)
+BuildRequires:	pkgconfig(libcurl)
+BuildRequires:	pkgconfig(python)
+BuildRequires:	python-lxml
 # (cg) don't add more deps for now but add this when cauldron reopens.
 #BuildRequires:	pkgconfig(libqrencode)
 Requires(pre):	filesystem >= 2.1.9-18
