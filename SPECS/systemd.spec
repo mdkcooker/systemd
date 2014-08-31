@@ -116,6 +116,8 @@ Obsoletes: consolekit-x11
 Obsoletes: libconsolekit0
 Obsoletes: lib64consolekit0
 Obsoletes: systemd-tools
+Obsoletes: bootchart
+Obsoletes: bootchart-daemon
 
 %description
 systemd is a system and session manager for Linux, compatible with
