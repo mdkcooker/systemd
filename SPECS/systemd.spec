@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	216
-Release:	%mkrel 5
+Release:	%mkrel 6
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -440,7 +440,7 @@ rm -fr %{buildroot}%_mandir/man1/systemadm.*
 # kill off the need for the old library packages (which will remain installed
 # and operational due to our packaging policy)
 for lib in daemon id128 journal login; do
-  rm -f %{buildroot}%{_libdir}/libsystemd-$lib.so.0.*
+  rm -f %{buildroot}%{_libdir}/libsystemd-$lib.so{,.0.*}
 done
 
 %find_lang %{name}
