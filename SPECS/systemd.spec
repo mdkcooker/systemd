@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	216
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -483,13 +483,6 @@ fi
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
 %{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
 %{_bindir}/journalctl --update-catalog >/dev/null 2>&1 || :
-
-if [ $1 == 1 ]; then
-	# On first install process all tmpfiles that may have been installed before us
-	# Hard requires on some packages on systemd might make cyclic deps on early
-	# transactions.
-	%{_bindir}/systemd-tmpfiles --create
-fi
 
 # (blino) systemd 195 changed the prototype of logind's OpenSession()
 # see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
