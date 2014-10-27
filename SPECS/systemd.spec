@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	216
-Release:	%mkrel 9
+Release:	%mkrel 10
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -139,6 +139,7 @@ Group:		System/Boot and Init
 Requires(pre):	filesystem >= 2.1.9-18
 Requires:	%{name} = %{version}-%{release}
 Requires:	chkconfig > 1.3.61-2
+Conflicts:	%{name} <= 216-10
 Conflicts:	initscripts < 9.25
 Requires(post): coreutils grep awk
 
@@ -386,6 +387,10 @@ touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 # (cg) Make the journal's persistent in order to provide a real syslog implementation
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
+# (cg) Default preset policy
+# (for now, just a placeholder directory)
+mkdir -p %{buildroot}%{_prefix}/lib/systemd/user-preset
+
 # Various filetriggers
 install -d %{buildroot}%{_var}/lib/rpm/filetriggers
 
@@ -530,6 +535,9 @@ if [ $1 -eq 1 ] ; then
                 remote-fs.target \
                 getty@.service \
                 serial-getty@.service \
+                console-getty.service \
+                console-shell.service \
+                debug-shell.service \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
                 systemd-timesyncd.service \
@@ -589,7 +597,6 @@ fi
 # (cg) Note some of these directories are empty, but that is intended
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/system-generators
-%dir %{_prefix}/lib/systemd/system-preset
 %dir %{_prefix}/lib/systemd/system-shutdown
 %dir %{_prefix}/lib/systemd/system-sleep
 %dir %{_prefix}/lib/systemd/network
@@ -638,7 +645,6 @@ fi
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_sysconfdir}/pam.d/%{name}-user
 %dir %{_sysconfdir}/udev/rules.d
-%{_prefix}/lib/systemd/system-preset/90-systemd.preset
 %{_prefix}/lib/systemd/network/80-container-host0.network
 %{_prefix}/lib/systemd/network/80-container-ve.network
 %{_prefix}/lib/systemd/network/99-default.link
@@ -777,7 +783,9 @@ fi
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/modules-load.d/*.conf
 %{_prefix}/lib/systemd/system
+%{_prefix}/lib/systemd/system-preset
 %{_prefix}/lib/systemd/user
+%{_prefix}/lib/systemd/user-preset
 %{_mandir}/man1/systemctl.*
 
 %files -n python-%{name}
