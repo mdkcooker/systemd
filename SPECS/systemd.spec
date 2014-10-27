@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	216
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -530,9 +530,6 @@ if [ $1 -eq 1 ] ; then
                 remote-fs.target \
                 getty@.service \
                 serial-getty@.service \
-                console-getty.service \
-                console-shell.service \
-                debug-shell.service \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
                 systemd-timesyncd.service \
