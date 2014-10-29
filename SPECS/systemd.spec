@@ -529,8 +529,6 @@ if [ $1 -eq 1 ] ; then
                 console-getty.service \
                 console-shell.service \
                 debug-shell.service \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
                 systemd-timesyncd.service \
                 systemd-networkd.service \
                 systemd-networkd-wait-online.service \
@@ -553,8 +551,6 @@ if [ $1 -eq 0 ] ; then
         %{_bindir}/systemctl --quiet disable \
                 getty@.service \
                 remote-fs.target \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
                 2>&1 || :
 
         %{_bindir}/rm -f %_sysconfdir/systemd/system/default.target 2>&1 || :
@@ -574,15 +570,15 @@ fi
                 console-getty.service \
                 console-shell.service \
                 debug-shell.service \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
                 systemd-timesyncd.service \
                 systemd-networkd.service \
                 systemd-networkd-wait-online.service \
                 systemd-resolved.service \
                 2>/dev/null || :
         # rc-local is now enabled by default in base package
-        rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service || :
+        # and read-ahead stuff is no more
+        rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service \
+              %_sysconfdir/systemd/system/default.target.wants/systemd-readahead-{collect,replay}.service || :
 
 %files -f %{name}.lang
 # (cg) Note some of these directories are empty, but that is intended
