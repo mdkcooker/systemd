@@ -19,8 +19,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	216
-Release:	%mkrel 10
+Version:	217
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -38,16 +38,7 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-systemctl-fail-in-the-case-that-no-unit-files-were-f.patch
-Patch101: 0101-build-remove-repeated-KMOD-section.patch
-Patch102: 0102-machine-id-setup-don-t-try-to-read-UUID-from-VM-cont.patch
-Patch103: 0103-resolved-dns-rr-fix-typo.patch
-Patch104: 0104-resolved-fix-which-return-codes-we-check.patch
-Patch105: 0105-journal-remote-remove-unreachable-code.patch
-Patch106: 0106-util-return-after-freeing-all-members-of-array.patch
-Patch107: 0107-journal-upload-make-sure-that-r-is-initialized.patch
-Patch108: 0108-resolved-write-resolv.conf-search-switch-arguments.patch
-Patch109: 0109-sd-event-add-API-to-access-epoll_fd.patch
+Patch100: 0100-sysusers-Preserve-ownership-and-mode-on-etc-passwd-a.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -764,6 +755,7 @@ fi
 %lang(fr) %{_prefix}/lib/systemd/catalog/systemd.fr.catalog
 %lang(it) %{_prefix}/lib/systemd/catalog/systemd.it.catalog
 %lang(ru) %{_prefix}/lib/systemd/catalog/systemd.ru.catalog
+%lang(pl) %{_prefix}/lib/systemd/catalog/systemd.pl.catalog
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 
 %files units

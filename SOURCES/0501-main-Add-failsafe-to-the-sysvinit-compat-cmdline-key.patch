@@ -1,7 +1,7 @@
-From b5c4c6c69beac49c953e39da62816e21a568c340 Mon Sep 17 00:00:00 2001
+From 76c5c8aefe94527464b5855612a7fea848151b15 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 26 Feb 2012 17:45:58 +0000
-Subject: [PATCH 501/511] main: Add 'failsafe' to the sysvinit compat cmdline
+Subject: [PATCH 501/513] main: Add 'failsafe' to the sysvinit compat cmdline
  keywords.
 
 This is just a synonym for systemd.unit=rescue.target (the
@@ -13,17 +13,17 @@ This is used in Mageia and Mandriva (mga#4702)
  1 file changed, 1 insertion(+)
 
 diff --git a/src/core/main.c b/src/core/main.c
-index 38835fc..f4e06ce 100644
+index d48604e..2592290 100644
 --- a/src/core/main.c
 +++ b/src/core/main.c
-@@ -265,6 +265,7 @@ static int parse_proc_cmdline_item(const char *key, const char *value) {
-         static const char * const rlmap[] = {
+@@ -270,6 +270,7 @@ static int parse_proc_cmdline_item(const char *key, const char *value) {
                  "emergency", SPECIAL_EMERGENCY_TARGET,
                  "-b",        SPECIAL_EMERGENCY_TARGET,
+                 "rescue",    SPECIAL_RESCUE_TARGET,
 +                "failsafe",  SPECIAL_RESCUE_TARGET,
                  "single",    SPECIAL_RESCUE_TARGET,
                  "-s",        SPECIAL_RESCUE_TARGET,
                  "s",         SPECIAL_RESCUE_TARGET,
 -- 
-1.9.2
+2.1.2
 
