@@ -38,7 +38,9 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+# (not technically upstream yet, but confident it will be...)
 Patch100: 0100-sysusers-Preserve-ownership-and-mode-on-etc-passwd-a.patch
+Patch101: 0101-nspawn-ignore-EEXIST-when-creating-mount-point.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
