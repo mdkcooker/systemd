@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -42,6 +42,9 @@ Source23: udev_net.sysconfig
 Patch100: 0100-sysusers-Preserve-ownership-and-mode-on-etc-passwd-a.patch
 Patch101: 0101-nspawn-ignore-EEXIST-when-creating-mount-point.patch
 Patch102: 0102-manager-Ensure-user-s-systemd-runtime-directory-exis.patch
+Patch103: 0103-keymap-Ignore-brightness-keys-on-Dell-Inspiron-1520-.patch
+Patch104: 0104-shared-install-avoid-prematurely-rejecting-missing-u.patch
+Patch105: 0105-units-don-t-order-journal-flushing-afte-remote-fs.ta.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
