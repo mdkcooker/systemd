@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -45,6 +45,8 @@ Patch102: 0102-manager-Ensure-user-s-systemd-runtime-directory-exis.patch
 Patch103: 0103-keymap-Ignore-brightness-keys-on-Dell-Inspiron-1520-.patch
 Patch104: 0104-shared-install-avoid-prematurely-rejecting-missing-u.patch
 Patch105: 0105-units-don-t-order-journal-flushing-afte-remote-fs.ta.patch
+Patch106: 0106-units-order-sd-journal-flush-after-sd-remount-fs.patch
+Patch107: 0107-units-make-systemd-journald.service-Type-notify.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -62,6 +64,7 @@ Patch510: 0510-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 Patch511: 0511-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch512: 0512-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 Patch513: 0513-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
+Patch514: 0514-Revert-udev-hwdb-Support-shipping-pre-compiled-datab.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel
@@ -445,17 +448,6 @@ for lib in daemon id128 journal login; do
   rm -f %{buildroot}%{_libdir}/libsystemd-$lib.so{,.0.*}
 done
 
-
-# (cg) Horribly hack for some bugs...
-mkdir %{buildroot}%{_prefix}/lib/systemd/system/systemd-journal-flush.service.d/
-cat >%{buildroot}%{_prefix}/lib/systemd/system/systemd-journal-flush.service.d/mga14452.conf << EOF
-[Service]
-ExecStartPre=-/usr/bin/sleep 1
-EOF
-
-
-
-
 %find_lang %{name}
 
 
@@ -792,7 +784,6 @@ fi
 %{_prefix}/lib/systemd/user
 %{_prefix}/lib/systemd/user-preset
 %{_mandir}/man1/systemctl.*
-%{_prefix}/lib/systemd/system/systemd-journal-flush.service.d/mga14452.conf
 
 %files -n python-%{name}
 %{py_platsitedir}/%{name}
