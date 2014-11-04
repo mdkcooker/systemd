@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -445,6 +445,17 @@ for lib in daemon id128 journal login; do
   rm -f %{buildroot}%{_libdir}/libsystemd-$lib.so{,.0.*}
 done
 
+
+# (cg) Horribly hack for some bugs...
+mkdir %{buildroot}%{_prefix}/lib/systemd/system/systemd-journal-flush.service.d/
+cat >%{buildroot}%{_prefix}/lib/systemd/system/systemd-journal-flush.service.d/mga14452.conf << EOF
+[Service]
+ExecStartPre=-/usr/bin/sleep 1
+EOF
+
+
+
+
 %find_lang %{name}
 
 
@@ -781,6 +792,7 @@ fi
 %{_prefix}/lib/systemd/user
 %{_prefix}/lib/systemd/user-preset
 %{_mandir}/man1/systemctl.*
+%{_prefix}/lib/systemd/system/systemd-journal-flush.service.d/mga14452.conf
 
 %files -n python-%{name}
 %{py_platsitedir}/%{name}
