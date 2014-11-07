@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 5
+Release:	%mkrel 6
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -47,6 +47,8 @@ Patch104: 0104-shared-install-avoid-prematurely-rejecting-missing-u.patch
 Patch105: 0105-units-don-t-order-journal-flushing-afte-remote-fs.ta.patch
 Patch106: 0106-units-order-sd-journal-flush-after-sd-remount-fs.patch
 Patch107: 0107-units-make-systemd-journald.service-Type-notify.patch
+Patch108: 0108-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
+Patch109: 0109-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -436,6 +438,28 @@ EOF
 chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/02-tmpfiles.script
 
 
+# hwdb
+cat > %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.filter << EOF
+^./usr/lib/udev/hwdb.d/
+EOF
+cat > %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.script << EOF
+#!/bin/sh
+exec %{_bindir}/udevadm hwdb --update
+EOF
+chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.script
+
+
+# journal catalog
+cat > %{buildroot}%{_var}/lib/rpm/filetriggers/journal-catalog.filter << EOF
+^./usr/lib/systemd/catalog/
+EOF
+cat > %{buildroot}%{_var}/lib/rpm/filetriggers/journal-catalog.script << EOF
+#!/bin/sh
+exec %{_bindir}/journalctl --update-catalog
+EOF
+chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/journal-catalog.script
+
+
 
 # This file is already in sytemd-ui rpm
 rm -fr %{buildroot}%_mandir/man1/systemadm.*
@@ -486,8 +510,6 @@ fi
 %{_bindir}/systemd-machine-id-setup > /dev/null 2>&1 || :
 %{_prefix}/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
-%{_bindir}/udevadm hwdb --update >/dev/null 2>&1 || :
-%{_bindir}/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (blino) systemd 195 changed the prototype of logind's OpenSession()
 # see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html

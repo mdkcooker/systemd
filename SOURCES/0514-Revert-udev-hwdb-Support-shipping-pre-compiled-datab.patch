@@ -94,7 +94,7 @@ index a1cfc0b..8fb7240 100644
 -
 +        hwdb->f = fopen("/etc/udev/hwdb.bin", "re");
          if (!hwdb->f) {
--                udev_err(udev, "hwdb.bin does not exist, please run udevadm hwdb --update");
+-                udev_dbg(udev, "hwdb.bin does not exist, please run udevadm hwdb --update");
 +                udev_dbg(udev, "error reading /etc/udev/hwdb.bin: %m");
                  udev_hwdb_unref(hwdb);
                  return NULL;
