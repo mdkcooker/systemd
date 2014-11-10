@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 6
+Release:	%mkrel 7
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -49,6 +49,8 @@ Patch106: 0106-units-order-sd-journal-flush-after-sd-remount-fs.patch
 Patch107: 0107-units-make-systemd-journald.service-Type-notify.patch
 Patch108: 0108-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
 Patch109: 0109-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
+Patch110: 0110-systemctl-when-invokes-as-reboot-f-sync.patch
+Patch111: 0111-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
