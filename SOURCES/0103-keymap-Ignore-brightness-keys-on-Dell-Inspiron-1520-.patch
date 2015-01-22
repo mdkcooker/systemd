@@ -1,8 +1,8 @@
-From aba248ee6b1eb10baf3d89eca2ad7569459af6ab Mon Sep 17 00:00:00 2001
+From ef4a3476c5e7c47a6eddef3a0b34c86f7b9d907a Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 30 Oct 2014 10:15:54 +0100
-Subject: [PATCH] keymap: Ignore brightness keys on Dell Inspiron 1520 to avoid
- double events
+Subject: [PATCH 103/115] keymap: Ignore brightness keys on Dell Inspiron 1520
+ to avoid double events
 
 On the Dell Inspiron 1520 both the atkbd and acpi-video input devices report
 an event for pressing the brightness up / down key-combos, resulting in user
@@ -16,6 +16,7 @@ acpi-video only.
 Reported by Pavel Malyshev <p.malishev@gmail.com>
 
 https://bugzilla.redhat.com/show_bug.cgi?id=1141525
+(cherry picked from commit aba248ee6b1eb10baf3d89eca2ad7569459af6ab)
 ---
  hwdb/60-keyboard.hwdb | 5 +++++
  1 file changed, 5 insertions(+)
@@ -37,5 +38,5 @@ index 06caba9..d2ca965 100644
  keyboard:dmi:bvn*:bvr*:bd*:svnDell*:pnLatitude*XT2:pvr*
   KEYBOARD_KEY_9b=up                                     # tablet rocker up
 -- 
-2.1.3
+2.2.2
 

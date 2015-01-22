@@ -1,14 +1,16 @@
-From 0110a88296ac81f3a1bfdb71196941b8ee556aef Mon Sep 17 00:00:00 2001
+From e2547c7d08d75d76530604166edf7634d5d0b19d Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 29 Oct 2014 14:03:41 +0000
-Subject: [PATCH] sysusers: Preserve ownership and mode on /etc/passwd and
- friends
+Subject: [PATCH 100/115] sysusers: Preserve ownership and mode on /etc/passwd
+ and friends
 
 When running sysusers we would clobber file ownership and permissions
 on the files /etc/passwd, /etc/group and /etc/[g]shadow.
 
 This simply preserves the ownership and mode if existing files are
 found.
+
+(cherry picked from commit e3c72c21d62aadabf4df436c3e2c7219eeeccc1c)
 ---
  src/sysusers/sysusers.c | 61 +++++++++++++++++++++++++++++++++----------------
  1 file changed, 41 insertions(+), 20 deletions(-)
@@ -158,5 +160,5 @@ index 9b9be96..c133dc5 100644
  
                  lstchg = (long) (now(CLOCK_REALTIME) / USEC_PER_DAY);
 -- 
-2.1.2
+2.2.2
 

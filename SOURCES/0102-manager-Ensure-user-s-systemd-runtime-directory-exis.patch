@@ -1,13 +1,16 @@
-From 136de20e19699a79650fe9e6a1a6fc3c35b93c9c Mon Sep 17 00:00:00 2001
+From b4738833b2606a8586504e30770ce0c1daa63bd0 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 2 Nov 2014 13:33:16 +0000
-Subject: [PATCH] manager: Ensure user's systemd runtime directory exists.
+Subject: [PATCH 102/115] manager: Ensure user's systemd runtime directory
+ exists.
 
 This mirrors code in dbus.c when creating the private socket and
 avoids error messages like:
 
 systemd[1353]: bind(/run/user/603/systemd/notify) failed: No such file or directory
 systemd[1353]: Failed to fully start up daemon: No such file or directory
+
+(cherry picked from commit 0c3f25e0c1f028d4da9cc5253abf0322230e6835)
 ---
  src/core/manager.c | 12 ++++++++----
  1 file changed, 8 insertions(+), 4 deletions(-)
@@ -45,5 +48,5 @@ index d427d88..256d6f7 100644
                  strncpy(sa.un.sun_path, m->notify_socket, sizeof(sa.un.sun_path)-1);
                  r = bind(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + strlen(sa.un.sun_path));
 -- 
-2.1.2
+2.2.2
 

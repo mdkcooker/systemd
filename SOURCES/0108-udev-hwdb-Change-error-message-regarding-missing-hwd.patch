@@ -1,8 +1,8 @@
-From 8232e39e7cf32071e11b3b04839e6c98fbc81d0f Mon Sep 17 00:00:00 2001
+From de496d090013f1dca04d41f64945b58976044c2d Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 5 Nov 2014 15:29:41 +0000
-Subject: [PATCH] udev hwdb: Change error message regarding missing hwdb.bin
- back to debug.
+Subject: [PATCH 108/115] udev hwdb: Change error message regarding missing
+ hwdb.bin back to debug.
 
 When used in an initramfs, it's expected that the hwdb.bin file is
 not present (it makes for a very large initramfs otherwise).
@@ -10,6 +10,8 @@ not present (it makes for a very large initramfs otherwise).
 While it's nice to tell the user about this, as it's not strictly
 speaking an error we really shouldn't be so forceful in our
 reporting.
+
+(cherry picked from commit 8232e39e7cf32071e11b3b04839e6c98fbc81d0f)
 ---
  src/libudev/libudev-hwdb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -28,5 +30,5 @@ index a1cfc0b..0716072 100644
                  return NULL;
          }
 -- 
-2.1.3
+2.2.2
 

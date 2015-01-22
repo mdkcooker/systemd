@@ -1,7 +1,7 @@
-From a87a38c20196a4aeb56b6ba71d688eefd0b21c30 Mon Sep 17 00:00:00 2001
+From 2f50b6049189a44f50ee711fa8fe09f8befcdcdc Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Tue, 4 Nov 2014 20:28:08 +0100
-Subject: [PATCH] units: make systemd-journald.service Type=notify
+Subject: [PATCH 107/115] units: make systemd-journald.service Type=notify
 
 It already calls sd_notify(), so it looks like an oversight.
 
@@ -11,15 +11,19 @@ it has its signal handlers set up.
 
 https://bugs.freedesktop.org/show_bug.cgi?id=85871
 https://bugzilla.redhat.com/show_bug.cgi?id=1159641
+(cherry picked from commit a87a38c20196a4aeb56b6ba71d688eefd0b21c30)
+
+Conflicts:
+	units/systemd-journald.service.in
 ---
  units/systemd-journald.service.in | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/units/systemd-journald.service.in b/units/systemd-journald.service.in
-index 7ee67fd..8d380c8 100644
+index 4de38fa..441d5b1 100644
 --- a/units/systemd-journald.service.in
 +++ b/units/systemd-journald.service.in
-@@ -14,6 +14,7 @@ After=systemd-journald.socket systemd-journald-dev-log.socket systemd-journald-a
+@@ -14,6 +14,7 @@ After=systemd-journald.socket systemd-journald-dev-log.socket syslog.socket
  Before=sysinit.target
  
  [Service]
@@ -28,5 +32,5 @@ index 7ee67fd..8d380c8 100644
  ExecStart=@rootlibexecdir@/systemd-journald
  Restart=always
 -- 
-2.1.3
+2.2.2
 

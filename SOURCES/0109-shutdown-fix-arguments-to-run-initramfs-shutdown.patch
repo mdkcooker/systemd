@@ -1,7 +1,7 @@
-From 4b5d8d0f22ae61ceb45a25391354ba53b43ee992 Mon Sep 17 00:00:00 2001
+From 2a4df630f4b1d4cb941d5a14e99fb1ba6572c35c Mon Sep 17 00:00:00 2001
 From: Michal Schmidt <mschmidt@redhat.com>
 Date: Thu, 6 Nov 2014 22:24:13 +0100
-Subject: [PATCH] shutdown: fix arguments to /run/initramfs/shutdown
+Subject: [PATCH 109/115] shutdown: fix arguments to /run/initramfs/shutdown
 
 Our initrd interface specifies that the verb is in argv[1].
 This is where systemd passes it to systemd-shutdown, but getopt
@@ -13,12 +13,14 @@ character of optstring. Let's use it. This requires changing the way
 non-option arguments (in our case, the verb) are processed.
 
 This fixes a bug where the system would reboot instead of powering off.
+
+(cherry picked from commit 4b5d8d0f22ae61ceb45a25391354ba53b43ee992)
 ---
  src/core/shutdown.c | 17 +++++++++++------
  1 file changed, 11 insertions(+), 6 deletions(-)
 
 diff --git a/src/core/shutdown.c b/src/core/shutdown.c
-index dd11ae3..48ed7fa 100644
+index 20cf526..03cfddc 100644
 --- a/src/core/shutdown.c
 +++ b/src/core/shutdown.c
 @@ -75,7 +75,9 @@ static int parse_argv(int argc, char *argv[]) {
@@ -64,5 +66,5 @@ index dd11ae3..48ed7fa 100644
  }
  
 -- 
-2.1.3
+2.2.2
 

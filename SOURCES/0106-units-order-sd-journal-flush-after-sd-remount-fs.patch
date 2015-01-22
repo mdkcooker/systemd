@@ -1,19 +1,21 @@
-From 1f1926aa5e836caa3bd6df43704aecd606135103 Mon Sep 17 00:00:00 2001
+From 794b3b53b4dece8eced98aa6638f2de66c9613be Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 2 Nov 2014 21:45:42 -0500
-Subject: [PATCH] units: order sd-journal-flush after sd-remount-fs
+Subject: [PATCH 106/115] units: order sd-journal-flush after sd-remount-fs
 
 Otherwise we could attempt to flush the journal while /var/log/ was
 still ro, and silently skip journal flushing.
 
 The way that errors in flushing are handled should still be changed to
 be more transparent and robust.
+
+(cherry picked from commit 1f1926aa5e836caa3bd6df43704aecd606135103)
 ---
  units/systemd-journal-flush.service.in | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/units/systemd-journal-flush.service.in b/units/systemd-journal-flush.service.in
-index fa29089..98c91b4 100644
+index 2612220..ba22c6d 100644
 --- a/units/systemd-journal-flush.service.in
 +++ b/units/systemd-journal-flush.service.in
 @@ -11,6 +11,7 @@ Documentation=man:systemd-journald.service(8) man:journald.conf(5)
@@ -25,5 +27,5 @@ index fa29089..98c91b4 100644
  RequiresMountsFor=/var/log/journal
  
 -- 
-2.1.3
+2.2.2
 
