@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 7
+Release:	%mkrel 8
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -51,6 +51,10 @@ Patch108: 0108-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
 Patch109: 0109-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
 Patch110: 0110-systemctl-when-invokes-as-reboot-f-sync.patch
 Patch111: 0111-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
+Patch112: 0112-build-sys-configure-the-list-of-system-users-files-a.patch
+Patch113: 0113-cgroup-Handle-error-when-destroying-cgroup.patch
+Patch114: 0114-journal-call-connect-with-dropped-privileges.patch
+Patch115: 0115-logind-fix-sd_eviocrevoke-ioctl-call.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -69,6 +73,7 @@ Patch511: 0511-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch512: 0512-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 Patch513: 0513-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
 Patch514: 0514-Revert-udev-hwdb-Support-shipping-pre-compiled-datab.patch
+Patch515: 0515-Add-path-to-locale-search.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel
