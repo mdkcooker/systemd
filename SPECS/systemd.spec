@@ -20,7 +20,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	%mkrel 8
+Release:	%mkrel 9
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -55,6 +55,7 @@ Patch112: 0112-build-sys-configure-the-list-of-system-users-files-a.patch
 Patch113: 0113-cgroup-Handle-error-when-destroying-cgroup.patch
 Patch114: 0114-journal-call-connect-with-dropped-privileges.patch
 Patch115: 0115-logind-fix-sd_eviocrevoke-ioctl-call.patch
+Patch116: 0116-backport-udev-downgrade-a-few-warnings-to-debug-messages.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
