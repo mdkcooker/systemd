@@ -1,7 +1,5 @@
 %define libsystemd_major 0
 %define libudev_major 1
-%define libgudev_api 1.0
-%define libgudev_major 0
 
 %define libname %mklibname %{name} %{libsystemd_major}
 
@@ -13,18 +11,16 @@
 %define libudev %mklibname udev %{libudev_major}
 %define libudev_devel %mklibname -d udev
 
-%define libgudev %mklibname gudev %{libgudev_api} %{libgudev_major}
-%define libgudev_devel %mklibname -d gudev %{libgudev_api}
-%define libgudev_gir %mklibname gudev-gir %{libgudev_api}
-
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	217
-Release:	%mkrel 11
+Version:	221
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
-Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
+# (cg) Generate from git:
+# git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > systemd-${VERSION}.tar.xz
+Source0:	%{name}-%{version}.tar.xz
 
 Source10: 50-udev-mageia.rules
 Source11: 69-printeracl.rules
@@ -38,25 +34,6 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-# (not technically upstream yet, but confident it will be...)
-Patch100: 0100-sysusers-Preserve-ownership-and-mode-on-etc-passwd-a.patch
-Patch101: 0101-nspawn-ignore-EEXIST-when-creating-mount-point.patch
-Patch102: 0102-manager-Ensure-user-s-systemd-runtime-directory-exis.patch
-Patch103: 0103-keymap-Ignore-brightness-keys-on-Dell-Inspiron-1520-.patch
-Patch104: 0104-shared-install-avoid-prematurely-rejecting-missing-u.patch
-Patch105: 0105-units-don-t-order-journal-flushing-afte-remote-fs.ta.patch
-Patch106: 0106-units-order-sd-journal-flush-after-sd-remount-fs.patch
-Patch107: 0107-units-make-systemd-journald.service-Type-notify.patch
-Patch108: 0108-udev-hwdb-Change-error-message-regarding-missing-hwd.patch
-Patch109: 0109-shutdown-fix-arguments-to-run-initramfs-shutdown.patch
-Patch110: 0110-systemctl-when-invokes-as-reboot-f-sync.patch
-Patch111: 0111-login-rerun-vconsole-setup-when-switching-from-vgaco.patch
-Patch112: 0112-build-sys-configure-the-list-of-system-users-files-a.patch
-Patch113: 0113-cgroup-Handle-error-when-destroying-cgroup.patch
-Patch114: 0114-journal-call-connect-with-dropped-privileges.patch
-Patch115: 0115-logind-fix-sd_eviocrevoke-ioctl-call.patch
-Patch116: 0116-backport-udev-downgrade-a-few-warnings-to-debug-messages.patch
-Patch117: 0117-everywhere-remove-configurability-of-sysv-runlevel-to-target-mapping.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -64,17 +41,24 @@ Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 Patch501: 0501-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 Patch502: 0502-mageia-Fallback-message-when-display-manager-fails.patch
 Patch503: 0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-Patch504: 0504-Allow-booting-from-live-cd-in-virtualbox.patch
-Patch505: 0505-reinstate-TIMEOUT-handling.patch
+# (cg) Shouldn't be needed after 1aff20687f486857574fde0e5946a80b8ec212ba
+#Patch504: 0504-Allow-booting-from-live-cd-in-virtualbox.patch
+# (cg) We've carried this for a while now... maybe it can die now...
+#Patch505: 0505-reinstate-TIMEOUT-handling.patch
 Patch506: 0506-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch507: 0507-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 Patch508: 0508-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
 Patch509: 0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
 Patch510: 0510-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
-Patch511: 0511-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
-Patch512: 0512-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
-Patch513: 0513-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
-Patch514: 0514-Revert-udev-hwdb-Support-shipping-pre-compiled-datab.patch
+# (cg) sysvinit integration (via chkconfig) support totally reworked and thus
+# these patches should no longer be required (sysvinit state should be kept in
+# sync now)
+#Patch511: 0511-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
+#Patch512: 0512-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
+#Patch513: 0513-systemctl-Ensure-the-no-reload-and-no-redirect-optio.patch
+# (cg) This was far warnings/issues in dracut but I think I committed a fix for
+# this now so this should be OK to leave in
+#Patch514: 0514-Revert-udev-hwdb-Support-shipping-pre-compiled-datab.patch
 Patch515: 0515-Add-path-to-locale-search.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
@@ -102,8 +86,10 @@ BuildRequires:	pkgconfig(libidn)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(python)
 BuildRequires:	python-lxml
-# (cg) don't add more deps for now but add this when cauldron reopens.
-#BuildRequires:	pkgconfig(libqrencode)
+BuildRequires:	pkgconfig(libqrencode)
+%ifarch %{ix86} x86_64
+BuildRequires: gnu-efi-devel
+%endif
 Requires(pre):	filesystem >= 2.1.9-18
 Requires(pre):	shadow-utils
 Requires:	systemd-units = %{version}-%{release}
@@ -149,7 +135,7 @@ Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Boot and Init
 Requires(pre):	filesystem >= 2.1.9-18
 Requires:	%{name} = %{version}-%{release}
-Requires:	chkconfig > 1.3.61-2
+Requires:	chkconfig > 1.5
 Conflicts:	%{name} <= 216-10
 Conflicts:	initscripts < 9.25
 Requires(post): coreutils grep awk
@@ -258,37 +244,6 @@ Obsoletes:     %{mklibname -d udev 0} < 185
 %description -n %{libudev_devel}
 This package provides the development files for the udev shared library.
 
-%package -n %{libgudev}
-Summary:       gudev library package
-Group:         System/Libraries
-Requires(pre): filesystem >= 2.1.9-18
-Provides:      libgudev = %{version}-%{release}
-
-%description -n %{libgudev}
-This package provides the gudev shared library.
-
-%package -n %{libgudev_gir}
-Summary:       GObject Introspection interface description for GUdev
-Group:         System/Libraries
-Requires:      %{libgudev} = %{version}-%{release}
-Conflicts:     %{_lib}gudev1.0_0 < 187-5
-
-%description -n %{libgudev_gir}
-GObject Introspection interface description for GUdev.
-
-
-%package -n %{libgudev_devel}
-Summary:       gudev library development files
-Group:         Development/C
-Requires:      %{libgudev} = %{version}-%{release}
-Provides:      libgudev-devel = %{version}-%{release}
-# (cg) Obsolete the old, versioned devel package
-Provides:      %{mklibname -d gudev 0} = %{version}-%{release}
-Obsoletes:     %{mklibname -d gudev 0} < 185
-
-%description -n %{libgudev_devel}
-This package provides the development files for the gudev shared library.
-
 
 %prep
 %setup -q
@@ -296,11 +251,11 @@ This package provides the development files for the gudev shared library.
 find src/ -name "*.vala" -exec touch '{}' \;
 
 %build
+intltoolize --force --automake
 autoreconf --force --install --verbose
 #NO_CONFIGURE=1 ./autogen.sh
 %configure2_5x \
   --with-rc-local-script-path-start=/etc/rc.d/rc.local \
-  --enable-chkconfig \
   --enable-compat-libs \
   --disable-static \
   --disable-selinux \
@@ -453,7 +408,7 @@ cat > %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.filter << EOF
 EOF
 cat > %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.script << EOF
 #!/bin/sh
-exec %{_bindir}/udevadm hwdb --update
+exec %{_bindir}/systemd-hwdb update
 EOF
 chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.script
 
@@ -623,10 +578,15 @@ fi
 %files -f %{name}.lang
 # (cg) Note some of these directories are empty, but that is intended
 %dir %{_prefix}/lib/systemd
+%ifarch %{ix86} x86_64
+%dir %{_prefix}/lib/systemd/boot
+%dir %{_prefix}/lib/systemd/boot/efi
+%endif
+%dir %{_prefix}/lib/systemd/network
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/system-shutdown
 %dir %{_prefix}/lib/systemd/system-sleep
-%dir %{_prefix}/lib/systemd/network
+%dir %{_prefix}/lib/systemd/user-generators
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
@@ -665,16 +625,25 @@ fi
 # in these type of files)
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.import1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf
+%{_sysconfdir}/dbus-1/system.d/org.freedesktop.network1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_sysconfdir}/pam.d/%{name}-user
 %dir %{_sysconfdir}/udev/rules.d
+%{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
+%ifarch %{ix86} x86_64
+%{_prefix}/lib/systemd/boot/efi/linuxx64.efi.stub
+%{_prefix}/lib/systemd/boot/efi/systemd-bootx64.efi
+%endif
+%{_prefix}/lib/systemd/import-pubring.gpg
 %{_prefix}/lib/systemd/network/80-container-host0.network
 %{_prefix}/lib/systemd/network/80-container-ve.network
 %{_prefix}/lib/systemd/network/99-default.link
+%{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
 # (cg) NB See pre script for soemthing that relies on this name...
 # If it is ever renamed, change the pre script too
 %{_prefix}/lib/sysctl.d/50-default.conf
@@ -683,9 +652,11 @@ fi
 %{_prefix}/lib/sysusers.d/systemd.conf
 %{_prefix}/lib/sysusers.d/systemd-remote.conf
 %{_prefix}/lib/tmpfiles.d/etc.conf
+%{_prefix}/lib/tmpfiles.d/home.conf
 %{_prefix}/lib/tmpfiles.d/legacy.conf
 %{_prefix}/lib/tmpfiles.d/systemd.conf
 %{_prefix}/lib/tmpfiles.d/systemd-nologin.conf
+%{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
 %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
 %{_prefix}/lib/tmpfiles.d/tmp.conf
 %{_prefix}/lib/tmpfiles.d/var.conf
@@ -706,6 +677,7 @@ fi
 %{_bindir}/systemd-ask-password
 %{_bindir}/systemd-escape
 %{_bindir}/systemd-firstboot
+%{_bindir}/systemd-hwdb
 %{_bindir}/systemd-inhibit
 %{_bindir}/systemd-machine-id-setup
 %{_bindir}/systemd-notify
@@ -738,6 +710,7 @@ fi
 %{_bindir}/udevadm
 %dir %{_datadir}/systemd
 %{_datadir}/systemd/kbd-model-map
+%{_datadir}/systemd/language-fallback-map
 %dir %{_datadir}/systemd/gatewayd
 %{_datadir}/systemd/gatewayd/browse.html
 %{_mandir}/man1/bootctl.*
@@ -748,6 +721,7 @@ fi
 %{_mandir}/man1/localectl.*
 %{_mandir}/man1/loginctl.*
 %{_mandir}/man1/machinectl.*
+%{_mandir}/man1/networkctl.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-*
 %{_mandir}/man1/timedatectl.*
@@ -770,9 +744,11 @@ fi
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %dir %{_datadir}/factory
@@ -783,15 +759,21 @@ fi
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_docdir}/systemd
 %{_prefix}/lib/systemd/catalog/systemd.catalog
+%lang(be) %{_prefix}/lib/systemd/catalog/systemd.be.catalog
+%lang(be@latin) %{_prefix}/lib/systemd/catalog/systemd.be@latin.catalog
 %lang(fr) %{_prefix}/lib/systemd/catalog/systemd.fr.catalog
 %lang(it) %{_prefix}/lib/systemd/catalog/systemd.it.catalog
-%lang(ru) %{_prefix}/lib/systemd/catalog/systemd.ru.catalog
 %lang(pl) %{_prefix}/lib/systemd/catalog/systemd.pl.catalog
+%lang(pt_BR) %{_prefix}/lib/systemd/catalog/systemd.pt_BR.catalog
+%lang(ru) %{_prefix}/lib/systemd/catalog/systemd.ru.catalog
+%lang(zh_TW) %{_prefix}/lib/systemd/catalog/systemd.zh_TW.catalog
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 
 %files units
@@ -828,8 +810,11 @@ fi
 
 %files -n nss-myhostname
 %{_mandir}/man8/nss-myhostname.*
+%{_mandir}/man8/libnss_myhostname.so.2.*
 %{_libdir}/libnss_myhostname.so.2
 # (cg) Yes, this is a hack for now, I'll likely rename the package to just lib[64]systemd-nss2 or something...
+%{_mandir}/man8/nss-mymachines.*
+%{_mandir}/man8/libnss_mymachines.so.2.*
 %{_libdir}/libnss_mymachines.so.2
 %{_libdir}/libnss_resolve.so.2
 
@@ -845,15 +830,3 @@ fi
 %{_includedir}/libudev.h
 %{_datadir}/pkgconfig/udev.pc
 %{_libdir}/pkgconfig/libudev.pc
-
-%files -n %{libgudev}
-%{_libdir}/libgudev-%{libgudev_api}.so.%{libgudev_major}*
-
-%files -n %{libgudev_gir}
-%{_libdir}/girepository-1.0/GUdev-%{libgudev_api}.typelib
-
-%files -n %{libgudev_devel}
-%{_libdir}/libgudev-%{libgudev_api}.so
-%{_includedir}/gudev-%{libgudev_api}
-%{_libdir}/pkgconfig/gudev-%{libgudev_api}.pc
-%{_datadir}/gir-1.0/GUdev-%{libgudev_api}.gir

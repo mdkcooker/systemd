@@ -1,8 +1,8 @@
-From 856d4e41e6ec53e2aa4105a07b67bce1b6cfe4b4 Mon Sep 17 00:00:00 2001
+From 8d9c322c0221500fedb9a1df1787df7c350dfd12 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 11 Apr 2012 16:02:21 +0100
-Subject: [PATCH 506/511] udev: Allow the 'udevadm settle' timeout to be set
- via the kernel cmdline
+Subject: [PATCH] udev: Allow the 'udevadm settle' timeout to be set via the
+ kernel cmdline
 
 On some really old hardware, the default timeout of 120 (which may even
 be reduced further on the command line) is insufficient.
@@ -17,26 +17,26 @@ Bug Link: https://bugs.mageia.org/show_bug.cgi?id=3315
  1 file changed, 33 insertions(+)
 
 diff --git a/src/udev/udevadm-settle.c b/src/udev/udevadm-settle.c
-index fa5b0c2..78ec642 100644
+index 79f4561..16da01c 100644
 --- a/src/udev/udevadm-settle.c
 +++ b/src/udev/udevadm-settle.c
-@@ -34,6 +34,7 @@
- #include <sys/types.h>
+@@ -27,6 +27,7 @@
+ #include <poll.h>
  
  #include "udev.h"
 +#include "fileio.h"
- #include "udev-util.h"
  #include "util.h"
  
-@@ -57,6 +58,7 @@ static int adm_settle(struct udev *udev, int argc, char *argv[])
-         };
+ static void help(void) {
+@@ -52,6 +53,7 @@ static int adm_settle(struct udev *udev, int argc, char *argv[]) {
+         usec_t deadline;
          const char *exists = NULL;
          unsigned int timeout = 120;
 +        char *line;
          struct pollfd pfd[1] = { {.fd = -1}, };
          int c;
          struct udev_queue *queue;
-@@ -93,6 +95,37 @@ static int adm_settle(struct udev *udev, int argc, char *argv[])
+@@ -99,6 +101,37 @@ static int adm_settle(struct udev *udev, int argc, char *argv[]) {
                  return EXIT_FAILURE;
          }
  
@@ -71,9 +71,9 @@ index fa5b0c2..78ec642 100644
 +                free(line);
 +        }
 +
+         deadline = now(CLOCK_MONOTONIC) + timeout * USEC_PER_SEC;
+ 
          /* guarantee that the udev daemon isn't pre-processing */
-         if (getuid() == 0) {
-                 struct udev_ctrl *uctrl;
 -- 
-1.9.2
+2.3.2
 

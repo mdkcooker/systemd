@@ -1,20 +1,20 @@
-From 9d00b290c007eff63c19994ec1ee15ed89d90d54 Mon Sep 17 00:00:00 2001
+From 09caebd3453facbd6a77b339a52e2ebbc1568007 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Mon, 8 Apr 2013 21:21:25 +0100
-Subject: [PATCH 508/511] udev-rules: Apply SuSE patch to restore cdrom, cdrw,
- dvd symlinks (related to mga#8524)
+Subject: [PATCH] udev-rules: Apply SuSE patch to restore cdrom, cdrw, dvd
+ symlinks (related to mga#8524)
 
 ---
  rules/60-cdrom_id.rules | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/rules/60-cdrom_id.rules b/rules/60-cdrom_id.rules
-index 6eaf76a..ec0b19a 100644
+index 5c3b52e..358a845 100644
 --- a/rules/60-cdrom_id.rules
 +++ b/rules/60-cdrom_id.rules
-@@ -15,6 +15,9 @@ ENV{DISK_EJECT_REQUEST}=="?*", RUN+="cdrom_id --eject-media $devnode", GOTO="cdr
- # enable the receiving of media eject button events
- IMPORT{program}="cdrom_id --lock-media $devnode"
+@@ -20,6 +20,9 @@ IMPORT{program}="cdrom_id --lock-media $devnode"
+ # stale mounts after ejecting
+ ENV{DISK_MEDIA_CHANGE}=="?*", ENV{ID_CDROM_MEDIA}!="?*", ENV{SYSTEMD_READY}="0"
  
 -KERNEL=="sr0", SYMLINK+="cdrom", OPTIONS+="link_priority=-100"
 +KERNEL=="sr0", ENV{ID_CDROM}=="1", SYMLINK+="cdrom", OPTIONS+="link_priority=-100"
@@ -24,5 +24,5 @@ index 6eaf76a..ec0b19a 100644
  
  LABEL="cdrom_end"
 -- 
-1.9.2
+2.3.2
 
