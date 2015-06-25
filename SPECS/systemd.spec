@@ -643,8 +643,8 @@ fi
 %dir %{_sysconfdir}/udev/rules.d
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %ifarch %{ix86} x86_64
-%{_prefix}/lib/systemd/boot/efi/linuxx64.efi.stub
-%{_prefix}/lib/systemd/boot/efi/systemd-bootx64.efi
+%{_prefix}/lib/systemd/boot/efi/linux*.efi.stub
+%{_prefix}/lib/systemd/boot/efi/systemd-boot*.efi
 %endif
 %{_prefix}/lib/systemd/import-pubring.gpg
 %{_prefix}/lib/systemd/network/80-container-host0.network
