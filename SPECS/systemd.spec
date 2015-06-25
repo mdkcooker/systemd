@@ -87,6 +87,7 @@ BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(python)
 BuildRequires:	python-lxml
 BuildRequires:	pkgconfig(libqrencode)
+BuildRequires:	pkgconfig(mount)
 %ifarch %{ix86} x86_64
 BuildRequires: gnu-efi-devel
 %endif
