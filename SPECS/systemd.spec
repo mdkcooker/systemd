@@ -142,7 +142,7 @@ Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Boot and Init
 Requires(pre):	filesystem >= 2.1.9-18
 Requires:	%{name} = %{version}-%{release}
-Requires:	chkconfig > 1.5
+Requires:	chkconfig >= 1.5
 Conflicts:	%{name} <= 216-10
 Conflicts:	initscripts < 9.25
 Requires(post): coreutils grep awk
