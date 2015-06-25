@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	221
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
