@@ -1,0 +1,174 @@
+From 0ef8f2b8963e22b2d0347607b58aa4568ed9184a Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Tue, 30 Jun 2015 17:05:01 +0100
+Subject: [PATCH] Revert "machined: make sure to track machine unit states
+ properly"
+
+This reverts commit 9b420b3cfb8b93daf50e4cdbc92b05f2209ef893.
+---
+ src/machine/machine.c       | 20 +++++------------
+ src/machine/machine.h       |  2 --
+ src/machine/machined-dbus.c | 55 ++++++++-------------------------------------
+ 3 files changed, 15 insertions(+), 62 deletions(-)
+
+diff --git a/src/machine/machine.c b/src/machine/machine.c
+index 05fc4f8..dd073ad 100644
+--- a/src/machine/machine.c
++++ b/src/machine/machine.c
+@@ -80,14 +80,17 @@ void machine_free(Machine *m) {
+         if (m->in_gc_queue)
+                 LIST_REMOVE(gc_queue, m->manager->machine_gc_queue, m);
+ 
+-        machine_release_unit(m);
++        if (m->unit) {
++                hashmap_remove(m->manager->machine_units, m->unit);
++                free(m->unit);
++        }
+ 
+         free(m->scope_job);
+ 
+-        (void) hashmap_remove(m->manager->machines, m->name);
++        hashmap_remove(m->manager->machines, m->name);
+ 
+         if (m->leader > 0)
+-                (void) hashmap_remove_value(m->manager->machine_leaders, UINT_TO_PTR(m->leader), m);
++                hashmap_remove_value(m->manager->machine_leaders, UINT_TO_PTR(m->leader), m);
+ 
+         sd_bus_message_unref(m->create_message);
+ 
+@@ -523,17 +526,6 @@ MachineOperation *machine_operation_unref(MachineOperation *o) {
+         return NULL;
+ }
+ 
+-void machine_release_unit(Machine *m) {
+-        assert(m);
+-
+-        if (!m->unit)
+-                return;
+-
+-        (void) hashmap_remove(m->manager->machine_units, m->unit);
+-        free(m->unit);
+-        m->unit = NULL;
+-}
+-
+ static const char* const machine_class_table[_MACHINE_CLASS_MAX] = {
+         [MACHINE_CONTAINER] = "container",
+         [MACHINE_VM] = "vm"
+diff --git a/src/machine/machine.h b/src/machine/machine.h
+index bbe5217..7b27aa2 100644
+--- a/src/machine/machine.h
++++ b/src/machine/machine.h
+@@ -105,8 +105,6 @@ int machine_save(Machine *m);
+ int machine_load(Machine *m);
+ int machine_kill(Machine *m, KillWho who, int signo);
+ 
+-void machine_release_unit(Machine *m);
+-
+ MachineState machine_get_state(Machine *u);
+ 
+ MachineOperation *machine_operation_unref(MachineOperation *o);
+diff --git a/src/machine/machined-dbus.c b/src/machine/machined-dbus.c
+index 0e971a6..413d0fd 100644
+--- a/src/machine/machined-dbus.c
++++ b/src/machine/machined-dbus.c
+@@ -24,7 +24,6 @@
+ #include <unistd.h>
+ 
+ #include "sd-id128.h"
+-#include "strv.h"
+ #include "path-util.h"
+ #include "unit-name.h"
+ #include "bus-util.h"
+@@ -918,9 +917,9 @@ int match_job_removed(sd_bus_message *message, void *userdata, sd_bus_error *err
+ 
+ int match_properties_changed(sd_bus_message *message, void *userdata, sd_bus_error *error) {
+         _cleanup_free_ char *unit = NULL;
+-        const char *path, *interface;
+         Manager *m = userdata;
+         Machine *machine;
++        const char *path;
+         int r;
+ 
+         assert(message);
+@@ -933,46 +932,13 @@ int match_properties_changed(sd_bus_message *message, void *userdata, sd_bus_err
+         r = unit_name_from_dbus_path(path, &unit);
+         if (r == -EINVAL) /* not for a unit */
+                 return 0;
+-        if (r < 0){
+-                log_oom();
+-                return 0;
+-        }
++        if (r < 0)
++                return r;
+ 
+         machine = hashmap_get(m->machine_units, unit);
+-        if (!machine)
+-                return 0;
+-
+-        r = sd_bus_message_read(message, "s", &interface);
+-        if (r < 0) {
+-                bus_log_parse_error(r);
+-                return 0;
+-        }
+-
+-        if (streq(interface, "org.freedesktop.systemd1.Unit")) {
+-                struct properties {
+-                        char *active_state;
+-                        char *sub_state;
+-                } properties = {};
+-
+-                const struct bus_properties_map map[] = {
+-                        { "ActiveState", "s", NULL, offsetof(struct properties, active_state) },
+-                        { "SubState",    "s", NULL, offsetof(struct properties, sub_state)    },
+-                        {}
+-                };
+-
+-                r = bus_message_map_properties_changed(message, map, &properties);
+-                if (r < 0)
+-                        bus_log_parse_error(r);
+-                else if (streq_ptr(properties.active_state, "inactive") ||
+-                         streq_ptr(properties.active_state, "failed") ||
+-                         streq_ptr(properties.sub_state, "auto-restart"))
+-                        machine_release_unit(machine);
+-
+-                free(properties.active_state);
+-                free(properties.sub_state);
+-        }
++        if (machine)
++                machine_add_to_gc_queue(machine);
+ 
+-        machine_add_to_gc_queue(machine);
+         return 0;
+ }
+ 
+@@ -988,15 +954,12 @@ int match_unit_removed(sd_bus_message *message, void *userdata, sd_bus_error *er
+         r = sd_bus_message_read(message, "so", &unit, &path);
+         if (r < 0) {
+                 bus_log_parse_error(r);
+-                return 0;
++                return r;
+         }
+ 
+         machine = hashmap_get(m->machine_units, unit);
+-        if (!machine)
+-                return 0;
+-
+-        machine_release_unit(machine);
+-        machine_add_to_gc_queue(machine);
++        if (machine)
++                machine_add_to_gc_queue(machine);
+ 
+         return 0;
+ }
+@@ -1220,7 +1183,7 @@ int manager_unit_is_active(Manager *manager, const char *unit) {
+         if (r < 0)
+                 return -EINVAL;
+ 
+-        return !STR_IN_SET(state, "inactive", "failed");
++        return !streq(state, "inactive") && !streq(state, "failed");
+ }
+ 
+ int manager_job_is_active(Manager *manager, const char *path) {
+-- 
+2.3.2
+
