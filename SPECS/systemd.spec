@@ -97,8 +97,9 @@ BuildRequires:	libelfutils-devel
 BuildRequires:	pkgconfig(valgrind)
 BuildRequires:	qemu
 %ifarch %{ix86} x86_64
-BuildRequires: gnu-efi-devel
+BuildRequires:	gnu-efi-devel
 %endif
+BuildRequires:	git
 Requires(pre):	filesystem >= 2.1.9-18
 Requires(pre):	shadow-utils
 Requires:	systemd-units = %{version}-%{release}
