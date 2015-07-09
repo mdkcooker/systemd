@@ -81,12 +81,10 @@ BuildRequires:	pkgconfig(blkid)
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 BuildRequires:	xsltproc
 BuildRequires:	docbook-style-xsl
-BuildRequires:	python-devel
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(liblzma)
 BuildRequires:	pkgconfig(libidn)
 BuildRequires:	pkgconfig(libcurl)
-BuildRequires:	pkgconfig(python)
 BuildRequires:	python-lxml
 BuildRequires:	python-sphinx
 BuildRequires:	pkgconfig(libqrencode)
@@ -153,13 +151,6 @@ Requires(post): coreutils grep awk
 %description units
 Basic configuration files, directories and installation tool for the systemd
 system and session manager.
-
-%package -n python-%{name}
-Summary:	Python bindings for %{name}
-Group:		Development/Python
-
-%description -n python-%{name}
-Python bindings for %{name}
 
 %package devel
 Summary:       Systemd development files
@@ -266,6 +257,7 @@ autoreconf --force --install --verbose
 %configure2_5x \
   --with-rc-local-script-path-start=/etc/rc.d/rc.local \
   --enable-compat-libs \
+  --disable-python-devel \
   --disable-static \
   --disable-selinux \
   --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware
@@ -807,9 +799,6 @@ fi
 %{_prefix}/lib/systemd/user
 %{_prefix}/lib/systemd/user-preset
 %{_mandir}/man1/systemctl.*
-
-%files -n python-%{name}
-%{py_platsitedir}/%{name}
 
 %files devel
 %{_includedir}/systemd
