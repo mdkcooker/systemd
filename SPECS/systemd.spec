@@ -13,7 +13,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	222
+Version:	223
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
