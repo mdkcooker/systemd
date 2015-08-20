@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	224
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -98,6 +98,9 @@ BuildRequires:	qemu
 BuildRequires:	gnu-efi-devel
 %endif
 BuildRequires:	git
+# (tmb) temp force gcc 5
+BuildRequires: gcc >= 5.2.1
+
 Requires(pre):	filesystem >= 2.1.9-18
 Requires(pre):	shadow-utils
 Requires:	systemd-units = %{version}-%{release}
