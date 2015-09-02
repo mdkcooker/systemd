@@ -13,13 +13,13 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	224
-Release:	%mkrel 3
+Version:	225
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 # (cg) Generate from git:
-# git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > systemd-${VERSION}.tar.xz
+# export VERSION=225; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
 Source0:	%{name}-%{version}.tar.xz
 
 Source10: 50-udev-mageia.rules
@@ -34,8 +34,6 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-# (cg) This is a revert for now as it seems to break machined tracking over systemctl reload
-Patch001: 0001-Revert-machined-make-sure-to-track-machine-unit-stat.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -818,6 +816,8 @@ fi
 %{_mandir}/man8/nss-mymachines.*
 %{_mandir}/man8/libnss_mymachines.so.2.*
 %{_libdir}/libnss_mymachines.so.2
+%{_mandir}/man8/nss-resolve.*
+%{_mandir}/man8/libnss_resolve.so.2.*
 %{_libdir}/libnss_resolve.so.2
 
 %files -n %{libname}
