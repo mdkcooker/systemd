@@ -477,27 +477,6 @@ fi
 %{_prefix}/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 #%{_bindir}/systemctl daemon-reexec > /dev/null 2>&1 || :
 
-# (blino) systemd 195 changed the prototype of logind's OpenSession()
-# see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
-# and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
-%triggerun -- %{name} < 195-4.mga3
-%{_bindir}/systemctl restart systemd-logind.service
-
-# (cg) mageia 4 introduces the Consistent Network Device Names feature
-# https://wiki.mageia.org/en/Feature:NetworkDeviceNameChange
-# To prevent it being enabled on upgrades and breaking configs, we ensure the
-# feature is disabled when we detect an older version of systemd being removed.
-%triggerun -- %{name} < 206
-echo >&2
-echo "Disabling Persistent Network Device Names due to upgrade." >&2
-echo "To enable, rm %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules and your" >&2
-echo "%{_sysconfdir}/udev/rules.d/70-persistent-net.rules files." >&2
-echo "Note: Some reconfiguration of firewall and network config scripts will also" >&2
-echo "      be required if you do this" >&2
-echo >&2
-mkdir -p %{_sysconfdir}/udev/rules.d >/dev/null 2>&1 || :
-ln -s /dev/null %{_sysconfdir}/udev/rules.d/80-net-name-slot.rules >/dev/null 2>&1 || :
-
 %triggerun -- %{name} < 208
 chgrp -R systemd-journal /var/log/journal || :
 chmod 02755 /var/log/journal || :
