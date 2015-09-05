@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	225
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -359,74 +359,6 @@ install -m 0755 -d %{buildroot}%{_logdir}/journal
 # (for now, just a placeholder directory)
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/user-preset
 
-# Various filetriggers
-install -d %{buildroot}%{_var}/lib/rpm/filetriggers
-
-# automatic systemd release on rpm installs/removals
-# (see http://wiki.mandriva.com/en/Rpm_filetriggers)
-# (cg) I'm not sure if the file list check works against the packaged rpm
-#      or what is installed, so I've added both the /lib and /usr/lib paths
-#      below, even thought the former is just a symlink to the latter
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.filter << EOF
-^./((usr/)?lib/systemd/system/|etc(/rc.d)?/init.d/)
-EOF
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script << EOF
-#!/bin/sh
-if %{_bindir}/mountpoint -q /sys/fs/cgroup/systemd; then
-  if [ -x %{_bindir}/systemctl ]; then
-    %{_bindir}/systemctl daemon-reload >/dev/null 2>&1 || :
-  fi
-fi
-EOF
-chmod 0755 %buildroot%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
-
-
-# sysusers (make sure to run before tmpfiles)
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/01-sysusers.filter << EOF
-^./usr/lib/sysusers.d/
-EOF
-# TODO Make sysusers support --quiet
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/01-sysusers.script << EOF
-#!/bin/sh
-exec %{_bindir}/systemd-sysusers
-EOF
-chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/01-sysusers.script
-
-
-# tmpfiles (make sure to run early just incase the tmpfiles created are needed by other filetriggers)
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/02-tmpfiles.filter << EOF
-^./usr/lib/tmpfiles.d/
-EOF
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/02-tmpfiles.script << EOF
-#!/bin/sh
-exec %{_bindir}/systemd-tmpfiles --create
-EOF
-chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/02-tmpfiles.script
-
-
-# hwdb
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.filter << EOF
-^./usr/lib/udev/hwdb.d/
-EOF
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.script << EOF
-#!/bin/sh
-exec %{_bindir}/systemd-hwdb update
-EOF
-chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/hwdb.script
-
-
-# journal catalog
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/journal-catalog.filter << EOF
-^./usr/lib/systemd/catalog/
-EOF
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/journal-catalog.script << EOF
-#!/bin/sh
-exec %{_bindir}/journalctl --update-catalog
-EOF
-chmod 0755 %{buildroot}%{_var}/lib/rpm/filetriggers/journal-catalog.script
-
-
-
 # This file is already in sytemd-ui rpm
 rm -fr %{buildroot}%_mandir/man1/systemadm.*
 
@@ -556,6 +488,36 @@ fi
         rm -f %_sysconfdir/systemd/system/multi-user.target.wants/rc-local.service \
               %_sysconfdir/systemd/system/default.target.wants/systemd-readahead-{collect,replay}.service || :
 
+# automatic systemd release on rpm installs/removals
+# (see http://wiki.mandriva.com/en/Rpm_filetriggers)
+# (cg) I'm not sure if the file list check works against the packaged rpm
+#      or what is installed, so I've added both the /lib and /usr/lib paths
+#      below, even thought the former is just a symlink to the latter
+%transfiletriggerin --  /lib/systemd/system/ /usr/lib/systemd/system/ /etc/init.d/ /etc/rc.d/init.d/
+if %{_bindir}/mountpoint -q /sys/fs/cgroup/systemd; then
+  if [ -x %{_bindir}/systemctl ]; then
+    %{_bindir}/systemctl daemon-reload >/dev/null 2>&1 || :
+  fi
+fi
+
+
+# sysusers (make sure to run before tmpfiles)
+%transfiletriggerin -P 100700 -- /usr/lib/sysusers.d/
+# TODO Make sysusers support --quiet
+exec %{_bindir}/systemd-sysusers
+
+# tmpfiles (make sure to run early just incase the tmpfiles created are needed by other filetriggers)
+%transfiletriggerin -P 100500 --  /usr/lib/tmpfiles.d/
+exec %{_bindir}/systemd-tmpfiles --create
+
+# hwdb
+%transfiletriggerin --  /usr/lib/udev/hwdb.d/
+exec %{_bindir}/systemd-hwdb update
+
+# journal catalog
+%transfiletriggerin --  /usr/lib/systemd/catalog/
+exec %{_bindir}/journalctl --update-catalog
+
 %files -f %{name}.lang
 # (cg) Note some of these directories are empty, but that is intended
 %dir %{_prefix}/lib/systemd
@@ -574,8 +536,6 @@ fi
 %dir %{_prefix}/lib/kernel
 %dir %{_prefix}/lib/kernel/install.d
 %dir %{_prefix}/lib/binfmt.d
-%{_var}/lib/rpm/filetriggers/*.filter
-%{_var}/lib/rpm/filetriggers/*.script
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/systemd/coredump.conf
