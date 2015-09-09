@@ -66,7 +66,6 @@ BuildRequires:	libcap-devel
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pam-devel
 BuildRequires:	dbus-glib-devel
-BuildRequires:	vala >= 0.9
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
 BuildRequires:	intltool
