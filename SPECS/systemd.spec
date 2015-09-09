@@ -82,7 +82,6 @@ BuildRequires:	pkgconfig(liblzma)
 BuildRequires:	pkgconfig(libidn)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	python-lxml
-BuildRequires:	python-sphinx
 BuildRequires:	pkgconfig(libqrencode)
 BuildRequires:	pkgconfig(mount)
 BuildRequires:	pkgconfig(xkbcommon)
