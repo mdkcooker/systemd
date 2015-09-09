@@ -65,7 +65,6 @@ BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pam-devel
-BuildRequires:	dbus-glib-devel
 BuildRequires:	glib2-devel
 BuildRequires:	libnotify-devel
 BuildRequires:	intltool
