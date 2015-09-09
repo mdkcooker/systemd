@@ -90,9 +90,9 @@ BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	libbzip2-devel
 BuildRequires:	libelfutils-devel
 BuildRequires:	pkgconfig(valgrind)
-BuildRequires:	qemu
 %ifarch %{ix86} x86_64
 BuildRequires:	gnu-efi-devel
+BuildRequires:	qemu
 %endif
 BuildRequires:	git
 # (tmb) temp force gcc 5
