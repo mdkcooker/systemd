@@ -87,7 +87,10 @@ BuildRequires:	pkgconfig(mount)
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	libbzip2-devel
 BuildRequires:	libelfutils-devel
+# synchronized with ExclusiveArch list from valgrind.spec
+%ifarch %{ix86} x86_64 ppc ppc64 ppc64le s390x armv7hl aarch64
 BuildRequires:	pkgconfig(valgrind)
+%endif
 %ifarch %{ix86} x86_64
 BuildRequires:	gnu-efi-devel
 BuildRequires:	qemu
