@@ -13,13 +13,13 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	225
-Release:	%mkrel 3
+Version:	227
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 # (cg) Generate from git:
-# export VERSION=225; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
+# export VERSION=227; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
 Source0:	%{name}-%{version}.tar.xz
 
 Source10: 50-udev-mageia.rules
