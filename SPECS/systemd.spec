@@ -13,13 +13,13 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	227
-Release:	%mkrel 4
+Version:	228
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 # (cg) Generate from git:
-# export VERSION=227; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
+# export VERSION=228; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
 Source0:	%{name}-%{version}.tar.xz
 
 Source10: 50-udev-mageia.rules
@@ -34,6 +34,8 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+Patch100: 0100-networkd-ndisc-revert-to-letting-the-kernel-handle-N.patch
+Patch101: 0101-networkd-dhcp4-dirty-link-when-the-lease-changes.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -159,10 +161,6 @@ Summary:       Systemd development files
 Group:         Development/C
 Conflicts:     %{name} <= 35-4
 Requires:      %{libname} = %{version}-%{release}
-#Obsoletes:     %{libdaemon}
-#Obsoletes:     %{liblogin}
-#Obsoletes:     %{libid128}
-#Obsoletes:     %{libjournal}
 # (cg) Obsolete the old, versioned/split devel packages
 Provides:      libsystemd-daemon-devel = %{version}-%{release}
 Provides:      %{mklibname -d systemd-daemon 0} = %{version}-%{release}
@@ -589,7 +587,7 @@ exec %{_bindir}/journalctl --update-catalog
 # (cg) NB See pre script for soemthing that relies on this name...
 # If it is ever renamed, change the pre script too
 %{_prefix}/lib/sysctl.d/50-default.conf
-#%{_prefix}/lib/sysctl.d/50-coredump.conf
+#{_prefix}/lib/sysctl.d/50-coredump.conf
 %{_prefix}/lib/sysusers.d/basic.conf
 %{_prefix}/lib/sysusers.d/systemd.conf
 %{_prefix}/lib/sysusers.d/systemd-remote.conf
@@ -716,6 +714,7 @@ exec %{_bindir}/journalctl --update-catalog
 %lang(pl) %{_prefix}/lib/systemd/catalog/systemd.pl.catalog
 %lang(pt_BR) %{_prefix}/lib/systemd/catalog/systemd.pt_BR.catalog
 %lang(ru) %{_prefix}/lib/systemd/catalog/systemd.ru.catalog
+%lang(zh_CN) %{_prefix}/lib/systemd/catalog/systemd.zh_CN.catalog
 %lang(zh_TW) %{_prefix}/lib/systemd/catalog/systemd.zh_TW.catalog
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 

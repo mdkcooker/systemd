@@ -1,4 +1,4 @@
-From 8d9c322c0221500fedb9a1df1787df7c350dfd12 Mon Sep 17 00:00:00 2001
+From 1ce8f7b14870335b1a6c593d7921387444c28d72 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Wed, 11 Apr 2012 16:02:21 +0100
 Subject: [PATCH] udev: Allow the 'udevadm settle' timeout to be set via the
@@ -13,22 +13,24 @@ when needed.
 
 Bug Link: https://bugs.mageia.org/show_bug.cgi?id=3315
 ---
- src/udev/udevadm-settle.c | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ src/udev/udevadm-settle.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/src/udev/udevadm-settle.c b/src/udev/udevadm-settle.c
-index 79f4561..16da01c 100644
+index 6a5dc6e..624f497 100644
 --- a/src/udev/udevadm-settle.c
 +++ b/src/udev/udevadm-settle.c
-@@ -27,6 +27,7 @@
- #include <poll.h>
+@@ -26,7 +26,9 @@
+ #include <string.h>
+ #include <unistd.h>
  
- #include "udev.h"
 +#include "fileio.h"
+ #include "parse-util.h"
++#include "string-util.h"
+ #include "udev.h"
  #include "util.h"
  
- static void help(void) {
-@@ -52,6 +53,7 @@ static int adm_settle(struct udev *udev, int argc, char *argv[]) {
+@@ -53,6 +55,7 @@ static int adm_settle(struct udev *udev, int argc, char *argv[]) {
          usec_t deadline;
          const char *exists = NULL;
          unsigned int timeout = 120;
@@ -36,7 +38,7 @@ index 79f4561..16da01c 100644
          struct pollfd pfd[1] = { {.fd = -1}, };
          int c;
          struct udev_queue *queue;
-@@ -99,6 +101,37 @@ static int adm_settle(struct udev *udev, int argc, char *argv[]) {
+@@ -99,6 +102,37 @@ static int adm_settle(struct udev *udev, int argc, char *argv[]) {
                  return EXIT_FAILURE;
          }
  
@@ -75,5 +77,5 @@ index 79f4561..16da01c 100644
  
          /* guarantee that the udev daemon isn't pre-processing */
 -- 
-2.3.2
+2.5.0
 

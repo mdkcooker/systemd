@@ -1,29 +1,28 @@
-From 76c5c8aefe94527464b5855612a7fea848151b15 Mon Sep 17 00:00:00 2001
+From 6d1d2f624d98ab5ce04b63d6ebc5be0b64c3e24c Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 26 Feb 2012 17:45:58 +0000
-Subject: [PATCH 501/513] main: Add 'failsafe' to the sysvinit compat cmdline
- keywords.
+Subject: [PATCH] main: Add 'failsafe' to the sysvinit compat cmdline keywords.
 
 This is just a synonym for systemd.unit=rescue.target (the
 same as the current keyword 'single').
 
 This is used in Mageia and Mandriva (mga#4702)
 ---
- src/core/main.c | 1 +
+ src/basic/proc-cmdline.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/src/core/main.c b/src/core/main.c
-index d48604e..2592290 100644
---- a/src/core/main.c
-+++ b/src/core/main.c
-@@ -270,6 +270,7 @@ static int parse_proc_cmdline_item(const char *key, const char *value) {
-                 "emergency", SPECIAL_EMERGENCY_TARGET,
-                 "-b",        SPECIAL_EMERGENCY_TARGET,
-                 "rescue",    SPECIAL_RESCUE_TARGET,
-+                "failsafe",  SPECIAL_RESCUE_TARGET,
-                 "single",    SPECIAL_RESCUE_TARGET,
-                 "-s",        SPECIAL_RESCUE_TARGET,
-                 "s",         SPECIAL_RESCUE_TARGET,
+diff --git a/src/basic/proc-cmdline.c b/src/basic/proc-cmdline.c
+index 4464573..8e6963e 100644
+--- a/src/basic/proc-cmdline.c
++++ b/src/basic/proc-cmdline.c
+@@ -149,6 +149,7 @@ static const char * const rlmap[] = {
+         "emergency", SPECIAL_EMERGENCY_TARGET,
+         "-b",        SPECIAL_EMERGENCY_TARGET,
+         "rescue",    SPECIAL_RESCUE_TARGET,
++        "failsafe",  SPECIAL_RESCUE_TARGET,
+         "single",    SPECIAL_RESCUE_TARGET,
+         "-s",        SPECIAL_RESCUE_TARGET,
+         "s",         SPECIAL_RESCUE_TARGET,
 -- 
-2.1.2
+2.5.0
 
