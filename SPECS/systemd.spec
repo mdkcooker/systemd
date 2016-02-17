@@ -129,6 +129,7 @@ Obsoletes: systemd-tools
 Obsoletes: bootchart
 Obsoletes: bootchart-daemon
 Obsoletes: gummiboot
+Obsoletes: prcsys
 
 %description
 systemd is a system and session manager for Linux, compatible with
