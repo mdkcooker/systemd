@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	229
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -506,7 +506,7 @@ fi
 
 # tmpfiles (make sure to run early just incase the tmpfiles created are needed by other filetriggers)
 %transfiletriggerin -P 100500 --  /usr/lib/tmpfiles.d/
-exec %{_bindir}/systemd-tmpfiles --create
+%{_bindir}/systemd-tmpfiles --create || :
 
 # hwdb
 %transfiletriggerin --  /usr/lib/udev/hwdb.d/
