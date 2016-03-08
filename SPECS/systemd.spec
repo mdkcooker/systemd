@@ -502,7 +502,7 @@ fi
 # sysusers (make sure to run before tmpfiles)
 %transfiletriggerin -P 100700 -- /usr/lib/sysusers.d/
 # TODO Make sysusers support --quiet
-exec %{_bindir}/systemd-sysusers
+%{_bindir}/systemd-sysusers || :
 
 # tmpfiles (make sure to run early just incase the tmpfiles created are needed by other filetriggers)
 %transfiletriggerin -P 100500 --  /usr/lib/tmpfiles.d/
