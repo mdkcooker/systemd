@@ -13,13 +13,13 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	229
-Release:	%mkrel 3
+Version:	230
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 # (cg) Generate from git:
-# export VERSION=229; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
+# export VERSION=230; git archive --format=tar --prefix=systemd-${VERSION}/ v${VERSION} | xz > ../systemd-${VERSION}.tar.xz
 Source0:	%{name}-%{version}.tar.xz
 
 Source10: 50-udev-mageia.rules
@@ -34,7 +34,6 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
-Patch100: 0100-device-Ensure-we-have-sysfs-path-before-comparing.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -127,8 +126,6 @@ Obsoletes: consolekit-x11
 Obsoletes: libconsolekit0
 Obsoletes: lib64consolekit0
 Obsoletes: systemd-tools
-Obsoletes: bootchart
-Obsoletes: bootchart-daemon
 Obsoletes: gummiboot
 Obsoletes: prcsys
 
@@ -260,6 +257,7 @@ autoreconf --force --install --verbose
   --disable-python-devel \
   --disable-static \
   --disable-selinux \
+  --without-kill-user-processes \
   --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware
 
 %make
@@ -536,7 +534,6 @@ exec %{_bindir}/journalctl --update-catalog
 %dir %{_prefix}/lib/kernel/install.d
 %dir %{_prefix}/lib/binfmt.d
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
-%config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/systemd/coredump.conf
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
@@ -582,6 +579,7 @@ exec %{_bindir}/journalctl --update-catalog
 %{_prefix}/lib/systemd/import-pubring.gpg
 %{_prefix}/lib/systemd/network/80-container-host0.network
 %{_prefix}/lib/systemd/network/80-container-ve.network
+%{_prefix}/lib/systemd/network/80-container-vz.network
 %{_prefix}/lib/systemd/network/99-default.link
 %{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
 # (cg) NB See pre script for soemthing that relies on this name...
@@ -648,6 +646,7 @@ exec %{_bindir}/journalctl --update-catalog
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-nspawn
+%{_bindir}/systemd-socket-activate
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/udevadm
 %dir %{_datadir}/systemd
@@ -710,6 +709,7 @@ exec %{_bindir}/journalctl --update-catalog
 %{_prefix}/lib/systemd/catalog/systemd.catalog
 %lang(be) %{_prefix}/lib/systemd/catalog/systemd.be.catalog
 %lang(be@latin) %{_prefix}/lib/systemd/catalog/systemd.be@latin.catalog
+%lang(bg) %{_prefix}/lib/systemd/catalog/systemd.bg.catalog
 %lang(fr) %{_prefix}/lib/systemd/catalog/systemd.fr.catalog
 %lang(it) %{_prefix}/lib/systemd/catalog/systemd.it.catalog
 %lang(pl) %{_prefix}/lib/systemd/catalog/systemd.pl.catalog
