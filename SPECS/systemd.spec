@@ -34,6 +34,8 @@ Source22: udev_net_action
 Source23: udev_net.sysconfig
 
 # (cg) Upstream cherry picks
+Patch100: 0100-Revert-rules-allow-users-to-access-frame-buffer-devi.patch
+Patch101: 0101-automount-handle-expire_tokens-when-the-mount-unit-c.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
@@ -258,6 +260,7 @@ autoreconf --force --install --verbose
   --disable-static \
   --disable-selinux \
   --without-kill-user-processes \
+  --with-default-dnssec=no \
   --with-firmware-path=%{_prefix}/lib/firmware/updates:%{_prefix}/lib/firmware
 
 %make
