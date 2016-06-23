@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	230
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -62,6 +62,8 @@ Patch510: 0510-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 # this now so this should be OK to leave in
 #Patch514: 0514-Revert-udev-hwdb-Support-shipping-pre-compiled-datab.patch
 Patch515: 0515-Add-path-to-locale-search.patch
+# (tmb) silcence udev version print as it breaks splash
+Patch516: 0516-udev-silence-version-print.patch
 
 BuildRequires:	dbus-devel >= 1.4.0
 BuildRequires:	libcap-devel
