@@ -1,0 +1,40 @@
+From 32eae3c2a878dc2971431a1f4122e9d0884514aa Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 20 Jul 2016 09:17:57 +0200
+Subject: [PATCH] rules: make sure always set at least one property on rfkill
+ devices
+
+The rfkill service waits for rfkill device initialization as reported by
+udev_device_is_initialized(), and if that is never reported it might dead-lock.
+
+However, udev never reports completed initialization for devices that have no
+properties or tags set. For some rfkill devices this might be the case, in
+particular those which are connected to exotic busses, where path_id returns
+nothing.
+
+This patch simply sets the SYSTEM_RFKILL property on all rfkill devices, to
+ensure that udev_device_is_initialized() always reports something useful and we
+don't dead-lock.
+
+Fixes: #2745
+---
+ rules/99-systemd.rules.in | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/rules/99-systemd.rules.in b/rules/99-systemd.rules.in
+index fb45176..ca52cf1 100644
+--- a/rules/99-systemd.rules.in
++++ b/rules/99-systemd.rules.in
+@@ -56,8 +56,7 @@ SUBSYSTEM=="backlight", TAG+="systemd", IMPORT{builtin}="path_id", ENV{SYSTEMD_W
+ SUBSYSTEM=="leds", KERNEL=="*kbd_backlight", TAG+="systemd", IMPORT{builtin}="path_id", ENV{SYSTEMD_WANTS}+="systemd-backlight@leds:$name.service"
+ 
+ # Pull in rfkill save/restore for all rfkill devices
+-
+-SUBSYSTEM=="rfkill", IMPORT{builtin}="path_id"
++SUBSYSTEM=="rfkill", ENV{SYSTEMD_RFKILL}="1", IMPORT{builtin}="path_id"
+ SUBSYSTEM=="misc", KERNEL=="rfkill", TAG+="systemd", ENV{SYSTEMD_WANTS}+="systemd-rfkill.socket"
+ 
+ # Asynchronously mount file systems implemented by these modules as soon as they are loaded.
+-- 
+2.9.3
+

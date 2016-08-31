@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	230
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -36,6 +36,7 @@ Source23: udev_net.sysconfig
 # (cg) Upstream cherry picks
 Patch100: 0100-Revert-rules-allow-users-to-access-frame-buffer-devi.patch
 Patch101: 0101-automount-handle-expire_tokens-when-the-mount-unit-c.patch
+Patch102: 0102-rules-make-sure-always-set-at-least-one-property-on-.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
