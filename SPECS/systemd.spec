@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	230
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -37,6 +37,10 @@ Source23: udev_net.sysconfig
 Patch100: 0100-Revert-rules-allow-users-to-access-frame-buffer-devi.patch
 Patch101: 0101-automount-handle-expire_tokens-when-the-mount-unit-c.patch
 Patch102: 0102-rules-make-sure-always-set-at-least-one-property-on-.patch
+Patch103: 0103-If-the-notification-message-length-is-0-ignore-the-m.patch
+Patch104: 0104-pid1-don-t-return-any-error-in-manager_dispatch_noti.patch
+Patch105: 0105-pid1-process-zero-length-notification-messages-again.patch
+Patch106: 0106-pid1-more-informative-error-message-for-ignored-noti.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
