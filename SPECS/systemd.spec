@@ -14,7 +14,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	230
-Release:	%mkrel 5
+Release:	%mkrel 5.1
 License:	GPLv2+
 Group:		System/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -46,7 +46,7 @@ Patch106: 0106-pid1-more-informative-error-message-for-ignored-noti.patch
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch500: 0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
 Patch501: 0501-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch502: 0502-mageia-Fallback-message-when-display-manager-fails.patch
+#Patch502: 0502-mageia-Fallback-message-when-display-manager-fails.patch
 Patch503: 0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 # (cg) Shouldn't be needed after 1aff20687f486857574fde0e5946a80b8ec212ba
 #Patch504: 0504-Allow-booting-from-live-cd-in-virtualbox.patch
@@ -306,10 +306,6 @@ ln -s ../bin/systemctl %{buildroot}%{_sbindir}/runlevel
 
 # Also add a symlink for udevadm for now as lots of things use an absolute path
 ln -s ../bin/udevadm %{buildroot}%{_sbindir}/udevadm
-
-# (cg) Add aliases for prefdm.service
-ln -s prefdm.service %{buildroot}%{_prefix}/lib/systemd/system/display-manager.service
-ln -s prefdm.service %{buildroot}%{_prefix}/lib/systemd/system/dm.service
 
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
